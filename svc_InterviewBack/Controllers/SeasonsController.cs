@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Interview.Controllers;
+namespace svc_InterviewBack.Controllers;
 
 [Route("/api/season")]
 [ApiController]
@@ -9,6 +9,12 @@ public class SeasonsController : ControllerBase
     public SeasonsController()
     {
 
+    }
+
+    [HttpGet("/api/seasons")]
+    public ActionResult GetAll()
+    {
+        return Ok();
     }
 
     [HttpGet("{year}")]
