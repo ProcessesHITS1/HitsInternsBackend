@@ -17,6 +17,7 @@ import ru.hits.authservice.entity.UserEntity;
 import ru.hits.authservice.exception.NotFoundException;
 import ru.hits.authservice.exception.UnauthorizedException;
 import ru.hits.authservice.helpingservices.CheckPaginationInfoService;
+import ru.hits.authservice.repository.StudentGroupRepository;
 import ru.hits.authservice.repository.UserRepository;
 import ru.hits.authservice.security.JWTUtil;
 import ru.hits.authservice.security.JwtUserData;
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    private final StudentGroupRepository studentGroupRepository;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -89,6 +92,7 @@ public class UserService {
                 .isStudent(createUserDto.getIsStudent())
                 .isSchoolRepresentative(createUserDto.getIsSchoolRepresentative())
                 .isAdmin(createUserDto.getIsAdmin())
+                .group(createUserDto.getGroupId() != null ? studentGroupRepository.findById(createUserDto.getGroupId()).get() : null)
                 .build();
         userRepository.save(userEntity);
 

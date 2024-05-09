@@ -3,6 +3,8 @@ package ru.hits.authservice.dto;
 import lombok.*;
 import ru.hits.authservice.enumeration.Sex;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +25,8 @@ public class CreateUserDto {
     private String password;
 
     private Sex sex;
+
+    private UUID groupId;
 
     private Boolean isStudent;
 

@@ -44,4 +44,8 @@ public class UserEntity {
 
     private Boolean isAdmin;
 
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private StudentGroupEntity group;
+
 }

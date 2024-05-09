@@ -48,7 +48,7 @@ public class UserController {
             summary = "Создать пользователя.",
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody @Valid CreateUserDto createUserDto) {
         userService.createUser(createUserDto);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -99,6 +99,5 @@ public class UserController {
     public ResponseEntity<UserInfoDto> editUserInfo(@RequestBody @Valid EditUserInfoDto editUserInfoDto) {
         return new ResponseEntity<>(userService.editUserInfo(editUserInfoDto), HttpStatus.OK);
     }
-
 
 }

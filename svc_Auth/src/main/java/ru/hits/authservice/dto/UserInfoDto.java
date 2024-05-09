@@ -1,6 +1,7 @@
 package ru.hits.authservice.dto;
 
 import lombok.*;
+import ru.hits.authservice.entity.StudentGroupEntity;
 import ru.hits.authservice.entity.UserEntity;
 import ru.hits.authservice.enumeration.Sex;
 
@@ -29,6 +30,8 @@ public class UserInfoDto {
 
     private Sex sex;
 
+    private StudentGroupInfoDto group;
+
     private List<String> roles;
 
     public UserInfoDto(UserEntity user) {
@@ -39,6 +42,7 @@ public class UserInfoDto {
         this.email = user.getEmail();
         this.phone = user.getPhone();
         this.sex = user.getSex();
+        this.group = user.getGroup() != null ? new StudentGroupInfoDto(user.getGroup()) : null;
         this.roles = new ArrayList<>();
 
         if (user.getIsStudent()) {
