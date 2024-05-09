@@ -7,6 +7,8 @@ services:
       - 8080:8080
     depends_on:
       - postgres
+    environment:
+      - CONNECTION_STRING="Host=postgres;Port=5432;Database=interview;Username=postgres;Password=postgres"
   postgres:
     image: postgres:latest
     ports:

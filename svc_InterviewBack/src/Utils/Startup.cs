@@ -16,6 +16,7 @@ public static class Startup
         // add db context
         services.AddDbContext<InterviewDbContext>(options =>
         {
+            var connectionString = config.GetConnectionString("DefaultConnection") ?? Environment.GetEnvironmentVariable("CONNECTION_STRING");
             options.UseNpgsql(config.GetConnectionString("DefaultConnection"));
         });
         return services;
