@@ -1,9 +1,14 @@
 namespace svc_InterviewBack.Models;
 
 public record SeasonData(int Year, DateTime InterviewStart, DateTime InterviewEnd);
-public record Season(Guid Id, int Year, DateTime InterviewStart, DateTime InterviewEnd);
+public record Season(int Year, DateTime InterviewStart, DateTime InterviewEnd);
 
-public record SeasonDetails(Season Season, List<CompanyInSeasonInfo> SeasonData, List<StudentInfo> Students);
+public record SeasonDetails
+{
+    public required Season Season { get; init; }
+    public required List<CompanyInSeasonInfo> Companies { get; init; }
+    public required List<StudentInfo> Students { get; init; }
+};
 
 public record CompanyInSeasonInfo
 {

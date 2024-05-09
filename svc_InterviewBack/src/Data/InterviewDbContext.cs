@@ -11,8 +11,7 @@ public class InterviewDbContext : DbContext
     public DbSet<Position> Positions { get; set; }
     public DbSet<InterviewRequest> InterviewRequests { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public InterviewDbContext(DbContextOptions<InterviewDbContext> options) : base(options)
     {
-        base.OnConfiguring(optionsBuilder);
     }
 }
