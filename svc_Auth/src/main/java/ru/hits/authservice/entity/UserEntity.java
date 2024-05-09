@@ -36,7 +36,6 @@ public class UserEntity {
 
     private String password;
 
-    @Enumerated(EnumType.STRING)
     private Sex sex;
 
     private Boolean isStudent;

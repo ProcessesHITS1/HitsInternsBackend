@@ -4,7 +4,7 @@ server:
 spring:
   flyway:
     locations: classpath:migrations
-    enabled: false
+    enabled: true
   datasource:
     url: ${spring_datasource_url:jdbc:postgresql://localhost:5432/auth-service-db}
     username: ${spring_datasource_username:postgres}

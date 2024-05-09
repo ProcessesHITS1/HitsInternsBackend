@@ -2,6 +2,9 @@ package ru.hits.authservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,11 +14,13 @@ import ru.hits.authservice.dto.*;
 import ru.hits.authservice.entity.UserEntity;
 import ru.hits.authservice.exception.NotFoundException;
 import ru.hits.authservice.exception.UnauthorizedException;
+import ru.hits.authservice.helpingservices.CheckPaginationInfoService;
 import ru.hits.authservice.repository.UserRepository;
 import ru.hits.authservice.security.JWTUtil;
 import ru.hits.authservice.security.JwtUserData;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final CheckPaginationInfoService checkPaginationInfoService;
 
     private final JWTUtil jwtUtil;
 
@@ -98,13 +105,19 @@ public class UserService {
         return new UserInfoDto(user);
     }
 
-    public List<UserInfoDto> getAllUsers() {
-        List<UserEntity> users = userRepository.findAll();
-        List<UserInfoDto> userInfoDtoList = new ArrayList<>();
-        for (UserEntity user : users) {
-            userInfoDtoList.add(new UserInfoDto(user));
-        }
-        return userInfoDtoList;
+    public UsersWithPaginationDto getAllUsers(int page, int size) {
+        checkPaginationInfoService.checkPagination(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<UserEntity> usersPage = userRepository.findAll(pageable);
+        PageInfoDto pageInfoDto = new PageInfoDto(
+                (int) usersPage.getTotalElements(),
+                page,
+                Math.min(size, usersPage.getContent().size())
+        );
+        List<UserInfoDto> userInfoDtoList = usersPage.getContent().stream()
+                .map(UserInfoDto::new)
+                .collect(Collectors.toList());
+        return new UsersWithPaginationDto(pageInfoDto, userInfoDtoList);
     }
 
     @Transactional

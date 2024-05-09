@@ -33,6 +33,18 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Получить пользователей.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping
+    public ResponseEntity<UsersWithPaginationDto> getAllUsers(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        UsersWithPaginationDto usersWithPaginationDto = userService.getAllUsers(page, size);
+        return new ResponseEntity<>(usersWithPaginationDto, HttpStatus.OK);
+    }
+
+    @Operation(
             summary = "Создать пользователя.",
             security = @SecurityRequirement(name = "bearerAuth")
     )
@@ -70,14 +82,14 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Operation(
-            summary = "Получить всех пользователей.",
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
-    @GetMapping
-    public ResponseEntity<List<UserInfoDto>> getAllUsers() {
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
-    }
+//    @Operation(
+//            summary = "Получить всех пользователей.",
+//            security = @SecurityRequirement(name = "bearerAuth")
+//    )
+//    @GetMapping
+//    public ResponseEntity<List<UserInfoDto>> getAllUsers() {
+//        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+//    }
 
     @Operation(
             summary = "Редактировать данные пользователя.",
