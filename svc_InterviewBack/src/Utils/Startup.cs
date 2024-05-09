@@ -14,20 +14,22 @@ public static class Startup
         services.AddAutoMapper(typeof(MapperProfile));
 
         // add db context
-        services.AddDbContext<InterviewDbContext>(options =>
+        services
+        .AddDbContext<InterviewDbContext>(options =>
         {
             var connectionString = config.GetConnectionString("DefaultConnection") ?? Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            options.UseNpgsql(config.GetConnectionString("DefaultConnection"));
-        });
+            options.UseNpgsql(connectionString);
+        })
+        .MigrateDatabase(config);
         return services;
     }
 
 
-    public static IApplicationBuilder ApplyMigrations(this IApplicationBuilder app)
+    private static IServiceCollection MigrateDatabase(this IServiceCollection services, IConfiguration config)
     {
-        using var scope = app.ApplicationServices.CreateScope();
+        using var scope = services.BuildServiceProvider().CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<InterviewDbContext>();
         context.Database.Migrate();
-        return app;
+        return services;
     }
 }

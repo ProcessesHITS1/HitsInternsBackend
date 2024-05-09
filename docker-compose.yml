@@ -8,7 +8,7 @@ services:
     depends_on:
       - postgres
     environment:
-      - CONNECTION_STRING="Host=postgres;Port=5432;Database=interview;Username=postgres;Password=postgres"
+      - CONNECTION_STRING=Host=postgres;Port=5432;Database=interview;Username=postgres;Password=postgres
   postgres:
     image: postgres:latest
     ports:

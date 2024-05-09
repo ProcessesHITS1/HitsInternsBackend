@@ -12,7 +12,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-app.ApplyMigrations();
 var isDev = builder.Environment.IsDevelopment();
 
 // Configure the HTTP request pipeline.
