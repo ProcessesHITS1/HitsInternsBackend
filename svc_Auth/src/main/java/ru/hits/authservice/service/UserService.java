@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +36,8 @@ public class UserService {
     private final CheckPaginationInfoService checkPaginationInfoService;
 
     private final JWTUtil jwtUtil;
+
+    private final JavaMailSender javaMailSender;
 
     public AccessTokenDto signIn(UserSignInDto userSignInDto) {
         Optional<UserEntity> user = userRepository.findByEmail(userSignInDto.getEmail());
@@ -87,6 +91,15 @@ public class UserService {
                 .isAdmin(createUserDto.getIsAdmin())
                 .build();
         userRepository.save(userEntity);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("hitsemail681@gmail.com");
+        message.setTo(createUserDto.getEmail());
+        message.setSubject("HITS Interns");
+        message.setText("Добро пожаловать в нашу систему!\n\n"
+                + "Ваш логин: " + createUserDto.getEmail() + "\n"
+                + "Ваш пароль: " + createUserDto.getPassword() + "\n\n");
+        javaMailSender.send(message);
     }
 
     public UserInfoDto getUserInfo(UUID id) {
