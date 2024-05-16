@@ -2,7 +2,6 @@ using svc_InterviewBack.Middlewares;
 using svc_InterviewBack.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // main configuration
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddControllers();
@@ -33,6 +32,7 @@ app.Use(async (context, next) =>
     await next.Invoke();
 });
 
+app.UseCors();
 app.UseErrorHandlingMiddleware();
 app.MapControllers();
 app.Run();

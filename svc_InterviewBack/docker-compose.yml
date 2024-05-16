@@ -1,0 +1,14 @@
+include:
+  - ../database/docker-compose.yml
+
+services:
+  interview:
+    build: .
+    ports:
+      - 8090:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=interview-db;Username=postgres;Password=postgres
+      - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT}

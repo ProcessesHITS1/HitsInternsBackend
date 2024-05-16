@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace svc_InterviewBack.Migrations
 {
     /// <inheritdoc />
-    public partial class _1_InitDb : Migration
+    public partial class InitDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,8 +17,8 @@ namespace svc_InterviewBack.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Year = table.Column<int>(type: "integer", nullable: false),
-                    InterviewStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    InterviewEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    SeasonStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SeasonEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,6 +127,12 @@ namespace svc_InterviewBack.Migrations
                 name: "IX_Positions_CompanyId",
                 table: "Positions",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seasons_Year",
+                table: "Seasons",
+                column: "Year",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_SeasonId",

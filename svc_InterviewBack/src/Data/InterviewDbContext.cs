@@ -14,4 +14,11 @@ public class InterviewDbContext : DbContext
     public InterviewDbContext(DbContextOptions<InterviewDbContext> options) : base(options)
     {
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Season>()
+            .HasIndex(s => s.Year)
+            .IsUnique();
+    }
 }

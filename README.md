@@ -8,7 +8,20 @@ Use 'svc_' prefix for naming your services. The name should be in CamelCase:
 - svc_MyBalls
 - etc.
 
-## Docker
+## How to run
 
-Each service must have .Dockerfile in order to be able to run a container easily.
-Docker-compose file are not a necessity but are welcome.
+To start each service, navigate to the service folder and run the following command:
+```sh
+docker compose up -d
+```
+To launch only database run:
+```sh
+cd database && docker compose up -d
+```
+
+## Dotnet services
+To configure dotnet services you can specify environment variables in the `.env` file. Then again run
+```sh
+docker compose up -d
+```
+The default swagger url should be `http://localhost:8090/swagger/index.html`

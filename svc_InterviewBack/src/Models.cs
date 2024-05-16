@@ -1,7 +1,7 @@
 namespace svc_InterviewBack.Models;
 
-public record SeasonData(int Year, DateTime InterviewStart, DateTime InterviewEnd);
-public record Season(int Year, DateTime InterviewStart, DateTime InterviewEnd);
+public record SeasonData(int Year, DateTime SeasonStart, DateTime SeasonEnd);
+public record Season(int Year, DateTime SeasonStart, DateTime SeasonEnd);
 
 public record SeasonDetails
 {

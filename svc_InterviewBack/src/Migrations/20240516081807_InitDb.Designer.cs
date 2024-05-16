@@ -12,15 +12,15 @@ using svc_InterviewBack.DAL;
 namespace svc_InterviewBack.Migrations
 {
     [DbContext(typeof(InterviewDbContext))]
-    [Migration("20240509140636_1_InitDb")]
-    partial class _1_InitDb
+    [Migration("20240516081807_InitDb")]
+    partial class InitDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.18")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -102,16 +102,19 @@ namespace svc_InterviewBack.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("InterviewEnd")
+                    b.Property<DateTime>("SeasonEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("InterviewStart")
+                    b.Property<DateTime>("SeasonStart")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Year")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Year")
+                        .IsUnique();
 
                     b.ToTable("Seasons");
                 });

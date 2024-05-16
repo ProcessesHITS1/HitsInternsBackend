@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace svc_InterviewBack.DAL;
 
 
@@ -10,8 +12,8 @@ public record Season
 {
     public Guid Id { get; init; }
     public int Year { get; init; }
-    public DateTime InterviewStart { get; init; }
-    public DateTime InterviewEnd { get; init; }
+    public DateTime SeasonStart { get; init; }
+    public DateTime SeasonEnd { get; init; }
     public required List<Company> Companies { get; init; }
     public required List<Student> Students { get; init; }
 };

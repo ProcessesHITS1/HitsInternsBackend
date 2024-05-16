@@ -33,6 +33,12 @@ public class SeasonsService : ISeasonsService
 
     public async Task<Season> Create(SeasonData seasonData)
     {
+        if (seasonData.Year < 2010 || seasonData.Year > 3000)
+            throw new BadRequestException("Invalid year value. Year should be between 2010 and 3000");
+        if (seasonData.SeasonStart >= seasonData.SeasonEnd)
+            throw new BadRequestException("Invalid season dates");
+        if (await _context.Seasons.AnyAsync(s => s.Year == seasonData.Year))
+            throw new BadRequestException($"Season with year {seasonData.Year} already exists");
         var season = _mapper.Map<SeasonDb>(seasonData);
         _context.Add(season);
         await _context.SaveChangesAsync();

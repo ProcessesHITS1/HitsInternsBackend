@@ -28,24 +28,25 @@ public class ErrorHandlingMiddleware
         {
             await _next(context);
         }
-        catch (NotFoundException ex)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = ex.Message }));
-        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred: {ErrorMessage}", ex.Message);
-            await HandleExceptionAsync(context, ex);
-        }
-    }
+            if (ex is NotFoundException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            }
+            else if (ex is BadRequestException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                _logger.LogError(ex, "An error occurred: {ErrorMessage}", ex.Message);
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Internal server error" }));
+                return;
+            }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
-    {
-        var code = HttpStatusCode.InternalServerError;
-        var result = JsonSerializer.Serialize(new { error = "Internal server error" });
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)code;
-        return context.Response.WriteAsync(result);
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = ex.Message }));
+        }
     }
 }
