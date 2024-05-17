@@ -1,0 +1,4 @@
+include:
+  - svc_CompanyManagement/docker-compose.yml
+  - svc_Auth/docker-compose.yml
+  - svc_InterviewBack/docker-compose.yml
