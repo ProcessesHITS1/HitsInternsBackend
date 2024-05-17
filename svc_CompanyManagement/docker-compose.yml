@@ -1,26 +1,18 @@
-version: '3.8'
+include:
+  - ../database/docker-compose.yml
 
 services:
-  app:
-#    build:
-#      context: .
+  company:
+    #    build:
+    #      context: .
     image: iseeyouwatching/svc_companymanagement-app
-    container_name: app
     ports:
       - '8090:8090'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/company-management-service-db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-  postgres:
-    container_name: company-management-service-db
-    image: 'postgres:13.1-alpine'
-    ports:
-      - '5436:5432'
-    environment:
-      - POSTGRES_DB=company-management-service-db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
