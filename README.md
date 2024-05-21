@@ -24,4 +24,9 @@ To configure dotnet services you can specify environment variables in the `.env`
 ```sh
 docker compose up -d
 ```
-The default swagger url should be `http://localhost:8090/swagger/index.html`
+The default swagger url should be http://localhost:8081/swagger/index.html
+
+## Java services
+Swagger for company service and user service:
+- http://localhost:8080/swagger-ui/index.html
+- http://localhost:8090/swagger-ui/index.html

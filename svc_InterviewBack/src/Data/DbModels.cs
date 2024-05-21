@@ -1,12 +1,20 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace svc_InterviewBack.DAL;
 
 
 // Basically these entities represent the tables in the database
-public record Company(Guid Id, string Name);
+public record Company
+{
+    public Guid Id { get; init; }
+    public required string Name { get; init; }
+    public required Season Season { get; init; }
+}
 
-public record Student(Guid Id, string Name);
+public record Student
+{
+    public Guid Id { get; init; }
+    public required string Name { get; init; }
+    public required Season Season { get; init; }
+}
 
 public record Season
 {

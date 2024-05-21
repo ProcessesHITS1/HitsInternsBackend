@@ -9,11 +9,9 @@ namespace svc_InterviewBack.Controllers;
 public class SeasonsController : ControllerBase
 {
     private readonly ISeasonsService _seasonsService;
-    private readonly ILogger<SeasonsController> _logger;
-    public SeasonsController(ISeasonsService seasonsService, ILogger<SeasonsController> logger)
+    public SeasonsController(ISeasonsService seasonsService)
     {
         _seasonsService = seasonsService;
-        _logger = logger;
     }
 
     [HttpGet("/api/seasons")]
