@@ -69,7 +69,7 @@ public class SeasonsService : ISeasonsService
 
     public async Task<SeasonDb> Find(int year)
     {
-        return await _context.Seasons.FirstOrDefaultAsync(s => s.Year == year)
+        return await _context.Seasons.Include(s => s.Companies).Include(s => s.Students).FirstOrDefaultAsync(s => s.Year == year)
                 ?? throw new NotFoundException($"Season with year {year} not found");
     }
 
