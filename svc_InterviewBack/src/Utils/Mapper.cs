@@ -15,7 +15,7 @@ public class MapperProfile : Profile
         CreateMap<SeasonData, SeasonDb>();
         CreateMap<SeasonDb, SeasonDetails>()
                 .ForMember(dest => dest.Season, opt => opt.MapFrom(src => new Season
-                (src.Year, src.SeasonStart, src.SeasonEnd)));
+                (src.Id, src.Year, src.SeasonStart, src.SeasonEnd)));
 
         CreateMap<Company, CompanyInSeasonInfo>()
             .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => ComputeNPositions(src)));

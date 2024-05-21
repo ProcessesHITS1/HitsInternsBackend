@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Services;
+using svc_InterviewBack.Services.Clients;
 
 namespace svc_InterviewBack.Utils;
 
@@ -13,8 +14,15 @@ public static class Startup
         services.AddCors();
 
         // add services
-        services.TryAddScoped<ISeasonsService, SeasonsService>();
-        services.AddAutoMapper(typeof(MapperProfile));
+        services
+        .AddScoped<ISeasonsService, SeasonsService>()
+        .AddScoped<ICompaniesService, CompaniesService>()
+        .AddAutoMapper(typeof(MapperProfile));
+
+        services.AddHttpClient<CompaniesClient>(client =>
+        {
+            client.BaseAddress = new Uri(config["CompaniesServiceUrl"]!);
+        });
 
         // add db context
         services

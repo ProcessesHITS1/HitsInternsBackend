@@ -10,14 +10,18 @@ namespace svc_InterviewBack.Services;
 using Season = Models.Season;
 using SeasonDb = DAL.Season;
 
-// Here input and output models are both DTOs
 public interface ISeasonsService
 {
+    // methods for clients
+    // Here input and output models are both DTOs
     public Task<List<Season>> GetAll();
     public Task<SeasonDetails> Get(int year);
     public Task<Season> Create(SeasonData seasonData);
     public Task<Season> Update(int year, SeasonData seasonData);
     public Task Delete(int year);
+
+    // extra methods for internal use
+    public Task<SeasonDb> Find(int year);
 }
 
 public class SeasonsService : ISeasonsService
@@ -36,7 +40,7 @@ public class SeasonsService : ISeasonsService
         if (seasonData.Year < 2010 || seasonData.Year > 3000)
             throw new BadRequestException("Invalid year value. Year should be between 2010 and 3000");
         if (seasonData.SeasonStart >= seasonData.SeasonEnd)
-            throw new BadRequestException("Invalid season dates");
+            throw new BadRequestException("Season start date should be before season end date");
         if (await _context.Seasons.AnyAsync(s => s.Year == seasonData.Year))
             throw new BadRequestException($"Season with year {seasonData.Year} already exists");
         var season = _mapper.Map<SeasonDb>(seasonData);
@@ -61,6 +65,12 @@ public class SeasonsService : ISeasonsService
                 .FirstOrDefaultAsync(s => s.Year == year)
                 ?? throw new NotFoundException($"Season with year {year} not found");
         return _mapper.Map<SeasonDetails>(season);
+    }
+
+    public async Task<SeasonDb> Find(int year)
+    {
+        return await _context.Seasons.Include(s => s.Companies).Include(s => s.Students).FirstOrDefaultAsync(s => s.Year == year)
+                ?? throw new NotFoundException($"Season with year {year} not found");
     }
 
     public async Task<List<Season>> GetAll()
