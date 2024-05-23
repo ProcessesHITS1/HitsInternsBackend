@@ -17,43 +17,33 @@ public interface ICompaniesService
 }
 
 
-public class CompaniesService : ICompaniesService
+public class CompaniesService(InterviewDbContext context, CompaniesClient companiesClient, ILogger<CompaniesService> logger, IMapper mapper) : ICompaniesService
 {
-    private readonly InterviewDbContext _context;
-    private readonly CompaniesClient _companiesClient;
-    private readonly ILogger<CompaniesService> _logger;
-
-    public CompaniesService(InterviewDbContext context, CompaniesClient companiesClient, ILogger<CompaniesService> logger)
-    {
-        _context = context;
-        _companiesClient = companiesClient;
-        _logger = logger;
-    }
+    private readonly InterviewDbContext _context = context;
+    private readonly CompaniesClient _companiesClient = companiesClient;
+    private readonly IMapper _mapper = mapper;
+    private readonly ILogger<CompaniesService> _logger = logger;
 
     public async Task<CompanyInSeasonInfo> Create(Guid id, Season season)
     {
         // check that company exists
         var company = await _companiesClient.Get(id);
 
-        // check that company exists in season
+        // check if company exists in season
         if (season.Companies.Any(c => c.Id == id))
             throw new BadRequestException($"Company with id {id} already exists in season with year {season.Year}");
 
-        season.Companies.Add(new Company
+        var companyInSeason = new Company
         {
             Id = company.Id,
             Name = company.Name,
-            Season = season
-        });
+            Season = season,
+            Positions = []
+        };
+        _context.Companies.Add(companyInSeason);
 
         await _context.SaveChangesAsync();
-        return new CompanyInSeasonInfo
-        {
-            Id = company.Id,
-            Name = company.Name,
-            SeasonYear = season.Year,
-            NPositions = 0
-        };
+        return _mapper.Map<CompanyInSeasonInfo>(companyInSeason);
     }
 
 
@@ -63,7 +53,7 @@ public class CompaniesService : ICompaniesService
         var companyId = (await _companiesClient.Get(id)).Id;
 
         var res = season.Companies.Remove(season.Companies.First(c => c.Id == companyId));
-        if (!res) _logger.LogWarning($"Company with id {companyId} was not found in season with id {season.Id}");
+        if (!res) _logger.LogWarning($"Company with id {companyId} was not found in season with year {season.Year}");
         await _context.SaveChangesAsync();
     }
 }

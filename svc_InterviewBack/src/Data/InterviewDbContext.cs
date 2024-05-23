@@ -3,17 +3,13 @@ using Microsoft.EntityFrameworkCore;
 namespace svc_InterviewBack.DAL;
 
 
-public class InterviewDbContext : DbContext
+public class InterviewDbContext(DbContextOptions<InterviewDbContext> options) : DbContext(options)
 {
     public DbSet<Company> Companies { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<Season> Seasons { get; set; }
     public DbSet<Position> Positions { get; set; }
     public DbSet<InterviewRequest> InterviewRequests { get; set; }
-
-    public InterviewDbContext(DbContextOptions<InterviewDbContext> options) : base(options)
-    {
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

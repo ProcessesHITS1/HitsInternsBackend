@@ -7,6 +7,7 @@ public record Company
     public Guid Id { get; init; }
     public required string Name { get; init; }
     public required Season Season { get; init; }
+    public required List<Position> Positions { get; init; }
 }
 
 public record Student
@@ -14,6 +15,15 @@ public record Student
     public Guid Id { get; init; }
     public required string Name { get; init; }
     public required Season Season { get; init; }
+    public required EmploymentStatus EmploymentStatus { get; init; }
+    public required List<InterviewRequest> InterviewRequests { get; init; }
+}
+
+// This status must be updated every time the student's interview requests are changed
+public enum EmploymentStatus
+{
+    Employed,
+    Unemployed
 }
 
 public record Season

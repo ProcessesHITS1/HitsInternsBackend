@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using svc_InterviewBack.DAL;
@@ -10,18 +11,30 @@ public static class Startup
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration config)
     {
-        // add cors
-        services.AddCors();
+        // add other dependencies
+        services
+        .AddCors()
+        .AddMemoryCache()
+        .AddAutoMapper(typeof(MapperProfile));
 
         // add services
         services
         .AddScoped<ISeasonsService, SeasonsService>()
         .AddScoped<ICompaniesService, CompaniesService>()
-        .AddAutoMapper(typeof(MapperProfile));
+        .AddScoped<IStudentsService, StudentsService>();
 
+        // add clients
         services.AddHttpClient<CompaniesClient>(client =>
         {
             client.BaseAddress = new Uri(config["CompaniesServiceUrl"]!);
+        });
+        services.AddHttpClient<AuthClient>(client =>
+        {
+            client.BaseAddress = new Uri(config["AuthServiceUrl"]!);
+        });
+        services.AddHttpClient<UsersClient>(client =>
+        {
+            client.BaseAddress = new Uri(config["AuthServiceUrl"]!);
         });
 
         // add db context

@@ -21,19 +21,13 @@ public interface ISeasonsService
     public Task Delete(int year);
 
     // extra methods for internal use
-    public Task<SeasonDb> Find(int year);
+    public Task<SeasonDb> Find(int year, bool withCompanies = true, bool withStudents = true);
 }
 
-public class SeasonsService : ISeasonsService
+public class SeasonsService(InterviewDbContext context, IMapper mapper) : ISeasonsService
 {
-    private readonly InterviewDbContext _context;
-    private readonly IMapper _mapper;
-
-    public SeasonsService(InterviewDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
+    private readonly InterviewDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<Season> Create(SeasonData seasonData)
     {
@@ -59,18 +53,21 @@ public class SeasonsService : ISeasonsService
 
     public async Task<SeasonDetails> Get(int year)
     {
-        var season = await _context.Seasons
-                .Include(s => s.Students)
-                .Include(s => s.Companies)
-                .FirstOrDefaultAsync(s => s.Year == year)
-                ?? throw new NotFoundException($"Season with year {year} not found");
+        var season = await Find(year);
         return _mapper.Map<SeasonDetails>(season);
     }
 
-    public async Task<SeasonDb> Find(int year)
+    public async Task<SeasonDb> Find(int year, bool withCompanies = true, bool withStudents = true)
     {
-        return await _context.Seasons.Include(s => s.Companies).Include(s => s.Students).FirstOrDefaultAsync(s => s.Year == year)
+        var season = await _context.Seasons
+                .FirstOrDefaultAsync(s => s.Year == year)
                 ?? throw new NotFoundException($"Season with year {year} not found");
+        var tasks = new List<Task>();
+        if (withCompanies)
+            await _context.Entry(season).Collection(s => s.Companies).LoadAsync();
+        if (withStudents)
+            await _context.Entry(season).Collection(s => s.Students).LoadAsync();
+        return season;
     }
 
     public async Task<List<Season>> GetAll()
