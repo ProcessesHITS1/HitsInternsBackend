@@ -12,4 +12,6 @@ services:
         condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=interview-db;Username=postgres;Password=postgres
+      - AuthLogin=${AuthLogin}
+      - AuthPassword=${AuthPassword}
       - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT}
