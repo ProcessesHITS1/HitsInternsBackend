@@ -16,7 +16,7 @@ public class StudentsController(IStudentsService studentsService, ISeasonsServic
     /// Добавляет студента в сезон.
     /// </summary>
     /// <param name="year">The year of the season</param>
-    /// <param name="id">The ID of the company</param>
+    /// <param name="id">The ID of the student</param>
     [HttpPost("{year}/student/{id}")]
     public async Task<ActionResult> Create(int year, Guid id)
     {
