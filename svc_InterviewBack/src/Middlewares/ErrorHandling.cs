@@ -34,6 +34,10 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             }
+            else if (ex is NetworkException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
             else
             {
                 _logger.LogError(ex, "An error occurred: {ErrorMessage}", ex.Message);

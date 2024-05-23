@@ -10,9 +10,10 @@ namespace svc_InterviewBack.Services.Clients;
 
 
 
-public class UsersClient(HttpClient httpClient, ILogger<AuthClient> logger, IMemoryCache cache, IConfiguration config)
+public class UsersClient(HttpClient httpClient, AuthClient authClient, ILogger<AuthClient> logger, IMemoryCache cache, IConfiguration config)
 {
     private readonly HttpClient _httpClient = httpClient;
+    private readonly AuthClient _authClient = authClient;
     private readonly ILogger<AuthClient> _logger = logger;
     private readonly IMemoryCache _cache = cache;
     private readonly IConfiguration _config = config;
@@ -20,6 +21,7 @@ public class UsersClient(HttpClient httpClient, ILogger<AuthClient> logger, IMem
 
     public async Task<User> GetUser(Guid id)
     {
+        await _authClient.TryAuthorize();
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{id}/info");
 
         // add jwt token to headers

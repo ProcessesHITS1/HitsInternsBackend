@@ -30,20 +30,8 @@ if (isDev)
 }
 app.UseHttpsRedirection();
 
-// Enable debug in dev environment
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.StartsWithSegments("/api/debug") && !isDev)
-    {
-        context.Response.StatusCode = 404;
-        return;
-    }
-    await next.Invoke();
-});
-
 app.UseCors();
-app.UseErrorHandlingMiddleware()
-.UseAuthRefreshMiddleware();
+app.UseErrorHandlingMiddleware();
 app.MapControllers();
 app.Run();
 
