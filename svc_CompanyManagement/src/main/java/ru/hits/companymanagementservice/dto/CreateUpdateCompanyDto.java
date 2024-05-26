@@ -18,6 +18,4 @@ public class CreateUpdateCompanyDto {
 
     private List<String> contacts;
 
-    private List<UUID> seasonIds;
-
 }

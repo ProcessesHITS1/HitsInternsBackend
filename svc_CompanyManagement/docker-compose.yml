@@ -3,16 +3,16 @@ include:
 
 services:
   company:
-    #    build:
-    #      context: .
-    image: iseeyouwatching/svc_companymanagement-app
+#    build:
+#      context: .
+    image: iseeyouwatching/hitsinternsbackend-company:latest
     ports:
       - '8090:8090'
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/company-management-service-db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
