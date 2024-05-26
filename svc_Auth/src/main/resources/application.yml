@@ -16,8 +16,10 @@ spring:
   flyway:
     locations: classpath:migrations
     enabled: true
+    ignore-missing-migrations: true
+    out-of-order: true
   datasource:
-    url: ${spring_datasource_url:jdbc:postgresql://localhost:5432/auth-service-db}
+    url: ${spring_datasource_url:jdbc:postgresql://localhost:5432/postgres}
     username: ${spring_datasource_username:postgres}
     password: ${spring_datasource_password:postgres}
     driver-class-name: org.postgresql.Driver
