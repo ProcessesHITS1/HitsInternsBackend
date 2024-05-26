@@ -22,13 +22,11 @@ public class CompanyDto {
 
     private List<String> contacts;
 
-    private List<UUID> seasonIds;
-
-    public CompanyDto(CompanyEntity company, List<String> contacts, List<UUID> seasonIds) {
+    public CompanyDto(CompanyEntity company, List<String> contacts) {
         this.id = company.getId();
         this.name = company.getName();
+        this.curatorId = company.getCuratorId();
         this.contacts = contacts;
-        this.seasonIds = seasonIds;
     }
 
 }

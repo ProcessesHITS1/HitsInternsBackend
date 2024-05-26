@@ -13,12 +13,10 @@ import ru.hits.companymanagementservice.dto.CreateUpdateCompanyDto;
 import ru.hits.companymanagementservice.dto.PageInfoDto;
 import ru.hits.companymanagementservice.entity.CompanyContactEntity;
 import ru.hits.companymanagementservice.entity.CompanyEntity;
-import ru.hits.companymanagementservice.entity.CompanySeasonEntity;
 import ru.hits.companymanagementservice.exception.NotFoundException;
 import ru.hits.companymanagementservice.helpingservices.CheckPaginationInfoService;
 import ru.hits.companymanagementservice.repository.CompanyContactRepository;
 import ru.hits.companymanagementservice.repository.CompanyRepository;
-import ru.hits.companymanagementservice.repository.CompanySeasonRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +31,6 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
 
     private final CompanyContactRepository companyContactRepository;
-
-    private final CompanySeasonRepository companySeasonRepository;
 
     private final CheckPaginationInfoService checkPaginationInfoService;
 
@@ -55,17 +51,6 @@ public class CompanyService {
             contacts.add(contactEntity);
         }
         companyContactRepository.saveAll(contacts);
-
-        List<CompanySeasonEntity> seasons = new ArrayList<>();
-        for (UUID seasonId : createUpdateCompanyDto.getSeasonIds()) {
-            CompanySeasonEntity seasonEntity = CompanySeasonEntity.builder()
-                    .companyId(company.getId())
-                    .seasonId(seasonId)
-                    .build();
-            seasons.add(seasonEntity);
-        }
-
-        companySeasonRepository.saveAll(seasons);
     }
 
     @Transactional
@@ -75,7 +60,6 @@ public class CompanyService {
 
         companyEntity.setName(createUpdateCompanyDto.getName());
         companyEntity.setCuratorId(createUpdateCompanyDto.getCuratorId());
-        companySeasonRepository.deleteAllByCompanyId(companyId);
         companyContactRepository.deleteAllByCompanyId(companyId);
 
         List<CompanyContactEntity> contacts = new ArrayList<>();
@@ -88,17 +72,6 @@ public class CompanyService {
         }
         companyContactRepository.saveAll(contacts);
 
-        List<CompanySeasonEntity> seasons = new ArrayList<>();
-        for (UUID seasonId : createUpdateCompanyDto.getSeasonIds()) {
-            CompanySeasonEntity seasonEntity = CompanySeasonEntity.builder()
-                    .companyId(companyId)
-                    .seasonId(seasonId)
-                    .build();
-            seasons.add(seasonEntity);
-        }
-
-        companySeasonRepository.saveAll(seasons);
-
         companyRepository.save(companyEntity);
     }
 
@@ -108,7 +81,6 @@ public class CompanyService {
                 .orElseThrow(() -> new NotFoundException("Компания с ID " + companyId + " не найдена"));
 
         companyRepository.delete(companyEntity);
-        companySeasonRepository.deleteAllByCompanyId(companyId);
         companyContactRepository.deleteAllByCompanyId(companyId);
     }
 
@@ -121,17 +93,11 @@ public class CompanyService {
                 .map(CompanyContactEntity::getContact)
                 .collect(Collectors.toList());
 
-        List<UUID> seasonIds = companySeasonRepository.findAllByCompanyId(companyId)
-                .stream()
-                .map(CompanySeasonEntity::getSeasonId)
-                .collect(Collectors.toList());
-
         return CompanyDto.builder()
                 .id(companyId)
                 .name(companyEntity.getName())
                 .curatorId(companyEntity.getCuratorId())
                 .contacts(contacts)
-                .seasonIds(seasonIds)
                 .build();
     }
 
@@ -151,17 +117,11 @@ public class CompanyService {
                     .map(CompanyContactEntity::getContact)
                     .collect(Collectors.toList());
 
-            List<UUID> seasonIds = companySeasonRepository.findAllByCompanyId(company.getId())
-                    .stream()
-                    .map(CompanySeasonEntity::getSeasonId)
-                    .collect(Collectors.toList());
-
             CompanyDto companyDto = CompanyDto.builder()
                     .id(company.getId())
                     .name(company.getName())
                     .curatorId(company.getCuratorId())
                     .contacts(contacts)
-                    .seasonIds(seasonIds)
                     .build();
 
             companyDtos.add(companyDto);
