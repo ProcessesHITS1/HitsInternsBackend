@@ -1,5 +1,11 @@
 server:
-  port: 8090
+  port: 8091
+
+minio:
+  access-key: tiWVaRzM74NBCCAT
+  secret-key: GpgPAFXPlnDE4XUVT5s0oMC5hhnYW5W3
+  bucket: hits-bucket
+  url: http://host.docker.internal:9900
 
 spring:
 #  mail:
@@ -31,6 +37,9 @@ spring:
     listener:
       simple:
         default-requeue-rejected: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
 #    host: ${RABBITMQ_HOST:localhost}
 #    port: ${RABBITMQ_PORT:5672}
 #    username: ${RABBITMQ_USER:user}
@@ -50,12 +59,12 @@ spring:
 #          destination: transactions
 #          content-type: application/json
 
+
 app:
   security:
     jwt-token:
       permit-all:
-        - /api/users/sign-in
-        - /api/users/create
+        - /api/files/**
       root-path: /api
       secret: TheVeryStrongKeyOrPasswordQwerty123
       issuer: hits-interns-auth-backend
