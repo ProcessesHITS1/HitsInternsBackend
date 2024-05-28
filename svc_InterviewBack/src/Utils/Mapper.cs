@@ -17,16 +17,16 @@ public class MapperProfile : Profile
                 .ForMember(dest => dest.Season, opt => opt.MapFrom(src => new Season
                 (src.Id, src.Year, src.SeasonStart, src.SeasonEnd)));
 
-        CreateMap<Company, CompanyInSeasonInfo>()
+        CreateMap<Company, CompanyInSeasonInfo>()//TODO:fix mapping  for Positions
             .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year))
-            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => ComputeNPositions(src)));
-
+            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.Positions.Sum(p => p.N)))
+            .ForMember(dest => dest.Positions, opt => opt.MapFrom(src => src.Positions));
+       
+        CreateMap<Position, PositionInfo>()
+            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.N));
+        
         CreateMap<Student, StudentInfo>()
             .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
     }
-
-    private static int ComputeNPositions(Company company)
-    {
-        return company.Positions.Count;
-    }
+    
 }
