@@ -41,7 +41,7 @@ public record Position
 {
     public Guid Id { get; init; }
     public required string Title { get; init; }
-    public required string Description { get; init; }
+    public  string? Description { get; init; }
     // Number of positions available
     public required int N { get; init; }
     public required Company Company { get; init; }
