@@ -54,19 +54,20 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper) : ISeaso
     public async Task<SeasonDetails> Get(int year)
     {
         var season = await Find(year);
-        return _mapper.Map<SeasonDetails>(season);
+        return _mapper.Map<SeasonDetails>(season);//TODO: positions not included
     }
 
     public async Task<SeasonDb> Find(int year, bool withCompanies = true, bool withStudents = true)
     {
-        var season = await _context.Seasons
-                .FirstOrDefaultAsync(s => s.Year == year)
-                ?? throw new NotFoundException($"Season with year {year} not found");
-        var tasks = new List<Task>();
+        var query = _context.Seasons.AsQueryable();
+
         if (withCompanies)
-            await _context.Entry(season).Collection(s => s.Companies).LoadAsync();
+            query = query.Include(s => s.Companies).ThenInclude(c => c.Positions);
         if (withStudents)
-            await _context.Entry(season).Collection(s => s.Students).LoadAsync();
+            query = query.Include(s => s.Students);
+        
+        var season = await query.FirstOrDefaultAsync(s=>s.Year==year)
+                ?? throw new NotFoundException($"Season with year {year} not found");
         return season;
     }
 

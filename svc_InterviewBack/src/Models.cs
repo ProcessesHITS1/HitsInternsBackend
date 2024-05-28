@@ -28,6 +28,7 @@ public record CompanyInSeasonInfo
     public int SeasonYear { get; init; }
     public required string Name { get; init; }
     public required int NPositions { get; init; }
+    public List<PositionInfo> Positions { get; init; }
 }
 
 
