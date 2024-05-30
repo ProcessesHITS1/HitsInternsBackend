@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using svc_InterviewBack.DAL;
 
 namespace svc_InterviewBack.Models;
 
@@ -28,7 +29,6 @@ public record CompanyInSeasonInfo
     public int SeasonYear { get; init; }
     public required string Name { get; init; }
     public required int NPositions { get; init; }
-    public List<PositionInfo> Positions { get; init; }
 }
 
 
@@ -49,8 +49,18 @@ public record PositionInfo
     
 }
 
-public record PositionInfoResponse : PositionInfo
+
+// Returned to the client
+public record PositionDetailedInfo : PositionInfo
 {
     public Guid Id { get; init; }
     public Guid CompanyId { get; init; }
+}
+
+public record RequestDetailedInfo
+{
+    public Guid Id { get; init; }
+    public required Guid StudentId { get; init; }
+    public required Guid PositionId { get; init; }
+    public RequestStatus Status { get; init; }
 }

@@ -12,29 +12,25 @@ namespace svc_InterviewBack.Services.Clients;
 
 public class UsersClient(HttpClient httpClient, AuthClient authClient, ILogger<AuthClient> logger, IMemoryCache cache, IConfiguration config)
 {
-    private readonly HttpClient _httpClient = httpClient;
-    private readonly AuthClient _authClient = authClient;
-    private readonly ILogger<AuthClient> _logger = logger;
-    private readonly IMemoryCache _cache = cache;
     private readonly IConfiguration _config = config;
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public async Task<User> GetUser(Guid id)
     {
-        await _authClient.TryAuthorize();
+        await authClient.TryAuthorize();
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{id}/info");
 
         // add jwt token to headers
-        var token = _cache.Get("ClientToken");
+        var token = cache.Get("ClientToken");
         request.Headers.Add("Authorization", $"Bearer {token}");
 
-        var response = await _httpClient.SendAsync(request);
+        var response = await httpClient.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"User with id {id} not found");
         }
         response.EnsureSuccessStatusCode();
-        _logger.LogInformation("Got OK(200) response from users service");
+        logger.LogInformation("Got OK(200) response from users service");
         var responseContent = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<User>(responseContent, _jsonOptions)!;
     }

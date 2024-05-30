@@ -16,5 +16,5 @@ public class InterviewDbContext(DbContextOptions<InterviewDbContext> options) : 
         modelBuilder.Entity<Season>()
             .HasIndex(s => s.Year)
             .IsUnique();
-    }
+    }   //TODO: on position Creation -> update Season NPositions
 }

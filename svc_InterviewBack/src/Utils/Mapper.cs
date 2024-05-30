@@ -17,16 +17,31 @@ public class MapperProfile : Profile
                 .ForMember(dest => dest.Season, opt => opt.MapFrom(src => new Season
                 (src.Id, src.Year, src.SeasonStart, src.SeasonEnd)));
 
-        CreateMap<Company, CompanyInSeasonInfo>()//TODO:fix mapping  for Positions
-            .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year))
-            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.Positions.Sum(p => p.N)))
-            .ForMember(dest => dest.Positions, opt => opt.MapFrom(src => src.Positions));
+        CreateMap<Company, CompanyInSeasonInfo>()
+            .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year));
        
         CreateMap<Position, PositionInfo>()
             .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.N));
         
         CreateMap<Student, StudentInfo>()
             .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
+        
+        CreateMap<Position, PositionDetailedInfo>()
+            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.N))
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company.Id));
+
+        CreateMap<(Position, Student), InterviewRequest>()
+            .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Item1))
+            .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Item2));
+        
+        CreateMap<InterviewRequest, RequestDetailedInfo>()
+            .ForMember(dest => dest.PositionId, opt => opt.MapFrom(src => src.Position.Id))
+            .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.Student.Id));
+        
+        CreateMap<PositionInfo, Position>()
+            .ForMember(dest => dest.N, opt => opt.MapFrom(src => src.NPositions));
+
+        
     }
     
 }

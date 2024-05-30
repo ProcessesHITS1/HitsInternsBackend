@@ -19,15 +19,10 @@ public interface IStudentsService
 
 public class StudentsService(InterviewDbContext context, UsersClient usersClient, ILogger<CompaniesService> logger, IMapper mapper) : IStudentsService
 {
-    private readonly InterviewDbContext _context = context;
-    private readonly UsersClient _usersClient = usersClient;
-    private readonly IMapper _mapper = mapper;
-    private readonly ILogger<CompaniesService> _logger = logger;
-
     public async Task<StudentInfo> Create(Guid id, Season season)
     {
         // check that student exists
-        var user = await _usersClient.GetUser(id);
+        var user = await usersClient.GetUser(id);
         if (!user.Roles.Contains(Role.ROLE_STUDENT))
             throw new BadRequestException($"User with id {id} is not a student");
 
@@ -43,17 +38,17 @@ public class StudentsService(InterviewDbContext context, UsersClient usersClient
             EmploymentStatus = EmploymentStatus.Unemployed,
             InterviewRequests = []
         };
-        _context.Students.Add(student);
+        context.Students.Add(student);
 
-        await _context.SaveChangesAsync();
-        return _mapper.Map<StudentInfo>(student);
+        await context.SaveChangesAsync();
+        return mapper.Map<StudentInfo>(student);
     }
 
 
     public async Task Delete(Guid id, Season season)
     {
         var res = season.Students.Remove(season.Students.First(c => c.Id == id));
-        if (!res) _logger.LogWarning($"Student with id {id} was not found in season with year {season.Year}");
-        await _context.SaveChangesAsync();
+        if (!res) logger.LogWarning($"Student with id {id} was not found in season with year {season.Year}");
+        await context.SaveChangesAsync();
     }
 }

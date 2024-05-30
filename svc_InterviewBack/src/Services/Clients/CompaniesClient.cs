@@ -8,28 +8,24 @@ namespace svc_InterviewBack.Services.Clients;
 
 public class CompaniesClient(HttpClient httpClient, AuthClient authClient, ILogger<CompaniesClient> logger, IMemoryCache cache)
 {
-    private readonly HttpClient _httpClient = httpClient;
-    private readonly AuthClient _authClient = authClient;
-    private readonly ILogger<CompaniesClient> _logger = logger;
-    private readonly IMemoryCache _cache = cache;
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public async Task<CompanyData> Get(Guid id)
     {
-        await _authClient.TryAuthorize();
+        await authClient.TryAuthorize();
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/companies/{id}");
 
         // add jwt token to headers
-        var token = _cache.Get("ClientToken");
+        var token = cache.Get("ClientToken");
         request.Headers.Add("Authorization", $"Bearer {token}");
 
-        var response = await _httpClient.SendAsync(request);
+        var response = await httpClient.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"Company with id {id} not found");
         }
         response.EnsureSuccessStatusCode();
-        _logger.LogInformation("Got OK(200) response from companies service");
+        logger.LogInformation("Got OK(200) response from companies service");
         var responseContent = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<CompanyData>(responseContent, _jsonOptions)!;
     }
