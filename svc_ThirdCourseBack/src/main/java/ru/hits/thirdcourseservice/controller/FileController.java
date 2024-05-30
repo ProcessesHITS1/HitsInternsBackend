@@ -54,6 +54,7 @@ public class FileController {
         log.info("Файл успешно загружен: {}", fileDownloadDto.getFilename());
         return ResponseEntity.ok()
                 .header("Content-Type", MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .header("Access-Control-Expose-Headers", "Content-Disposition")
                 .header("Content-Disposition", "attachment; filename=\"" + fileDownloadDto.getFilename() + "\"")
                 .body(fileDownloadDto.getIn());
     }
