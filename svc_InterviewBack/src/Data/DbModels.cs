@@ -41,10 +41,9 @@ public record Position
 {
     public Guid Id { get; init; }
     public required string Title { get; init; }
-    public required string Description { get; init; }
+    public  string? Description { get; init; }
     // Number of positions available
-    public required int N { get; init; }
-    public required Company Company { get; init; }
+    public required int NPositions { get; init; }
 };
 
 
@@ -54,7 +53,7 @@ public record InterviewRequest
     public Guid Id { get; init; }
     public required Student Student { get; init; }
     public required Position Position { get; init; }
-    public RequestStatus Status { get; init; }
+    public RequestStatus Status { get; init; } = RequestStatus.Pending;
 };
 
 

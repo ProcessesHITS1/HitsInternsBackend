@@ -20,8 +20,10 @@ public static class Startup
         // add services
         services
         .AddScoped<ISeasonsService, SeasonsService>()
+        .AddScoped<IPositionService, PositionsService>()
         .AddScoped<ICompaniesService, CompaniesService>()
-        .AddScoped<IStudentsService, StudentsService>();
+        .AddScoped<IStudentsService, StudentsService>()
+        .AddScoped<IRequestService,RequestService>();
 
         // add clients
         services.AddHttpClient<CompaniesClient>(client =>

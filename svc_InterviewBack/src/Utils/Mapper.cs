@@ -18,15 +18,26 @@ public class MapperProfile : Profile
                 (src.Id, src.Year, src.SeasonStart, src.SeasonEnd)));
 
         CreateMap<Company, CompanyInSeasonInfo>()
-            .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year))
-            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => ComputeNPositions(src)));
+            .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year));
 
+        CreateMap<Position, PositionData>();
+        
         CreateMap<Student, StudentInfo>()
             .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
-    }
 
-    private static int ComputeNPositions(Company company)
-    {
-        return company.Positions.Count;
+        CreateMap<Position, PositionDetails>();
+
+
+        CreateMap<(Position, Student), InterviewRequest>()
+            .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Item1))
+            .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Item2));
+        
+        CreateMap<InterviewRequest, RequestDetails>()
+            .ForMember(dest => dest.PositionId, opt => opt.MapFrom(src => src.Position.Id))
+            .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.Student.Id));
+
+        CreateMap<PositionData, Position>();
+
     }
+    
 }
