@@ -19,29 +19,25 @@ public class MapperProfile : Profile
 
         CreateMap<Company, CompanyInSeasonInfo>()
             .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year));
-       
-        CreateMap<Position, PositionInfo>()
-            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.N));
+
+        CreateMap<Position, PositionData>();
         
         CreateMap<Student, StudentInfo>()
             .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
-        
-        CreateMap<Position, PositionDetailedInfo>()
-            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.N))
-            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company.Id));
+
+        CreateMap<Position, PositionDetails>();
+
 
         CreateMap<(Position, Student), InterviewRequest>()
             .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Item1))
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Item2));
         
-        CreateMap<InterviewRequest, RequestDetailedInfo>()
+        CreateMap<InterviewRequest, RequestDetails>()
             .ForMember(dest => dest.PositionId, opt => opt.MapFrom(src => src.Position.Id))
             .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.Student.Id));
-        
-        CreateMap<PositionInfo, Position>()
-            .ForMember(dest => dest.N, opt => opt.MapFrom(src => src.NPositions));
 
-        
+        CreateMap<PositionData, Position>();
+
     }
     
 }

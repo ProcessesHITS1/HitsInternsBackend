@@ -9,9 +9,9 @@ namespace svc_InterviewBack.Controllers;
 public class PositionsController(IPositionService positionService) : ControllerBase
 {
     [HttpPost("{companyId}")]
-    public async Task<ActionResult> Create(Guid companyId, PositionInfo positionInfo)
+    public async Task<ActionResult> Create(Guid companyId, PositionData positionData)
     {
-        return Ok(await positionService.Create(companyId, positionInfo));
+        return Ok(await positionService.Create(companyId, positionData));
     }
     
     

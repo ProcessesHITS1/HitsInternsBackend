@@ -40,7 +40,7 @@ public record StudentInfo
     public required string EmploymentStatus { get; init; }
 }
 
-public record PositionInfo
+public record PositionData
 {
     public required string Title { get; init; }
     public  string? Description { get; init; }
@@ -51,13 +51,13 @@ public record PositionInfo
 
 
 // Returned to the client
-public record PositionDetailedInfo : PositionInfo
+public record PositionDetails : PositionData
 {
     public Guid Id { get; init; }
-    public Guid CompanyId { get; init; }
+    public CompanyInSeasonInfo? CompanyInfo { get; init; }
 }
 
-public record RequestDetailedInfo
+public record RequestDetails
 {
     public Guid Id { get; init; }
     public required Guid StudentId { get; init; }

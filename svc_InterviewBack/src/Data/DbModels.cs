@@ -43,8 +43,7 @@ public record Position
     public required string Title { get; init; }
     public  string? Description { get; init; }
     // Number of positions available
-    public required int N { get; init; }
-    public required Company Company { get; set; }
+    public required int NPositions { get; init; }
 };
 
 

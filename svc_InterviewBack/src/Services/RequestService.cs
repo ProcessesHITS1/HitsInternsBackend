@@ -8,15 +8,14 @@ namespace svc_InterviewBack.Services;
 
 public interface IRequestService
 {
-    Task<RequestDetailedInfo> CreateAsync(Guid studentId, Guid positionId);
+    Task<RequestDetails> CreateAsync(Guid studentId, Guid positionId);
 }
 
 public class RequestService(InterviewDbContext context, IMapper mapper) : IRequestService
 {
-    public async Task<RequestDetailedInfo> CreateAsync(Guid studentId, Guid positionId)
+    public async Task<RequestDetails> CreateAsync(Guid studentId, Guid positionId)
     {
         var student = await context.Students
-            .Include(s => s.Season)
             .FirstOrDefaultAsync(s => s.Id == studentId);
 
         if (student == null)
@@ -24,23 +23,16 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             throw new NotFoundException($"Student was not found, id:{studentId}");
         }
 
-        var season = student.Season;
-
-        if (season == null)
-        {
-            throw new NotFoundException($"Student's season was not identified, season:{season}");
-        }
-
         var position = await context.Positions
-            .Include(p => p.Company)
             .FirstOrDefaultAsync(p => p.Id == positionId);
+        if (position == null) throw new NotFoundException($"Position was not found, id:{positionId}");
         
         var interviewRequest = mapper.Map<InterviewRequest>((position, student));
 
         context.InterviewRequests.Add(interviewRequest);
         await context.SaveChangesAsync();
 
-        var interviewRequestDto = mapper.Map<RequestDetailedInfo>(interviewRequest);
+        var interviewRequestDto = mapper.Map<RequestDetails>(interviewRequest);
 
         return interviewRequestDto;
     }

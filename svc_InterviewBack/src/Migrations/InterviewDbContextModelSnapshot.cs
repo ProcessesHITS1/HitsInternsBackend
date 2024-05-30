@@ -72,13 +72,13 @@ namespace svc_InterviewBack.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("CompanyId")
+                    b.Property<Guid?>("CompanyId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<int>("N")
+                    b.Property<int>("NPositions")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -170,13 +170,9 @@ namespace svc_InterviewBack.Migrations
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Position", b =>
                 {
-                    b.HasOne("svc_InterviewBack.DAL.Company", "Company")
+                    b.HasOne("svc_InterviewBack.DAL.Company", null)
                         .WithMany("Positions")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
+                        .HasForeignKey("CompanyId");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Student", b =>
