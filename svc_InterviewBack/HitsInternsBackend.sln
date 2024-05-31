@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "svc_InterviewBack", "svc_InterviewBack", "{004358FC-9DC1-41A8-BD69-456B04881CDE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "svc_InterviewBack", "svc_InterviewBack\src\svc_InterviewBack.csproj", "{7CA69F85-1206-428B-8C1E-B8D7F4E41E92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "svc_InterviewBack", "src\svc_InterviewBack.csproj", "{7CA69F85-1206-428B-8C1E-B8D7F4E41E92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
