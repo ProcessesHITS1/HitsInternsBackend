@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Interns.Chats.Persistence.Migrations
 {
     [DbContext(typeof(ChatDbContext))]
-    [Migration("20240601091923_Initial")]
+    [Migration("20240601152518_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -26,7 +26,7 @@ namespace Interns.Chats.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Interns.Chats.Domain.Group", b =>
+            modelBuilder.Entity("Interns.Chats.Domain.Chat", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,31 +57,31 @@ namespace Interns.Chats.Persistence.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ChatId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid?>("GroupId")
-                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
+                    b.HasIndex("ChatId");
 
                     b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Interns.Chats.Domain.Message", b =>
                 {
-                    b.HasOne("Interns.Chats.Domain.Group", null)
+                    b.HasOne("Interns.Chats.Domain.Chat", null)
                         .WithMany("Messages")
-                        .HasForeignKey("GroupId");
+                        .HasForeignKey("ChatId");
                 });
 
-            modelBuilder.Entity("Interns.Chats.Domain.Group", b =>
+            modelBuilder.Entity("Interns.Chats.Domain.Chat", b =>
                 {
                     b.Navigation("Messages");
                 });

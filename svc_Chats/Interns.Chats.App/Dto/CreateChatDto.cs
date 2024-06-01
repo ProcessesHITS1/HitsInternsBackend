@@ -1,11 +1,11 @@
 ﻿namespace Interns.Chats.App.Dto
 {
-    public class CreateDirectGroupDto
+    public class CreateDirectChatDto
     {
         public string Name { get; set; }
         public Guid UserId { get; set; }
     }
-    public class CreateGroupDto
+    public class CreateChatDto
     {
         public string Name { get; set; }
         public List<Guid> Users { get; set; }

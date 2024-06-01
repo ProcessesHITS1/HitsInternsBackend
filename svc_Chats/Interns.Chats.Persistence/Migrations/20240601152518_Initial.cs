@@ -34,22 +34,22 @@ namespace Interns.Chats.Persistence.Migrations
                     AuthorId = table.Column<Guid>(type: "uuid", nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    GroupId = table.Column<Guid>(type: "uuid", nullable: true)
+                    ChatId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Messages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Messages_Groups_GroupId",
-                        column: x => x.GroupId,
+                        name: "FK_Messages_Groups_ChatId",
+                        column: x => x.ChatId,
                         principalTable: "Groups",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Messages_GroupId",
+                name: "IX_Messages_ChatId",
                 table: "Messages",
-                column: "GroupId");
+                column: "ChatId");
         }
 
         /// <inheritdoc />

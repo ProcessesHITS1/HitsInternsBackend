@@ -11,43 +11,56 @@ namespace Interns.Chats.App.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class GroupsController : ControllerBase
+    public class ChatsController : ControllerBase
     {
         private readonly ChatDbContext _dbContext;
 
-        public GroupsController(ChatDbContext dbContext)
+        public ChatsController(ChatDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
         [HttpPost("direct")]
-        public Task CreateDirect([FromBody] CreateDirectGroupDto dto)
-            => Create(new CreateGroupDto { Name = dto.Name, Users = [dto.UserId] });
+        public Task<ChatDto> CreateDirect([FromBody] CreateDirectChatDto dto)
+            => Create(new CreateChatDto { Name = dto.Name, Users = [dto.UserId] });
 
         [HttpPost]
-        public async Task Create([FromBody] CreateGroupDto dto)
+        public async Task<ChatDto> Create([FromBody] CreateChatDto dto)
         {
-            await _dbContext.Groups.AddAsync(new Group
+            var chat = new Chat
             {
                 Name = dto.Name,
                 UserIds = dto.Users,
                 OwnerId = User.GetId()
-            });
+            };
+            _dbContext.Groups.Add(chat);
 
             await _dbContext.SaveChangesAsync();
+
+            return new ChatDto
+            {
+                Id = chat.Id,
+                Name = chat.Name
+            };
         }
 
         [HttpGet("my")]
-        public Task<List<GroupDto>> GetMyGroups()
+        public Task<List<ChatDto>> GetMyGroups()
             => _dbContext.Groups
                     .Where(x => x.UserIds.Contains(User.GetId()))
-                    .Select(x => new GroupDto { Name = x.Name, Id = x.Id })
+                    .Select(x => new ChatDto { Name = x.Name, Id = x.Id })
                     .ToListAsync();
 
         [HttpPost("{groupId}/add/{userId}")]
         public async Task AddToGroup([FromRoute] Guid groupId, [FromRoute] Guid userId)
         {
             var group = await _dbContext.Groups.FirstAsync(x => x.Id == groupId && x.OwnerId == User.GetId());
+
+            if (group.UserIds.Contains(userId))
+            {
+                throw new BadHttpRequestException("User already in chat");
+            }
+
             group.UserIds.Add(userId);
             await _dbContext.SaveChangesAsync();
         }
@@ -68,7 +81,7 @@ namespace Interns.Chats.App.Controllers
 
             Guid currentUserId = User.GetId();
             var messages = await _dbContext.Groups
-                .Where(Group.CanBeAccessed(groupId, currentUserId))
+                .Where(Chat.CanBeAccessed(groupId, currentUserId))
                 .SelectMany(x => x.Messages)
                 .Where(x => x.SentAt >= from && x.SentAt <= until)
                 .Select(x => new MessageDto

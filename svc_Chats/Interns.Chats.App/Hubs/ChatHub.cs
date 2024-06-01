@@ -20,8 +20,8 @@ namespace Interns.Chats.App.Hubs
         }
         public override async Task OnConnectedAsync()
         {
-            Guid currentUserId = Context?.User?.GetId() ?? throw new ArgumentNullException("User has no id present");
-            var groupIds = await _dbContext.Groups.Where(Group.HasMember(currentUserId)).Select(x => x.Id).ToListAsync();
+            Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
+            var groupIds = await _dbContext.Groups.Where(Chat.HasMember(currentUserId)).Select(x => x.Id).ToListAsync();
 
             if (groupIds.Count != 0)
             {
@@ -36,9 +36,9 @@ namespace Interns.Chats.App.Hubs
 
         public async Task Send(string message, Guid chatId)
         {
-            Guid currentUserId = Context?.User?.GetId() ?? throw new ArgumentNullException("User has no id present");
+            Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
 
-            var group = await _dbContext.Groups.FirstAsync(Group.CanBeAccessed(chatId, currentUserId));
+            var group = await _dbContext.Groups.FirstAsync(Chat.CanBeAccessed(chatId, currentUserId));
             var msg = new Message { AuthorId = currentUserId, Content = message, SentAt = DateTime.UtcNow };
             group.Messages.Add(msg);
 
@@ -59,11 +59,11 @@ namespace Interns.Chats.App.Hubs
 
         public async Task Join(Guid chatId)
         {
-            Guid currentUserId = Context?.User?.GetId() ?? throw new ArgumentNullException("User has no id present");
+            Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
 
-            if (await _dbContext.Groups.AnyAsync(Group.CanBeAccessed(chatId, currentUserId)))
+            if (await _dbContext.Groups.AnyAsync(Chat.CanBeAccessed(chatId, currentUserId)))
             {
-                throw new ArgumentNullException("Group not found");
+                throw new BadHttpRequestException("Group not found");
             }
             await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
         }

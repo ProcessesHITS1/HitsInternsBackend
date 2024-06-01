@@ -1,8 +1,6 @@
 using Interns.Auth.Extensions;
 using Interns.Chats.App.Hubs;
-using Interns.Chats.Persistence;
 using Interns.Chats.Persistence.Extensions;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +31,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<ChatHub>("/chats");
+app.MapHub<ChatHub>("/chatting");
 
 app.Run();
