@@ -13,9 +13,9 @@ namespace Interns.Chats.Domain
         {
             return g => g.UserIds.Contains(userId) || g.OwnerId == userId;
         }
-        public static Expression<Func<Chat, bool>> CanBeAccessed(Guid groupId, Guid userId)
+        public static Expression<Func<Chat, bool>> CanBeAccessed(Guid chatId, Guid userId)
         {
-            return g => g.Id == groupId && (g.UserIds.Contains(userId) || g.OwnerId == userId);
+            return g => g.Id == chatId && (g.UserIds.Contains(userId) || g.OwnerId == userId);
         }
     }
 }

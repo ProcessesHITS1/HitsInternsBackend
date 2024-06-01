@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Interns.Chats.Persistence.Migrations
 {
     [DbContext(typeof(ChatDbContext))]
-    [Migration("20240601152518_Initial")]
+    [Migration("20240601154334_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -45,7 +45,7 @@ namespace Interns.Chats.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Chats");
                 });
 
             modelBuilder.Entity("Interns.Chats.Domain.Message", b =>

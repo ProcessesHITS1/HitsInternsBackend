@@ -21,11 +21,11 @@ namespace Interns.Chats.App.Hubs
         public override async Task OnConnectedAsync()
         {
             Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
-            var groupIds = await _dbContext.Groups.Where(Chat.HasMember(currentUserId)).Select(x => x.Id).ToListAsync();
+            var chatIds = await _dbContext.Chats.Where(Chat.HasMember(currentUserId)).Select(x => x.Id).ToListAsync();
 
-            if (groupIds.Count != 0)
+            if (chatIds.Count != 0)
             {
-                foreach (var id in groupIds)
+                foreach (var id in chatIds)
                 {
                     await Groups.AddToGroupAsync(Context.ConnectionId, id.ToString());
                 }
@@ -38,7 +38,7 @@ namespace Interns.Chats.App.Hubs
         {
             Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
 
-            var group = await _dbContext.Groups.FirstAsync(Chat.CanBeAccessed(chatId, currentUserId));
+            var group = await _dbContext.Chats.FirstAsync(Chat.CanBeAccessed(chatId, currentUserId));
             var msg = new Message { AuthorId = currentUserId, Content = message, SentAt = DateTime.UtcNow };
             group.Messages.Add(msg);
 
@@ -61,7 +61,7 @@ namespace Interns.Chats.App.Hubs
         {
             Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
 
-            if (await _dbContext.Groups.AnyAsync(Chat.CanBeAccessed(chatId, currentUserId)))
+            if (await _dbContext.Chats.AnyAsync(Chat.CanBeAccessed(chatId, currentUserId)))
             {
                 throw new BadHttpRequestException("Group not found");
             }

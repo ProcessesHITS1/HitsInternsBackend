@@ -13,7 +13,7 @@ namespace Interns.Chats.Persistence.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Groups",
+                name: "Chats",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -23,7 +23,7 @@ namespace Interns.Chats.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Groups", x => x.Id);
+                    table.PrimaryKey("PK_Chats", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,9 +40,9 @@ namespace Interns.Chats.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Messages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Messages_Groups_ChatId",
+                        name: "FK_Messages_Chats_ChatId",
                         column: x => x.ChatId,
-                        principalTable: "Groups",
+                        principalTable: "Chats",
                         principalColumn: "Id");
                 });
 
@@ -59,7 +59,7 @@ namespace Interns.Chats.Persistence.Migrations
                 name: "Messages");
 
             migrationBuilder.DropTable(
-                name: "Groups");
+                name: "Chats");
         }
     }
 }

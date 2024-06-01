@@ -33,7 +33,7 @@ namespace Interns.Chats.App.Controllers
                 UserIds = dto.Users,
                 OwnerId = User.GetId()
             };
-            _dbContext.Groups.Add(chat);
+            _dbContext.Chats.Add(chat);
 
             await _dbContext.SaveChangesAsync();
 
@@ -46,15 +46,15 @@ namespace Interns.Chats.App.Controllers
 
         [HttpGet("my")]
         public Task<List<ChatDto>> GetMyGroups()
-            => _dbContext.Groups
+            => _dbContext.Chats
                     .Where(x => x.UserIds.Contains(User.GetId()))
                     .Select(x => new ChatDto { Name = x.Name, Id = x.Id })
                     .ToListAsync();
 
-        [HttpPost("{groupId}/add/{userId}")]
-        public async Task AddToGroup([FromRoute] Guid groupId, [FromRoute] Guid userId)
+        [HttpPost("{chatId}/add/{userId}")]
+        public async Task AddToGroup([FromRoute] Guid chatId, [FromRoute] Guid userId)
         {
-            var group = await _dbContext.Groups.FirstAsync(x => x.Id == groupId && x.OwnerId == User.GetId());
+            var group = await _dbContext.Chats.FirstAsync(x => x.Id == chatId && x.OwnerId == User.GetId());
 
             if (group.UserIds.Contains(userId))
             {
@@ -65,29 +65,29 @@ namespace Interns.Chats.App.Controllers
             await _dbContext.SaveChangesAsync();
         }
 
-        [HttpPost("{groupId}/remove/{userId}")]
-        public async Task RemoveFromGroup([FromRoute] Guid groupId, [FromRoute] Guid userId)
+        [HttpPost("{chatId}/remove/{userId}")]
+        public async Task RemoveFromGroup([FromRoute] Guid chatId, [FromRoute] Guid userId)
         {
-            var group = await _dbContext.Groups.FirstAsync(x => x.Id == groupId && x.OwnerId == User.GetId());
+            var group = await _dbContext.Chats.FirstAsync(x => x.Id == chatId && x.OwnerId == User.GetId());
             group.UserIds.Remove(userId);
             await _dbContext.SaveChangesAsync();
         }
 
-        [HttpGet("{groupId}/messages")]
-        public async Task<List<MessageDto>> GetGroupMessages([FromRoute] Guid groupId, [FromQuery] DateTime? from, [FromQuery] DateTime? until)
+        [HttpGet("{chatId}/messages")]
+        public async Task<List<MessageDto>> GetGroupMessages([FromRoute] Guid chatId, [FromQuery] DateTime? from, [FromQuery] DateTime? until)
         {
             until ??= DateTime.UtcNow;
             from ??= until - TimeSpan.FromHours(1);
 
             Guid currentUserId = User.GetId();
-            var messages = await _dbContext.Groups
-                .Where(Chat.CanBeAccessed(groupId, currentUserId))
+            var messages = await _dbContext.Chats
+                .Where(Chat.CanBeAccessed(chatId, currentUserId))
                 .SelectMany(x => x.Messages)
                 .Where(x => x.SentAt >= from && x.SentAt <= until)
                 .Select(x => new MessageDto
                 {
                     Id = x.Id,
-                    ChatId = groupId,
+                    ChatId = chatId,
                     Author = x.AuthorId,
                     Message = x.Content,
                     SentAt = x.SentAt

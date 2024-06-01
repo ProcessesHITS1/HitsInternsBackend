@@ -42,7 +42,7 @@ namespace Interns.Chats.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Chats");
                 });
 
             modelBuilder.Entity("Interns.Chats.Domain.Message", b =>
