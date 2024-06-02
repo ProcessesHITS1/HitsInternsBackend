@@ -5,7 +5,7 @@ COPY ./svc_CompanyManagement/.mvn/ .mvn
 COPY ./svc_CompanyManagement/mvnw ./
 COPY ./svc_CompanyManagement/pom.xml ./
 
-RUN ls -la
+RUN chmod +x ./mvnw
 RUN ./mvnw dependency:go-offline
 
 COPY ./svc_CompanyManagement/src ./src

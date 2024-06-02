@@ -5,7 +5,7 @@ COPY ./svc_ThirdCourseBack/.mvn/ .mvn
 COPY ./svc_ThirdCourseBack/mvnw ./
 COPY ./svc_ThirdCourseBack/pom.xml ./
 
-RUN ls -la
+RUN chmod +x ./mvnw
 RUN ./mvnw dependency:go-offline
 
 COPY ./svc_ThirdCourseBack/src ./src
