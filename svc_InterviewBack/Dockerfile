@@ -2,11 +2,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy csproj and restore
-COPY src/*.csproj .
+COPY ./svc_InterviewBack/src/*.csproj .
 RUN dotnet restore
 
 # Copy everything else and build
-COPY src .
+COPY ./svc_InterviewBack/src .
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
