@@ -36,12 +36,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ matrix.image_name }}
+          images: ${{ matrix.service.image_name }}
       - 
-        name: Build and push image for .net service - ${{ matrix.image_name }}
+        name: Build and push image for .net service - ${{ matrix.service.image_name }}
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          context: "{{defaultContext}}:{{matrix.path}}"
+          context: "{{defaultContext}}:${{ matrix.service.path }}"
