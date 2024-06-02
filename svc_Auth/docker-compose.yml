@@ -5,7 +5,7 @@ services:
   auth:
 #    build:
 #      context: .
-    image: iseeyouwatching/hitsinternsbackend-auth:latest
+    image: slakter/hitsinternsbackend-auth:latest
     ports:
       - '8080:8080'
     depends_on:

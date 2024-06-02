@@ -1,4 +1,19 @@
-FROM adoptopenjdk/openjdk11:latest
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} application.jar
-ENTRYPOINT ["java", "-jar", "application.jar"]
+FROM eclipse-temurin:11-jdk-alpine as build
+WORKDIR /opt/app
+
+COPY ./svc_Auth/.mvn/ .mvn
+COPY ./svc_Auth/mvnw ./
+COPY ./svc_Auth/pom.xml ./
+
+RUN ls -la
+RUN ./mvnw dependency:go-offline
+
+COPY ./svc_Auth/src ./src
+
+RUN ./mvnw clean install
+
+FROM eclipse-temurin:11-jre-alpine
+WORKDIR /opt/app
+COPY --from=build /opt/app/target/*.jar /opt/app/*.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/opt/app/*.jar"]
