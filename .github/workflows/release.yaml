@@ -18,6 +18,9 @@ jobs:
           - name: chats
             path: svc_Chats
             image_name: slakter/hitsinternsbackend-chats
+          - name: auth
+            path: svc_Auth
+            image_name: slakter/hitsinternsbackend-auth
 
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
