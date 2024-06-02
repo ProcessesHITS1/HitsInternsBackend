@@ -1,0 +1,17 @@
+include:
+  - ../database/docker-compose.yml
+
+services:
+  chats:
+    image: slakter/hitsinternsbackend-chats:latest
+    ports:
+      - "0.0.0.0:8010:8010"
+      - "0.0.0.0:8011:8011"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=interview-chat;Username=postgres;Password=postgres
+      - ASPNETCORE_HTTP_PORT=https://+:8011
+      - ASPNETCORE_URLS=http://+:8010
+      - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT}

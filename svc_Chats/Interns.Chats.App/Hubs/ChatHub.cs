@@ -34,26 +34,34 @@ namespace Interns.Chats.App.Hubs
             await base.OnConnectedAsync();
         }
 
-        public async Task Send(string message, Guid chatId)
+        public async Task Send(PostMessageDto data)
         {
             Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
 
-            var group = await _dbContext.Chats.FirstAsync(Chat.CanBeAccessed(chatId, currentUserId));
-            var msg = new Message { AuthorId = currentUserId, Content = message, SentAt = DateTime.UtcNow };
+            var attachments = await _dbContext.Attachments
+                .Where(Attachment.RelatedChatCanBeAccessed(data.ChatId, currentUserId))
+                .Where(x => data.AttachmentIds.Contains(x.Id))
+                .ToListAsync();
+
+            var group = await _dbContext.Chats.FirstAsync(Chat.CanBeAccessed(data.ChatId, currentUserId));
+
+            var msg = new Message { AuthorId = currentUserId, Content = data.Message, SentAt = DateTime.UtcNow };
+            msg.Attachments.AddRange(attachments);
             group.Messages.Add(msg);
 
             await _dbContext.SaveChangesAsync();
 
-            await Clients.Group(chatId.ToString())
+            await Clients.Group(data.ChatId.ToString())
                 .SendAsync(
                     ChatHubConstants.SendMessageMethod, 
                     new MessageDto
                     {
                         Id = msg.Id,
-                        ChatId = chatId,
+                        ChatId = data.ChatId,
                         Author = msg.AuthorId,
                         Message = msg.Content,
-                        SentAt = msg.SentAt
+                        SentAt = msg.SentAt,
+                        Attachments = attachments.Select(x => new AttachmentDto { Id = x.Id, MimeType = x.MimeType })
                     });
         }
 
