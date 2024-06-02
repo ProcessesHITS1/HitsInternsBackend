@@ -44,4 +44,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          context: "{{defaultContext}}:${{ matrix.service.path }}"
+          context: "{{defaultContext}}"
+          file: ${{ matrix.service.path }}/Dockerfile
