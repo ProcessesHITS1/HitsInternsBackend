@@ -46,7 +46,7 @@ namespace Interns.Chats.App.Controllers
         [HttpGet("my")]
         public Task<List<ChatDto>> GetMyGroups()
             => _dbContext.Chats
-                    .Where(x => x.UserIds.Contains(User.GetId()))
+                    .Where(Chat.HasMember(User.GetId()))
                     .Select(x => new ChatDto { Name = x.Name, Id = x.Id })
                     .ToListAsync();
 
