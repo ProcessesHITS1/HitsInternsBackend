@@ -8,8 +8,17 @@ on:
     types: [published]
   workflow_dispatch:
 jobs:
-
   push_to_registry:
+    strategy:
+      matrix:
+        service:
+          - name: interview
+            path: svc_InterviewBack
+            image_name: slakter/hitsinternsbackend-interview
+          - name: chats
+            path: svc_Chats
+            image_name: slakter/hitsinternsbackend-chats
+
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
@@ -27,12 +36,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: slakter/hitsinternsbackend-interview
+          images: ${{ matrix.image_name }}
       - 
-        name: Build and push image for interview service
+        name: Build and push image for .net service - ${{ matrix.image_name }}
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          context: "{{defaultContext}}:svc_InterviewBack"
+          context: "{{defaultContext}}:${{matrix.path}}"
