@@ -5,7 +5,7 @@ services:
   third-course:
 #    build:
 #      context: .
-    image: iseeyouwatching/hitsinternsbackend-third-course:latest
+    image: slakter/hitsinternsbackend-internship:latest
     ports:
       - '8091:8091'
     depends_on:

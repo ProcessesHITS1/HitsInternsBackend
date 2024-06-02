@@ -18,6 +18,15 @@ jobs:
           - name: chats
             path: svc_Chats
             image_name: slakter/hitsinternsbackend-chats
+          - name: auth
+            path: svc_Auth
+            image_name: slakter/hitsinternsbackend-auth
+          - name: companies
+            path: svc_CompanyManagement
+            image_name: slakter/hitsinternsbackend-companies
+          - name: internship
+            path: svc_ThirdCourseBack
+            image_name: slakter/hitsinternsbackend-internship
 
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
