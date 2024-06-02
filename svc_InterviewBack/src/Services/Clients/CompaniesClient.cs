@@ -37,7 +37,6 @@ public class CompaniesClient(HttpClient httpClient, AuthClient authClient, ILogg
         public required string Name { get; set; }
         public required string CuratorId { get; set; }
         public required List<string> Contacts { get; set; }
-        public required List<Guid> SeasonIds { get; set; }
     }
 }
 
