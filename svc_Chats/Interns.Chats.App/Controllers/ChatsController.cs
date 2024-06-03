@@ -20,7 +20,7 @@ namespace Interns.Chats.App.Controllers
             _dbContext = dbContext;
         }
         [HttpPost]
-        public async Task<ChatDto> Create([FromBody] CreateChatDto dto)
+        public async Task<ShortChatDto> Create([FromBody] CreateChatDto dto)
         {
             var chat = new Chat
             {
@@ -32,7 +32,7 @@ namespace Interns.Chats.App.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return new ChatDto
+            return new ShortChatDto
             {
                 Id = chat.Id,
                 Name = chat.Name
@@ -40,15 +40,28 @@ namespace Interns.Chats.App.Controllers
         }
 
         [HttpPost("direct")]
-        public Task<ChatDto> CreateDirect([FromBody] CreateDirectChatDto dto)
+        public Task<ShortChatDto> CreateDirect([FromBody] CreateDirectChatDto dto)
             => Create(new CreateChatDto { Name = dto.Name, Users = [dto.UserId] });
 
         [HttpGet("my")]
-        public Task<List<ChatDto>> GetMyGroups()
+        public Task<List<ShortChatDto>> GetMyGroups()
             => _dbContext.Chats
                     .Where(Chat.HasMember(User.GetId()))
-                    .Select(x => new ChatDto { Name = x.Name, Id = x.Id })
+                    .Select(x => new ShortChatDto { Name = x.Name, Id = x.Id })
                     .ToListAsync();
+
+        [HttpGet("{groupId}")]
+        public async Task<ChatDto> GetGroup([FromRoute] Guid groupId)
+        {
+            var group = await _dbContext.Chats.FirstAsync(Chat.CanBeAccessed(groupId, User.GetId()));
+            return new ChatDto
+            {
+                Id = group.Id,
+                OwnerId = group.OwnerId,
+                Name = group.Name,
+                Members = group.UserIds
+            };
+        }
 
         [HttpPost("{chatId}/add/{userId}")]
         public async Task AddToGroup([FromRoute] Guid chatId, [FromRoute] Guid userId)
@@ -64,11 +77,20 @@ namespace Interns.Chats.App.Controllers
             await _dbContext.SaveChangesAsync();
         }
 
-        [HttpPost("{chatId}/remove/{userId}")]
+        [HttpDelete("{chatId}/remove/{userId}")]
         public async Task RemoveFromGroup([FromRoute] Guid chatId, [FromRoute] Guid userId)
         {
             var group = await _dbContext.Chats.FirstAsync(x => x.Id == chatId && x.OwnerId == User.GetId());
             group.UserIds.Remove(userId);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        [HttpDelete("{chatId}/leave")]
+        public async Task LeaveGroup([FromRoute] Guid chatId)
+        {
+            Guid currentUserId = User.GetId();
+            var group = await _dbContext.Chats.FirstAsync(x => x.Id == chatId && x.UserIds.Contains(currentUserId));
+            group.UserIds.Remove(currentUserId);
             await _dbContext.SaveChangesAsync();
         }
 

@@ -10,9 +10,17 @@
         public string Name { get; set; }
         public List<Guid> Users { get; set; } = [];
     }
-    public class ChatDto
+    public class ShortChatDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+    }
+
+    public class ChatDto
+    {
+        public Guid Id { get; set; }
+        public Guid OwnerId { get; set; }
+        public string Name { get; set; }
+        public List<Guid> Members { get; set; }
     }
 }

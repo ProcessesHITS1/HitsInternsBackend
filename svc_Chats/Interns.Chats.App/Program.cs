@@ -16,6 +16,19 @@ builder.AddPersistance();
 
 builder.ConfigureAuth();
 
+builder.Services
+    .AddCors(options =>
+    {
+        options.AddDefaultPolicy(
+                corsPolicyBuilder =>
+                {
+                    corsPolicyBuilder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+    });
+
 var app = builder.Build();
 await app.UsePersistance();
 
