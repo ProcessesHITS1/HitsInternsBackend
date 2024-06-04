@@ -32,6 +32,8 @@ builder.Services
 var app = builder.Build();
 await app.UsePersistance();
 
+app.UseCors();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
