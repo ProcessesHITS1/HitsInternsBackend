@@ -7,7 +7,11 @@ namespace svc_InterviewBack.Models;
 // ################
 
 // Creation model
-public record SeasonData(int Year, DateTime SeasonStart, DateTime SeasonEnd);
+public record SeasonData(
+    [Range(2010, 3000, ErrorMessage = "Year must be between 2010 and 3000")]
+    int Year,
+    DateTime SeasonStart,
+    DateTime SeasonEnd);
 
 // Returned to the client
 public record Season(Guid Id, int Year, DateTime SeasonStart, DateTime SeasonEnd);
@@ -40,20 +44,33 @@ public record StudentInfo
     public required string EmploymentStatus { get; init; }
 }
 
+// On creation
 public record PositionData
 {
     public required string Title { get; init; }
-    public  string? Description { get; init; }
-    [Range(1,int.MaxValue,ErrorMessage = "NPosition must be 1 or more")]
+    public string? Description { get; init; }
+    [Range(1, int.MaxValue, ErrorMessage = "NPosition must be 1 or more")]
     public int NPositions { get; init; }
-    
+
+}
+
+// On search
+public record PositionQuery
+{
+    public string Query { get; init; } = "";
+    public List<Guid> CompanyIds { get; init; } = [];
 }
 
 
 // Returned to the client
-public record PositionDetails : PositionData
+public record PositionInfo : PositionData
 {
     public Guid Id { get; init; }
+}
+
+public record PositionDetails
+{
+    public required PositionInfo PositionInfo { get; init; }
     public CompanyInSeasonInfo? CompanyInfo { get; init; }
 }
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
 
@@ -6,13 +6,27 @@ namespace svc_InterviewBack.Controllers;
 
 [ApiController]
 [Route("api/position")]
-public class PositionsController(IPositionService positionService) : ControllerBase
+public class PositionsController(IPositionService positionService, ISeasonsService seasonsService) : ControllerBase
 {
-    [HttpPost("{companyId}")]
-    public async Task<ActionResult> Create(Guid companyId, PositionData positionData)
+    [HttpPost("/api/season/{year}/company/{companyId}/position")]
+    public async Task<ActionResult> Create(int year, Guid companyId, PositionData positionData)
     {
-        return Ok(await positionService.Create(companyId, positionData));
+        var season = await seasonsService.Find(year, false, false);
+        return Ok(await positionService.Create(season, companyId, positionData));
     }
-    
-    
+
+    [HttpGet("search")]
+    public async Task<ActionResult> Search(
+        [FromQuery(Name = "companies")] List<Guid> companyIds,
+        [FromQuery(Name = "q")] string query = "",
+        int page = 1)
+    {
+        var queryModel = new PositionQuery
+        {
+            Query = query,
+            CompanyIds = companyIds
+        };
+        return Ok(await positionService.Search(queryModel, page));
+    }
+
 }
