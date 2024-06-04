@@ -21,17 +21,20 @@ public class MapperProfile : Profile
             .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year));
 
         CreateMap<Position, PositionData>();
-        
+
         CreateMap<Student, StudentInfo>()
             .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
 
-        CreateMap<Position, PositionDetails>();
+        CreateMap<Position, PositionInfo>();
 
+        CreateMap<(Company, Position), PositionDetails>()
+            .ForMember(dest => dest.CompanyInfo, opt => opt.MapFrom(src => src.Item1))
+            .ForMember(dest => dest.PositionInfo, opt => opt.MapFrom(src => src.Item2));
 
         CreateMap<(Position, Student), InterviewRequest>()
             .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Item1))
             .ForMember(dest => dest.Student, opt => opt.MapFrom(src => src.Item2));
-        
+
         CreateMap<InterviewRequest, RequestDetails>()
             .ForMember(dest => dest.PositionId, opt => opt.MapFrom(src => src.Position.Id))
             .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.Student.Id));
@@ -39,5 +42,5 @@ public class MapperProfile : Profile
         CreateMap<PositionData, Position>();
 
     }
-    
+
 }
