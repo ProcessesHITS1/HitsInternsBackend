@@ -115,6 +115,7 @@ namespace Interns.Chats.App.Controllers
                     SentAt = x.SentAt,
                     Attachments = x.Attachments.Select(y => new AttachmentDto { Id =  y.Id, MimeType = y.MimeType })
                 })
+                .OrderBy(x => x.SentAt)
                 .ToListAsync();
 
             return messages;
