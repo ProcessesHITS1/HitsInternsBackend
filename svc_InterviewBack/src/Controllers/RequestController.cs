@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Interns.Auth.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.Services;
 
 namespace svc_InterviewBack.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("/api/request")]
 public class RequestController(IRequestService requestService) : ControllerBase
 {
@@ -21,13 +24,14 @@ public class RequestController(IRequestService requestService) : ControllerBase
         return Ok();
     }
 
-    [HttpPost("student/{studentId}/position/{positionId}")] //student role
-    public async Task<ActionResult> Create(Guid studentId, Guid positionId)
+    [HttpPost("position/{positionId}")] //student role
+    public async Task<ActionResult> Create(Guid positionId)
     {
+        var studentId = User.GetId();
         return Ok(await requestService.CreateAsync(studentId, positionId));
     }
 
-    
+
     [HttpPut("result_status")] // Student of request || staff
     public async Task<ActionResult> ChangeResultStatus()
     {

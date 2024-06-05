@@ -6,9 +6,8 @@ namespace svc_InterviewBack.Controllers;
 
 [Route("/api/season")]
 [ApiController]
-public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
+public class SeasonsController(ISeasonsService seasonsService, IStudentsService studentsService, ICompaniesService companiesService) : ControllerBase
 {
-    private readonly ISeasonsService _seasonsService = seasonsService;
 
     /// <summary>
     /// Получает все сезоны.
@@ -17,18 +16,25 @@ public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
     [HttpGet("/api/seasons")]
     public async Task<ActionResult> GetAll()
     {
-        return Ok(await _seasonsService.GetAll());
+        return Ok(await seasonsService.GetAll());
     }
 
     /// <summary>
-    /// Получает детали о сезоне, включая компании и студентов в нем.
+    /// ЭНДПОИНТ РАБОТАЕТ, НО ЛУЧШЕ ИСПОЛЬЗОВАТЬ ОТДЕЛЬНЫЕ ДЛЯ СТУДЕНТОВ И КОМПАНИЙ. Получает детали о сезоне, включая компании и студентов в нем.
     /// </summary>
     /// <param name="year">The year of the season to retrieve.</param>
     /// <returns>The season with the specified year.</returns>
+    [Obsolete("Use separate endpoints for companies and students instead")]
     [HttpGet("{year}")]
     public async Task<ActionResult> Get(int year)
     {
-        return Ok(await _seasonsService.Get(year));
+        var season = await seasonsService.Find(year);
+        return Ok(new SeasonDetails
+        {
+            Season = new Season(season.Id, season.Year, season.SeasonStart, season.SeasonEnd),
+            Companies = await companiesService.GetAll(year),
+            Students = studentsService.ConvertToStudentsInfo(season.Students)
+        });
     }
 
     /// <summary>
@@ -39,7 +45,7 @@ public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Create(SeasonData seasonData)
     {
-        return Ok(await _seasonsService.Create(seasonData));
+        return Ok(await seasonsService.Create(seasonData));
     }
 
     /// <summary>
@@ -51,7 +57,7 @@ public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
     [HttpPut("{year}")]
     public async Task<ActionResult> Update(int year, SeasonData seasonData)
     {
-        return Ok(await _seasonsService.Update(year, seasonData));
+        return Ok(await seasonsService.Update(year, seasonData));
     }
 
     /// <summary>
@@ -62,7 +68,7 @@ public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
     [HttpDelete("{year}")]
     public async Task<ActionResult> Delete(int year)
     {
-        await _seasonsService.Delete(year);
+        await seasonsService.Delete(year);
         return Ok();
     }
 }

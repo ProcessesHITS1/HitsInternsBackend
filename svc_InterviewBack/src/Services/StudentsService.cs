@@ -14,6 +14,7 @@ public interface IStudentsService
 {
     public Task<StudentInfo> Create(Guid id, Season season);
     public Task Delete(Guid id, Season season);
+    public List<StudentInfo> ConvertToStudentsInfo(List<Student> students);
 }
 
 
@@ -50,5 +51,10 @@ public class StudentsService(InterviewDbContext context, UsersClient usersClient
         var res = season.Students.Remove(season.Students.First(c => c.Id == id));
         if (!res) logger.LogWarning($"Student with id {id} was not found in season with year {season.Year}");
         await context.SaveChangesAsync();
+    }
+
+    public List<StudentInfo> ConvertToStudentsInfo(List<Student> students)
+    {
+        return students.Select(mapper.Map<StudentInfo>).ToList();
     }
 }

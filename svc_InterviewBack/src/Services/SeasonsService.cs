@@ -14,7 +14,6 @@ public interface ISeasonsService
     // methods for clients
     // Here input and output models are both DTOs
     public Task<List<Season>> GetAll();
-    public Task<SeasonDetails> Get(int year);
     public Task<Season> Create(SeasonData seasonData);
     public Task<Season> Update(int year, SeasonData seasonData);
     public Task Delete(int year);
@@ -27,8 +26,6 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper) : ISeaso
 {
     public async Task<Season> Create(SeasonData seasonData)
     {
-        if (seasonData.Year < 2010 || seasonData.Year > 3000)
-            throw new BadRequestException("Invalid year value. Year should be between 2010 and 3000");
         if (seasonData.SeasonStart >= seasonData.SeasonEnd)
             throw new BadRequestException("Season start date should be before season end date");
         if (await context.Seasons.AnyAsync(s => s.Year == seasonData.Year))
@@ -47,12 +44,6 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper) : ISeaso
         await context.SaveChangesAsync();
     }
 
-    public async Task<SeasonDetails> Get(int year)
-    {
-        var season = await Find(year);
-        return mapper.Map<SeasonDetails>(season);
-    }
-
     public async Task<SeasonDb> Find(int year, bool withCompanies = true, bool withStudents = true)
     {
         var query = context.Seasons.AsQueryable();
@@ -60,7 +51,7 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper) : ISeaso
             query = query.Include(s => s.Companies);
         if (withStudents)
             query = query.Include(s => s.Students);
-        
+
         var season = await query.FirstOrDefaultAsync(s => s.Year == year)
                      ?? throw new NotFoundException($"Season with year {year} not found");
         return season;

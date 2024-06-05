@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
 
 namespace svc_InterviewBack.Controllers;
@@ -36,5 +35,16 @@ public class CompaniesController(ICompaniesService companiesService, ISeasonsSer
         var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false);
         await _companiesService.Delete(id, season);
         return Ok();
+    }
+
+    /// <summary>
+    /// Получает все компании в сезоне.
+    /// </summary>
+    /// <param name="year">The year for which to retrieve the companies.</param>
+    /// <returns>An ActionResult containing the list of companies.</returns>
+    [HttpGet("{year}/companies")]
+    public async Task<ActionResult> GetCompanies(int year)
+    {
+        return Ok(await _companiesService.GetAll(year));
     }
 }
