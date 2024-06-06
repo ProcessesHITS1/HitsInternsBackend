@@ -13,6 +13,7 @@ public interface IPositionService
 {
     Task<PositionInfo> Create(SeasonDb season, Guid companyId, PositionData position);
     Task<List<PositionDetails>> Search(PositionQuery query, int page);
+    Task<PositionInfo> Update(Guid positionId, PositionData positionData);
 }
 
 public class PositionsService(InterviewDbContext context, IMapper mapper) : IPositionService
@@ -52,4 +53,28 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
 
         return positions.Select(cp => mapper.Map<PositionDetails>((cp.Company, cp.Position))).ToList();
     }
+
+    public async Task<PositionInfo> Update(Guid positionId, PositionData positionData)
+    {
+        var positionEntity = await context.Positions.FindAsync(positionId);
+        if (positionEntity == null) throw new NotFoundException($"Position {positionId} not found");
+
+        if (positionData.Title != null)
+        {
+            positionEntity.Title = positionData.Title;
+        }
+
+        if (positionData.Description != null)
+        {
+            positionEntity.Description = positionData.Description;
+        }
+
+        if (positionData.NPositions.HasValue)
+        {
+            positionEntity.NPositions = positionData.NPositions.Value;
+        }
+        await context.SaveChangesAsync();
+        return mapper.Map<PositionInfo>(positionEntity);
+    }
+    
 }

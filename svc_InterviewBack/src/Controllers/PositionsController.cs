@@ -28,5 +28,16 @@ public class PositionsController(IPositionService positionService, ISeasonsServi
         };
         return Ok(await positionService.Search(queryModel, page));
     }
-
+    /// <summary>
+    /// Обновление позиции.
+    /// </summary>
+    /// <param name="positionId">The ID of the position to update.</param>
+    /// /// <param name="positionData">Updated position data.</param>
+    [HttpPut("{positionId}")]
+    public async Task<ActionResult> Update(Guid positionId, PositionData positionData)
+    {
+        //Update Position Info
+        return Ok(await positionService.Update(positionId, positionData));
+    }
+    
 }

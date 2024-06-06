@@ -47,10 +47,10 @@ public record StudentInfo
 // On creation
 public record PositionData
 {
-    public required string Title { get; init; }
+    public required string? Title { get; init; }
     public string? Description { get; init; }
     [Range(1, int.MaxValue, ErrorMessage = "NPosition must be 1 or more")]
-    public int NPositions { get; init; }
+    public int? NPositions { get; init; }
 
 }
 

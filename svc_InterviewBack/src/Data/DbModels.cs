@@ -40,10 +40,10 @@ public record Season
 public record Position
 {
     public Guid Id { get; init; }
-    public required string Title { get; init; }
-    public string? Description { get; init; }
+    public required string Title { get; set; }
+    public string? Description { get; set; }
     // Number of positions available
-    public required int NPositions { get; init; }
+    public required int NPositions { get; set; }
 };
 
 
