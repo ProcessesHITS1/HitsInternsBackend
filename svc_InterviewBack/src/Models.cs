@@ -79,5 +79,5 @@ public record RequestDetails
     public Guid Id { get; init; }
     public required Guid StudentId { get; init; }
     public required Guid PositionId { get; init; }
-    public RequestStatus Status { get; init; }
+    public ResultStatus Status { get; init; }
 }

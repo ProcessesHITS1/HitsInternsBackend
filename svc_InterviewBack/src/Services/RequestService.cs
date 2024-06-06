@@ -9,6 +9,8 @@ namespace svc_InterviewBack.Services;
 public interface IRequestService
 {
     Task<RequestDetails> CreateAsync(Guid studentId, Guid positionId);
+    Task<RequestDetails> UpdateResultStatus();
+    Task<RequestDetails> UpdateRequestStatus();
 }
 
 public class RequestService(InterviewDbContext context, IMapper mapper) : IRequestService
@@ -35,5 +37,15 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var interviewRequestDto = mapper.Map<RequestDetails>(interviewRequest);
 
         return interviewRequestDto;
+    }
+
+    public Task<RequestDetails> UpdateResultStatus()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<RequestDetails> UpdateRequestStatus()
+    {
+        throw new NotImplementedException();
     }
 }

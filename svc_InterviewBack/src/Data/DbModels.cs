@@ -53,13 +53,22 @@ public record InterviewRequest
     public Guid Id { get; init; }
     public required Student Student { get; init; }
     public required Position Position { get; init; }
-    public RequestStatus Status { get; init; } = RequestStatus.Pending;
+    public ResultStatus Status { get; init; } = ResultStatus.Pending;
 };
 
 
-public enum RequestStatus
+public enum ResultStatus
 {
     Pending,
     Accepted,
     Rejected
+}
+
+public enum RequestStatus
+{
+    Waiting,
+    TestGiven,
+    Interviewed,
+    Done,
+    Canceled
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using svc_InterviewBack.DAL;
 using svc_InterviewBack.Services;
 
 namespace svc_InterviewBack.Controllers;
@@ -28,25 +29,16 @@ public class RequestController(IRequestService requestService) : ControllerBase
     }
 
     
-    [HttpPut("result_status")] // Student of request || staff
-    public async Task<ActionResult> ChangeResultStatus()
+    [HttpPut("{requestId}/result_status/{resultStatus}")]
+    public async Task<ActionResult> UpdateResultStatus(Guid requestId, ResultStatus resultStatus)
     {
-        //Check for Identity
-        //Change Statue
-        return Ok();
+        return Ok(await requestService.UpdateResultStatus());
     }
 
-    [HttpPut("request_status")] // Student of request
-    public async Task<ActionResult> ChangeRequestStatus()
+    [HttpPut("{requestId}/request_status/{requestStatus}")] 
+    public async Task<ActionResult> UpdateRequestStatus(Guid requestId,RequestStatus requestStatus)
     {
-        //Check for Identity
-        //Change Status
-        return Ok();
+        return Ok(await requestService.UpdateRequestStatus());
     }
-
-    [HttpDelete]
-    public async Task<ActionResult> Delete()
-    {
-        return Ok();
-    }
+    
 }
