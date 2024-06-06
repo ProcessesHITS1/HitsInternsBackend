@@ -1,7 +1,6 @@
 namespace svc_InterviewBack.DAL;
 
-
-// Basically these entities represent the tables in the database
+// Basically, these entities represent the tables in the database
 public record Company
 {
     public Guid Id { get; init; }
@@ -41,11 +40,12 @@ public record Position
 {
     public Guid Id { get; init; }
     public required string Title { get; set; }
+
     public string? Description { get; set; }
+
     // Number of positions available
     public required int NPositions { get; set; }
 };
-
 
 // Interview request from a student to a position in a company
 public record InterviewRequest
@@ -53,9 +53,11 @@ public record InterviewRequest
     public Guid Id { get; init; }
     public required Student Student { get; init; }
     public required Position Position { get; init; }
-    public ResultStatus Status { get; init; } = ResultStatus.Pending;
-};
 
+    public Guid? RequestStatusSnapshotId { get; set; } // Foreign key to the latest status snapshot
+    public RequestStatusSnapshot RequestStatusSnapshot { get; set; } // Navigation property to the latest status snapshot
+    public ResultStatus ResultStatus { get; set; } = ResultStatus.Pending;
+};
 
 public enum ResultStatus
 {
@@ -72,3 +74,16 @@ public enum RequestStatus
     Done,
     Canceled
 }
+
+public class RequestStatusSnapshot
+{
+    public Guid Id { get; init; }
+    public DateTime DateTime { get; init; }
+    public RequestStatus RequestStatus { get; init; }
+    public Guid InterviewRequestId { get; init; } // Foreign key to the associated InterviewRequest
+    public InterviewRequest InterviewRequest { get; init; }
+    public Guid? PreviousRequestStatusSnapshotId { get; init; } // Reference to the previous status snapshot
+    public RequestStatusSnapshot? PreviousRequestStatusSnapshot { get; init; }
+}
+
+//Request -> latest RequestStatus -> latest -1 status
