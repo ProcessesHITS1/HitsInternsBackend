@@ -9,7 +9,7 @@ COPY ./svc_InterviewBack/src/*.csproj ./svc_InterviewBack/src/
 RUN dotnet restore "./svc_InterviewBack/src"
 
 # Copy everything else and build
-COPY ./svc_InterviewBack/src ./svc_InterviewBack
+COPY ./svc_InterviewBack/src ./svc_InterviewBack/src
 RUN dotnet publish "./svc_InterviewBack/src" -c Release -o out
 
 # Build runtime image
