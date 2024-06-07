@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./NETLib .
 
 # Copy csproj and restore
-COPY ./svc_InterviewBack/src/*.csproj ./svc_InterviewBack
+COPY ./svc_InterviewBack/src/*.csproj ./svc_InterviewBack/
 RUN dotnet restore "./svc_InterviewBack"
 
 # Copy everything else and build
