@@ -1,6 +1,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
+
+COPY ./NETLib ./NETLib
+
 # Copy csproj and restore
 COPY ./svc_InterviewBack/src/*.csproj .
 RUN dotnet restore
