@@ -9,12 +9,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AddStudentToSemesterDto {
+public class StudentTransferToThirdCourseDto {
 
-    private UUID studentId;
+    private UUID id;
 
     private UUID companyId;
-
-    private UUID semesterId;
 
 }
