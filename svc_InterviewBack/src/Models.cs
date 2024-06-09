@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using svc_InterviewBack.DAL;
+using svc_InterviewBack.Utils;
 
 namespace svc_InterviewBack.Models;
 
@@ -8,7 +9,7 @@ namespace svc_InterviewBack.Models;
 
 // Creation model
 public record SeasonData(
-    [Range(2010, 3000, ErrorMessage = "Year must be between 2010 and 3000")]
+    [SeasonYearRange]
     int Year,
     DateTime SeasonStart,
     DateTime SeasonEnd);
@@ -32,7 +33,7 @@ public record CompanyInSeasonInfo
     public Guid Id { get; init; }
     public int SeasonYear { get; init; }
     public required string Name { get; init; }
-    public required int NPositions { get; init; }
+    public required int NPositions { get; set; }
 }
 
 
@@ -49,8 +50,11 @@ public record PositionData
 {
     public required string Title { get; init; }
     public string? Description { get; init; }
-    [Range(1, int.MaxValue, ErrorMessage = "NPosition must be 1 or more")]
-    public int NPositions { get; init; }
+    [Range(1, int.MaxValue, ErrorMessage = "NSeats must be 1 or more")]
+    public int NSeats { get; init; }
+    public Guid CompanyId { get; init; }
+    [SeasonYearRange]
+    public int SeasonYear { get; set; }
 
 }
 
@@ -59,6 +63,8 @@ public record PositionQuery
 {
     public string Query { get; init; } = "";
     public List<Guid> CompanyIds { get; init; } = [];
+    [SeasonYearRange]
+    public int SeasonYear { get; init; }
 }
 
 
@@ -66,12 +72,8 @@ public record PositionQuery
 public record PositionInfo : PositionData
 {
     public Guid Id { get; init; }
-}
-
-public record PositionDetails
-{
-    public required PositionInfo PositionInfo { get; init; }
-    public CompanyInSeasonInfo? CompanyInfo { get; init; }
+    public int NRequests { get; init; }
+    public required string CompanyName { get; init; }
 }
 
 public record RequestDetails

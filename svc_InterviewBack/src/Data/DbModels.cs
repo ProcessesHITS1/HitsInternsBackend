@@ -43,8 +43,10 @@ public record Position
     public required string Title { get; init; }
     public string? Description { get; init; }
     // Number of positions available
-    public required int NPositions { get; init; }
+    public required int NSeats { get; init; }
 };
+
+public record CompanyAndPosition(Company Company, Position Position);
 
 
 // Interview request from a student to a position in a company

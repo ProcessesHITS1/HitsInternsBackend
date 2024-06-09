@@ -37,4 +37,17 @@ public class StudentsController(IStudentsService studentsService, ISeasonsServic
         await _studentsService.Delete(id, season);
         return Ok();
     }
+
+
+    /// <summary>
+    /// Получает всех студентов в сезоне.
+    /// </summary>
+    /// <param name="year">The year for which to retrieve the students.</param>
+    /// <returns>An <see cref="ActionResult"/> containing the students for the specified year.</returns>
+    [HttpGet("{year}/students")]
+    public async Task<ActionResult> GetStudents(int year)
+    {
+        var season = await _seasonsService.Find(year, withCompanies: false, withStudents: true);
+        return Ok(_studentsService.ConvertToStudentsInfo(season.Students));
+    }
 }
