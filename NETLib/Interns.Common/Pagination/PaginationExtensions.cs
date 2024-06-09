@@ -13,14 +13,14 @@ namespace Interns.Common.Pagination
         public static async Task<PaginatedItems<TResult>> Paginated<TEntity, TResult>(
             this IQueryable<TEntity> source,
             int page,
-            int maxPageSize,
+            int pageSize,
             Func<TEntity, TResult> mapper
         )
         {
             int totalItems = await source.CountAsync();
             var itemsPage = await source
-                .Skip((page - 1) * maxPageSize)
-                .Take(maxPageSize)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             return new PaginatedItems<TResult>()
@@ -29,7 +29,7 @@ namespace Interns.Common.Pagination
                 {
                     CurrentPage = page,
                     TotalItems = totalItems,
-                    PageSize = itemsPage.Count
+                    PageSize = pageSize
                 },
                 Items = itemsPage.Select(mapper)
             };
