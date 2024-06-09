@@ -1,26 +1,20 @@
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Caching.Memory;
-using System.IdentityModel.Tokens.Jwt;
 using svc_InterviewBack.Utils;
 using System.Text.Json.Serialization;
-
 
 namespace svc_InterviewBack.Services.Clients;
 
 
-
-public class UsersClient(HttpClient httpClient, AuthClient authClient, IMemoryCache cache) : BaseClient(httpClient, authClient, cache)
+public class UsersClient(HttpClient httpClient)
 {
 
     public async Task<User> GetUser(Guid id)
     {
-        var response = await SendWithAuth(new HttpRequestMessage(HttpMethod.Get, $"/api/users/{id}"));
+        var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"/api/users/{id}"));
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"User with id {id} not found");
         }
-        return await DeserializeResponse<User>(response);
+        return await ClientHelper.DeserializeResponse<User>(response);
     }
 
     // Models

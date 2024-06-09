@@ -33,17 +33,13 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper, ThirdCou
         var season = await context.Seasons.Include(s => s.Students).FirstOrDefaultAsync(s => s.Year == year)
                      ?? throw new NotFoundException($"Season with year {year} not found");
         season.IsClosed = true;
-        // TODO discuss, since this looks stupid
-        var semesters = await client.GetSemesters(0, 100);
-        var semester = semesters.Data.FirstOrDefault(s => s.Year == year && s.Semester == 0)
-                       ?? throw new NotFoundException($"Semester for year {year} not found");
-        var request = season.Students.Where(s => s.EmploymentStatus == EmploymentStatus.Employed).Select(s => new StudentInSemester
+
+        var request = season.Students.Where(s => s.EmploymentStatus == EmploymentStatus.Employed).Select(s => new StudentInfo
         {
             StudentId = s.Id,
-            CompanyId = s.CompanyId ?? Guid.Empty,
-            SemesterId = semester.Id
+            CompanyId = s.CompanyId ?? throw new BadRequestException($"Student with id {s.Id} is employed but has no company"),
         }).ToList();
-        await client.AddStudentsToSemester(new StudentsInSemester { StudentInSemester = request });
+        await client.AddStudentsToSemester(new StudentsInternship { StudentInSemester = request });
     }
 
     public async Task<Season> Get(int year)

@@ -1,23 +1,20 @@
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Caching.Memory;
 using svc_InterviewBack.Utils;
 
 namespace svc_InterviewBack.Services.Clients;
 
 
-public class CompaniesClient(HttpClient httpClient, AuthClient authClient, IMemoryCache cache) : BaseClient(httpClient, authClient, cache)
+public class CompaniesClient(HttpClient httpClient)
 {
     public async Task<CompanyData> Get(Guid id)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/companies/{id}");
 
-        var response = await SendWithAuth(request);
+        var response = await httpClient.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"Company with id {id} not found");
         }
-        return await DeserializeResponse<CompanyData>(response);
+        return await ClientHelper.DeserializeResponse<CompanyData>(response);
     }
 
     // Models
