@@ -36,7 +36,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     }
 
     /// <summary>
-    /// Ищет позиции по компаниям, сезону и строке. Возвращает результаты по страницам.
+    /// ���� ������� �� ���������, ������ � ������. ���������� ���������� �� ���������.
     /// </summary>
     /// <param name="year">The year of the season.</param>
     /// <param name="companyIds">The IDs of the companies associated with the positions.</param>

@@ -18,7 +18,7 @@ public class StudentsController(IStudentsService studentsService, ISeasonsServic
     /// <param name="year">The year of the season</param>
     /// <param name="id">The ID of the student</param>
     [HttpPost("{year}/student/{id}")]
-    public async Task<ActionResult> Create(int year, Guid id)
+    public async Task<ActionResult<StudentInfo>> Create(int year, Guid id)
     {
         var season = await _seasonsService.Find(year, withCompanies: false, withStudents: true);
         return Ok(await _studentsService.Create(id, season));
