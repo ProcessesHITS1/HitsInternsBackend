@@ -13,7 +13,7 @@ public interface IPositionService
 {
     Task<PositionInfo> Create(PositionData position);
     Task Delete(Guid id);
-    Task<List<PositionInfo>> Search(PositionQuery query, int page);
+    Task<PaginatedItems<PositionInfo>> Search(PositionQuery query, int page);
 
 }
 
@@ -48,7 +48,7 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<PositionInfo>> Search(PositionQuery query, int page)
+    public async Task<PaginatedItems<PositionInfo>> Search(PositionQuery query, int page)
     {
         var allPosition = context.Companies
             // filter by company ids
@@ -61,11 +61,16 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
                 || cp.Position.Description != null && cp.Position.Description.Contains(query.Query)
             );
 
-        return positions.Select(cp => mapper.Map<PositionInfo>(new CompanyAndPosition(cp.Company, cp.Position))).Select(x =>
-        {
-            // this is a workaround to not get the season entity
-            x.SeasonYear = query.SeasonYear;
-            return x;
-        }).ToList();
+        return await allPosition.Paginated(
+            page,
+            PageSize,
+            cp =>
+            {
+                var mapped = mapper.Map<PositionInfo>(new CompanyAndPosition(cp.Company, cp.Position));
+                mapped.SeasonYear = query.SeasonYear;
+
+                return mapped;
+            }
+        );
     }
 }
