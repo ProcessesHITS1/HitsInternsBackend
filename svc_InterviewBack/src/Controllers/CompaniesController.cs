@@ -20,7 +20,7 @@ public class CompaniesController(ICompaniesService companiesService, ISeasonsSer
     [HttpPost("{year}/company/{id}")]
     public async Task<ActionResult<CompanyInSeasonInfo>> Create(int year, Guid id)
     {
-        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false);
+        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false, checkOpen: true);
         return Ok(await _companiesService.Create(id, season));
     }
 
@@ -33,7 +33,7 @@ public class CompaniesController(ICompaniesService companiesService, ISeasonsSer
     [HttpDelete("{year}/company/{id}")]
     public async Task<ActionResult> Delete(int year, Guid id)
     {
-        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false);
+        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false, checkOpen: true);
         await _companiesService.Delete(id, season);
         return Ok();
     }

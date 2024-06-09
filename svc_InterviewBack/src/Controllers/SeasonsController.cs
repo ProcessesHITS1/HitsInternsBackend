@@ -20,18 +20,29 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     }
 
     /// <summary>
+    /// Получает информацию о сезоне.
+    /// </summary>
+    /// <param name="year">The year of the season to retrieve.</param>
+    /// <returns>An ActionResult containing the retrieved Season object.</returns>
+    [HttpGet("{year}/info")]
+    public async Task<ActionResult<Season>> Get(int year)
+    {
+        return Ok(await seasonsService.Get(year));
+    }
+
+    /// <summary>
     /// ЭНДПОИНТ РАБОТАЕТ, НО ЛУЧШЕ ИСПОЛЬЗОВАТЬ ОТДЕЛЬНЫЕ ДЛЯ СТУДЕНТОВ И КОМПАНИЙ. Получает детали о сезоне, включая компании и студентов в нем.
     /// </summary>
     /// <param name="year">The year of the season to retrieve.</param>
     /// <returns>The season with the specified year.</returns>
     [Obsolete("Use separate endpoints for companies and students instead")]
     [HttpGet("{year}")]
-    public async Task<ActionResult<SeasonDetails>> Get(int year)
+    public async Task<ActionResult<SeasonDetails>> GetDetails(int year)
     {
         var season = await seasonsService.Find(year);
         return Ok(new SeasonDetails
         {
-            Season = new Season(season.Id, season.Year, season.SeasonStart, season.SeasonEnd),
+            Season = await seasonsService.Get(year),
             Companies = await companiesService.GetAll(year),
             Students = studentsService.ConvertToStudentsInfo(season.Students)
         });
@@ -69,6 +80,18 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     public async Task<ActionResult> Delete(int year)
     {
         await seasonsService.Delete(year);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Завершает текущий сезон. После завершения в нем нельзя создавать заявки и добавлять компании
+    /// </summary>
+    /// <param name="year">The year of the season to close.</param>
+    /// <returns>An <see cref="ActionResult"/> representing the result of the operation.</returns>
+    [HttpPost("{year}/close")]
+    public async Task<ActionResult> Close(int year)
+    {
+        await seasonsService.Close(year);
         return Ok();
     }
 }

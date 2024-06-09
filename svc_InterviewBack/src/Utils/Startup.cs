@@ -23,7 +23,7 @@ public static class Startup
         .AddScoped<IPositionService, PositionsService>()
         .AddScoped<ICompaniesService, CompaniesService>()
         .AddScoped<IStudentsService, StudentsService>()
-        .AddScoped<IRequestService,RequestService>();
+        .AddScoped<IRequestService, RequestService>();
 
         // add clients
         services.AddHttpClient<CompaniesClient>(client =>
@@ -37,6 +37,10 @@ public static class Startup
         services.AddHttpClient<UsersClient>(client =>
         {
             client.BaseAddress = new Uri(config["AuthServiceUrl"]!);
+        });
+        services.AddHttpClient<ThirdCourseClient>(client =>
+        {
+            client.BaseAddress = new Uri(config["ThirdCourseServiceUrl"]!);
         });
 
         // add db context

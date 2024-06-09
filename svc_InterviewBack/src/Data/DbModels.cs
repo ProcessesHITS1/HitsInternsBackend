@@ -16,6 +16,7 @@ public record Student
     public required string Name { get; init; }
     public required Season Season { get; init; }
     public required EmploymentStatus EmploymentStatus { get; init; }
+    public Guid? CompanyId { get; set; }
     public required List<InterviewRequest> InterviewRequests { get; init; }
 }
 
@@ -30,8 +31,9 @@ public record Season
 {
     public Guid Id { get; init; }
     public int Year { get; init; }
-    public DateTime SeasonStart { get; init; }
-    public DateTime SeasonEnd { get; init; }
+    public bool IsClosed { get; set; }
+    public DateTime SeasonStart { get; set; }
+    public DateTime SeasonEnd { get; set; }
     public required List<Company> Companies { get; init; }
     public required List<Student> Students { get; init; }
 };

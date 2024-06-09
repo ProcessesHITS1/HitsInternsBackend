@@ -9,7 +9,7 @@
 
     public class PaginatedItems<T>
     {
-        public PaginationInfo PaginationInfo { get; set; }
-        public IEnumerable<T> Items { get; set; }
+        public required PaginationInfo PaginationInfo { get; set; }
+        public required IEnumerable<T> Items { get; set; }
     }
 }
