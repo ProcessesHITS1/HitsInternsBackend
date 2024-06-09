@@ -9,9 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hits.thirdcourseservice.dto.AddDiaryDto;
-import ru.hits.thirdcourseservice.dto.AddStudentsToSemesterDto;
 import ru.hits.thirdcourseservice.dto.DiaryDto;
-import ru.hits.thirdcourseservice.dto.StudentInSemesterDto;
 import ru.hits.thirdcourseservice.service.DiaryService;
 
 import javax.validation.Valid;

@@ -36,6 +36,7 @@ public class SemesterService {
                 .semester(createUpdateSemesterDto.getSemester())
                 .seasonId(createUpdateSemesterDto.getSeasonId())
                 .documentsDeadline(createUpdateSemesterDto.getDocumentsDeadline())
+                .isClosed(false)
                 .build();
         semesterRepository.save(semester);
     }
@@ -49,6 +50,16 @@ public class SemesterService {
         semester.setSemester(createUpdateSemesterDto.getSemester());
         semester.setSeasonId(createUpdateSemesterDto.getSeasonId());
         semester.setDocumentsDeadline(createUpdateSemesterDto.getDocumentsDeadline());
+
+        semesterRepository.save(semester);
+    }
+
+    @Transactional
+    public void closeSemester(UUID semesterId) {
+        SemesterEntity semester = semesterRepository.findById(semesterId)
+                .orElseThrow(() -> new NotFoundException("Семестр с ID " + semesterId + " не найден"));
+
+        semester.setIsClosed(true);
 
         semesterRepository.save(semester);
     }
@@ -70,6 +81,7 @@ public class SemesterService {
                     .semester(semester.getSemester())
                     .seasonId(semester.getSeasonId())
                     .documentsDeadline(semester.getDocumentsDeadline())
+                    .isClosed(semester.getIsClosed())
                     .build();
 
             semesterDtos.add(semesterDto);
@@ -88,6 +100,7 @@ public class SemesterService {
                 .semester(semester.getSemester())
                 .seasonId(semester.getSeasonId())
                 .documentsDeadline(semester.getDocumentsDeadline())
+                .isClosed(semester.getIsClosed())
                 .build();
     }
 

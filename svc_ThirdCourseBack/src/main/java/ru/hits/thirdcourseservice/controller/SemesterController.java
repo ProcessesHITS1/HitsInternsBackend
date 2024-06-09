@@ -46,6 +46,16 @@ public class SemesterController {
     }
 
     @Operation(
+            summary = "Закрыть семестр.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PutMapping("/{id}/close")
+    public ResponseEntity<Void> closeSemester(@PathVariable UUID id) {
+        semesterService.closeSemester(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(
             summary = "Получить список всех семестров с пагинацией.",
             security = @SecurityRequirement(name = "bearerAuth")
     )

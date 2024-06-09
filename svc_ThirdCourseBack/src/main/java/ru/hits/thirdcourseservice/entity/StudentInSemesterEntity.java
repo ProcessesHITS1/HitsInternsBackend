@@ -35,6 +35,6 @@ public class StudentInSemesterEntity {
     @JoinColumn(name = "diary_id")
     private DiaryEntity diary;
 
-    private boolean internshipPassed;
+    private Boolean internshipPassed;
 
 }
