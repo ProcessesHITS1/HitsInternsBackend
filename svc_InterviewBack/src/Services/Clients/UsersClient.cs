@@ -9,12 +9,12 @@ public class UsersClient(HttpClient httpClient)
 
     public async Task<User> GetUser(Guid id)
     {
-        var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"/api/users/{id}"));
+        var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"/api/users/{id}/info"));
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"User with id {id} not found");
         }
-        return await ClientHelper.DeserializeResponse<User>(response);
+        return await ClientHelper.DeserializeResponseAsync<User>(response);
     }
 
     // Models

@@ -16,7 +16,7 @@ public record Student
     public required string Name { get; init; }
     public required Season Season { get; init; }
     public required EmploymentStatus EmploymentStatus { get; init; }
-    public Guid? CompanyId { get; set; }
+    public Company? Company { get; set; }
     public required List<InterviewRequest> InterviewRequests { get; init; }
 }
 

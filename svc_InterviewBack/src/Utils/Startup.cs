@@ -26,6 +26,7 @@ public static class Startup
         .AddScoped<IRequestService, RequestService>();
 
         // add clients
+        services.AddTransient<AuthHandler>();
         ConfigureHttpClient<CompaniesClient>(services, config["CompaniesServiceUrl"]!);
         ConfigureHttpClient<UsersClient>(services, config["AuthServiceUrl"]!);
         ConfigureHttpClient<ThirdCourseClient>(services, config["ThirdCourseServiceUrl"]!);

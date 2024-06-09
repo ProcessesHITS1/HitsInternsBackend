@@ -52,7 +52,7 @@ public class AuthClient
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Failed to authorize in auth service");
-            throw new NetworkException("Failed to authorize in auth service");
+            throw new MicroserviceException("Failed to authorize in auth service");
         }
         var body = await response.Content.ReadAsStringAsync();
         var token = JsonSerializer.Deserialize<TokenData>(body, _jsonOptions)!.AccessToken;

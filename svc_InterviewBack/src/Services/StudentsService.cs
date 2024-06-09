@@ -53,6 +53,7 @@ public class StudentsService(InterviewDbContext context, UsersClient usersClient
         await context.SaveChangesAsync();
     }
 
+    // TODO change to actual db query
     public List<StudentInfo> ConvertToStudentsInfo(List<Student> students)
     {
         return students.Select(mapper.Map<StudentInfo>).ToList();

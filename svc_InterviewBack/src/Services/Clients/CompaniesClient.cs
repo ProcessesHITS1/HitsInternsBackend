@@ -8,13 +8,12 @@ public class CompaniesClient(HttpClient httpClient)
     public async Task<CompanyData> Get(Guid id)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/companies/{id}");
-
         var response = await httpClient.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             throw new NotFoundException($"Company with id {id} not found");
         }
-        return await ClientHelper.DeserializeResponse<CompanyData>(response);
+        return await ClientHelper.DeserializeResponseAsync<CompanyData>(response);
     }
 
     // Models

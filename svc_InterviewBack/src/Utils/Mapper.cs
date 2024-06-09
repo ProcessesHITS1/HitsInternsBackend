@@ -32,7 +32,8 @@ public class MapperProfile : Profile
         CreateMap<Position, PositionInfo>();
 
         CreateMap<Student, StudentInfo>()
-            .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
+            .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()))
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company != null ? src.Company.Id : (Guid?)null));
 
         CreateMap<Position, PositionInfo>();
 

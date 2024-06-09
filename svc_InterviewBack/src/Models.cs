@@ -48,6 +48,7 @@ public record StudentInfo
     public Guid Id { get; init; }
     public required string Name { get; init; }
     public required string EmploymentStatus { get; init; }
+    public Guid? CompanyId { get; init; }
 }
 
 // On creation

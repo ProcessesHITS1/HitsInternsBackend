@@ -30,16 +30,19 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper, ThirdCou
 {
     public async Task Close(int year)
     {
-        var season = await context.Seasons.Include(s => s.Students).FirstOrDefaultAsync(s => s.Year == year)
+        var season = await context.Seasons.Include(s => s.Students).ThenInclude(s => s.Company).FirstOrDefaultAsync(s => s.Year == year)
                      ?? throw new NotFoundException($"Season with year {year} not found");
+        // if (season.IsClosed) throw new BadRequestException($"Season with year {year} is already closed");
         season.IsClosed = true;
 
         var request = season.Students.Where(s => s.EmploymentStatus == EmploymentStatus.Employed).Select(s => new StudentInfo
         {
             StudentId = s.Id,
-            CompanyId = s.CompanyId ?? throw new BadRequestException($"Student with id {s.Id} is employed but has no company"),
+            CompanyId = s.Company?.Id ?? throw new BadRequestException($"Student with id {s.Id} is employed but has no company"),
         }).ToList();
-        await client.AddStudentsToSemester(new StudentsInternship { StudentInSemester = request });
+        await Task.WhenAll(
+            client.AddStudentsToSemester(new StudentsInternship { Students = request, Year = year }),
+            context.SaveChangesAsync());
     }
 
     public async Task<Season> Get(int year)

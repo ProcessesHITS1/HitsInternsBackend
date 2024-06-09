@@ -9,11 +9,7 @@ public class ThirdCourseClient(HttpClient httpClient)
 
     public async Task AddStudentsToSemester(StudentsInternship studentsInSemester)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "/api/students-in-semester/transfer-to-third-course")
-        {
-            Content = new StringContent(JsonSerializer.Serialize(studentsInSemester), Encoding.UTF8, "application/json")
-        };
-
+        var request = ClientHelper.SerializeRequest(HttpMethod.Post, "/api/students-in-semesters/transfer-to-third-course", studentsInSemester);
         var response = await httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
     }
@@ -21,7 +17,7 @@ public class ThirdCourseClient(HttpClient httpClient)
     public record StudentsInternship
     {
         public int Year { get; init; }
-        public required List<StudentInfo> StudentInSemester { get; init; }
+        public required List<StudentInfo> Students { get; init; }
     }
 
     public record StudentInfo

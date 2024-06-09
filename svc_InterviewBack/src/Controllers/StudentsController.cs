@@ -47,7 +47,8 @@ public class StudentsController(IStudentsService studentsService, ISeasonsServic
     [HttpGet("{year}/students")]
     public async Task<ActionResult> GetStudents(int year)
     {
-        var season = await _seasonsService.Find(year, withCompanies: false, withStudents: true);
+        //TODO probably should be changed into separate query for student service
+        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: true);
         return Ok(_studentsService.ConvertToStudentsInfo(season.Students));
     }
 }
