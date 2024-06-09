@@ -28,7 +28,7 @@ namespace Interns.Common.Pagination
                 PaginationInfo = new()
                 {
                     CurrentPage = page,
-                    TotalPages = totalItems,
+                    TotalItems = totalItems,
                     PageSize = itemsPage.Count
                 },
                 Items = itemsPage.Select(mapper)
