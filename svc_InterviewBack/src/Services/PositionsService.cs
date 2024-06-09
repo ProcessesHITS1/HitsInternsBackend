@@ -1,5 +1,5 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+using Interns.Common.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using svc_InterviewBack.DAL;
@@ -50,17 +50,16 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
 
     public async Task<List<PositionInfo>> Search(PositionQuery query, int page)
     {
-        var positions = await context.Companies
+        var allPosition = context.Companies
             // filter by company ids
             .Where(c => c.Season.Year == query.SeasonYear)
             .Where(c => query.CompanyIds.IsNullOrEmpty() || query.CompanyIds.Contains(c.Id))
             .SelectMany(p => p.Positions, (c, p) => new { Company = c, Position = p })
             // filter by query
-            .Where(cp => cp.Position.Title.Contains(query.Query) ||
-            cp.Position.Description != null && cp.Position.Description.Contains(query.Query))
-            .Skip((page - 1) * PageSize)
-            .Take(PageSize)
-            .ToListAsync();
+            .Where(cp => 
+                cp.Position.Title.Contains(query.Query) 
+                || cp.Position.Description != null && cp.Position.Description.Contains(query.Query)
+            );
 
         return positions.Select(cp => mapper.Map<PositionInfo>(new CompanyAndPosition(cp.Company, cp.Position))).Select(x =>
         {
