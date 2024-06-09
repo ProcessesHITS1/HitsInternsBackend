@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\NETLib\Interns.Auth\Interns.Auth.csproj" />
+    <ProjectReference Include="..\..\NETLib\Interns.Common\Interns.Common.csproj" />
   </ItemGroup>
 
 </Project>

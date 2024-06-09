@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Interns.Common.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.Models;
@@ -18,7 +19,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     /// <param name="positionData">The data for the position.</param>
     /// <returns>The created position.</returns>
     [HttpPost]
-    public async Task<ActionResult> Create(PositionData positionData)
+    public async Task<ActionResult<PositionInfo>> Create(PositionData positionData)
     {
         return Ok(await positionService.Create(positionData));
     }
@@ -44,7 +45,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     /// <param name="page">The page number for pagination.</param>
     /// <returns>The search results.</returns>
     [HttpGet("search")]
-    public async Task<ActionResult> Search(
+    public async Task<ActionResult<PaginatedItems<PositionInfo>>> Search(
         int year,
         [FromQuery(Name = "companies")] List<Guid> companyIds,
         [FromQuery(Name = "q")] string query = "",

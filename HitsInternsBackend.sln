@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "svc_InterviewBack", "svc_In
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "svc_InterviewBack", "svc_InterviewBack\src\svc_InterviewBack.csproj", "{81DE660E-277A-4985-AED4-13063BA9796D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interns.Common", "NETLib\Interns.Common\Interns.Common.csproj", "{09749795-0ECD-4184-951B-06324AC7235A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{81DE660E-277A-4985-AED4-13063BA9796D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81DE660E-277A-4985-AED4-13063BA9796D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81DE660E-277A-4985-AED4-13063BA9796D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09749795-0ECD-4184-951B-06324AC7235A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09749795-0ECD-4184-951B-06324AC7235A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09749795-0ECD-4184-951B-06324AC7235A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09749795-0ECD-4184-951B-06324AC7235A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +61,7 @@ Global
 		{C0F18F26-4A3B-4ABF-B516-A697F4D2E68B} = {176900A6-5C93-496D-8BBD-9141F33DD736}
 		{4C46A372-60DC-4F1F-B163-99CF1883D4FA} = {176900A6-5C93-496D-8BBD-9141F33DD736}
 		{81DE660E-277A-4985-AED4-13063BA9796D} = {FB321981-B765-4ADC-830C-3212193BF238}
+		{09749795-0ECD-4184-951B-06324AC7235A} = {3DCD9408-5DC4-4A6F-858D-2132740AD66F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B0D30994-259D-4B61-B7D4-872A6D367538}

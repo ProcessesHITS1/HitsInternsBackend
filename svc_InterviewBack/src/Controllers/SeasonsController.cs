@@ -14,7 +14,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// </summary>
     /// <returns>A list of all seasons.</returns>
     [HttpGet("/api/seasons")]
-    public async Task<ActionResult> GetAll()
+    public async Task<ActionResult<List<Season>>> GetAll()
     {
         return Ok(await seasonsService.GetAll());
     }
@@ -26,7 +26,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <returns>The season with the specified year.</returns>
     [Obsolete("Use separate endpoints for companies and students instead")]
     [HttpGet("{year}")]
-    public async Task<ActionResult> Get(int year)
+    public async Task<ActionResult<SeasonDetails>> Get(int year)
     {
         var season = await seasonsService.Find(year);
         return Ok(new SeasonDetails
@@ -43,7 +43,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <param name="seasonData">The data for the new season.</param>
     /// <returns>The created season.</returns>
     [HttpPost]
-    public async Task<ActionResult> Create(SeasonData seasonData)
+    public async Task<ActionResult<Season>> Create(SeasonData seasonData)
     {
         return Ok(await seasonsService.Create(seasonData));
     }
@@ -55,7 +55,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <param name="seasonData">The updated season data.</param>
     /// <returns>The updated season.</returns>
     [HttpPut("{year}")]
-    public async Task<ActionResult> Update(int year, SeasonData seasonData)
+    public async Task<ActionResult<Season>> Update(int year, SeasonData seasonData)
     {
         return Ok(await seasonsService.Update(year, seasonData));
     }

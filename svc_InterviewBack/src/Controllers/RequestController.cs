@@ -1,6 +1,7 @@
 ﻿using Interns.Auth.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
 
 namespace svc_InterviewBack.Controllers;
@@ -25,7 +26,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     }
 
     [HttpPost("position/{positionId}")] //student role
-    public async Task<ActionResult> Create(Guid positionId)
+    public async Task<ActionResult<RequestDetails>> Create(Guid positionId)
     {
         var studentId = User.GetId();
         return Ok(await requestService.CreateAsync(studentId, positionId));
