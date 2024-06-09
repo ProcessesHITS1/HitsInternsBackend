@@ -6,7 +6,11 @@ namespace svc_InterviewBack.Services.Clients;
 
 public static class ClientHelper
 {
-    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public static async Task<T> DeserializeResponseAsync<T>(HttpResponseMessage response)
     {
@@ -21,6 +25,11 @@ public static class ClientHelper
         {
             Content = new StringContent(JsonSerializer.Serialize(content, _jsonOptions), Encoding.UTF8, "application/json")
         };
+    }
+
+    public record ErrorResponse
+    {
+        public required List<string> Messages { get; init; }
     }
 }
 

@@ -38,7 +38,7 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 _logger.LogWarning(ex.Message);
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Microservice error." + ex.Message }));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Microservice error. " + ex.Message }));
                 return;
             }
             else

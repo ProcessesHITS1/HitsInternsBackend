@@ -32,7 +32,7 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper, ThirdCou
     {
         var season = await context.Seasons.Include(s => s.Students).ThenInclude(s => s.Company).FirstOrDefaultAsync(s => s.Year == year)
                      ?? throw new NotFoundException($"Season with year {year} not found");
-        // if (season.IsClosed) throw new BadRequestException($"Season with year {year} is already closed");
+        if (season.IsClosed) throw new BadRequestException($"Season with year {year} is already closed");
         season.IsClosed = true;
 
         var request = season.Students.Where(s => s.EmploymentStatus == EmploymentStatus.Employed).Select(s => new StudentInfo
