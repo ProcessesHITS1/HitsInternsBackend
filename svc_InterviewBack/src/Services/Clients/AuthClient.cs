@@ -26,16 +26,17 @@ public class AuthClient
         _httpClient.Timeout = TimeSpan.FromSeconds(5);
     }
 
-    public async Task TryAuthorize()
+    public async Task<string?> GetAccessToken()
     {
         var token = _cache.Get("ClientToken");
         if (token == null)
         {
-            await Authorize();
+            return await Authorize();
         }
+        return token.ToString();
     }
 
-    public async Task Authorize()
+    public async Task<string> Authorize()
     {
         HttpResponseMessage response;
         var email = _config["AuthLogin"];
@@ -60,6 +61,7 @@ public class AuthClient
         var lifetime = TokenHelper.GetTokenLifetime(info);
         _logger.LogInformation($"Got token with lifetime: {lifetime}");
         _cache.Set("ClientToken", token, lifetime);
+        return token;
     }
 
     // Models
