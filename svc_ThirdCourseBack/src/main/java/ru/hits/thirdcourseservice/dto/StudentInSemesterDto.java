@@ -27,6 +27,6 @@ public class StudentInSemesterDto {
 
     private UUID diaryId;
 
-    private boolean internshipPassed;
+    private Boolean internshipPassed;
 
 }
