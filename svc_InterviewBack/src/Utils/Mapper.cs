@@ -13,9 +13,17 @@ public class MapperProfile : Profile
     {
         CreateMap<SeasonDb, Season>();
         CreateMap<SeasonData, SeasonDb>();
+
+        // TODO remove this
         CreateMap<SeasonDb, SeasonDetails>()
                 .ForMember(dest => dest.Season, opt => opt.MapFrom(src => new Season
-                (src.Id, src.Year, src.SeasonStart, src.SeasonEnd)));
+                {
+                    Id = src.Id,
+                    Year = src.Year,
+                    SeasonStart = src.SeasonStart,
+                    SeasonEnd = src.SeasonEnd,
+                    IsClosed = src.IsClosed
+                }));
 
         CreateMap<Company, CompanyInSeasonInfo>()
             .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.Positions.Count))
@@ -24,7 +32,8 @@ public class MapperProfile : Profile
         CreateMap<Position, PositionInfo>();
 
         CreateMap<Student, StudentInfo>()
-            .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
+            .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()))
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company != null ? src.Company.Id : (Guid?)null));
 
         CreateMap<Position, PositionInfo>();
 

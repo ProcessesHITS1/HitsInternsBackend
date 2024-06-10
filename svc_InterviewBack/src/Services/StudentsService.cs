@@ -49,10 +49,11 @@ public class StudentsService(InterviewDbContext context, UsersClient usersClient
     public async Task Delete(Guid id, Season season)
     {
         var res = season.Students.Remove(season.Students.First(c => c.Id == id));
-        if (!res) logger.LogWarning($"Student with id {id} was not found in season with year {season.Year}");
+        if (!res) logger.LogWarning("Student with id {id} was not found in season with year {year}", id, season.Year);
         await context.SaveChangesAsync();
     }
 
+    // TODO change to actual db query
     public List<StudentInfo> ConvertToStudentsInfo(List<Student> students)
     {
         return students.Select(mapper.Map<StudentInfo>).ToList();

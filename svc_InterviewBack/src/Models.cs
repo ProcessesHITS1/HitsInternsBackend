@@ -8,14 +8,19 @@ namespace svc_InterviewBack.Models;
 // ################
 
 // Creation model
-public record SeasonData(
+public record SeasonData
+{
     [SeasonYearRange]
-    int Year,
-    DateTime SeasonStart,
-    DateTime SeasonEnd);
-
+    public int Year { get; init; }
+    public DateTime SeasonStart { get; init; }
+    public DateTime SeasonEnd { get; init; }
+}
 // Returned to the client
-public record Season(Guid Id, int Year, DateTime SeasonStart, DateTime SeasonEnd);
+public record Season : SeasonData
+{
+    public Guid Id { get; init; }
+    public bool IsClosed { get; init; }
+}
 
 // Returned to the client
 public record SeasonDetails
@@ -43,6 +48,7 @@ public record StudentInfo
     public Guid Id { get; init; }
     public required string Name { get; init; }
     public required string EmploymentStatus { get; init; }
+    public Guid? CompanyId { get; init; }
 }
 
 // On creation

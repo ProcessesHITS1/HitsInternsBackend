@@ -19,6 +19,12 @@ To launch only database run:
 cd database && docker compose up -d
 ```
 
+## Building single service
+If you want to get a latest image of the service, you can build it by running, for example:
+```sh
+docker build https://github.com/ProcessesHITS1/HitsInternsBackend.git#develop -f svc_ThirdCourseBack/Dockerfile
+```
+
 ## Dotnet services
 To configure dotnet services you can specify environment variables in the `.env` file. Then again run
 ```sh

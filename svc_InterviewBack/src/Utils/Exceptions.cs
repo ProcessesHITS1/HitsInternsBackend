@@ -8,6 +8,6 @@ public class BadRequestException(string message) : Exception(message)
 {
 }
 
-public class NetworkException(string message) : Exception(message)
+public class MicroserviceException(string message) : Exception(message)
 {
 }

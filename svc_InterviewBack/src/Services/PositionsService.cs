@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Interns.Common.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -8,7 +8,6 @@ using svc_InterviewBack.Utils;
 
 namespace svc_InterviewBack.Services;
 
-using SeasonDb = DAL.Season;
 public interface IPositionService
 {
     Task<PositionInfo> Create(PositionData position);
@@ -56,8 +55,8 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
             .Where(c => query.CompanyIds.IsNullOrEmpty() || query.CompanyIds.Contains(c.Id))
             .SelectMany(p => p.Positions, (c, p) => new { Company = c, Position = p })
             // filter by query
-            .Where(cp => 
-                cp.Position.Title.Contains(query.Query) 
+            .Where(cp =>
+                cp.Position.Title.Contains(query.Query)
                 || cp.Position.Description != null && cp.Position.Description.Contains(query.Query)
             );
 
