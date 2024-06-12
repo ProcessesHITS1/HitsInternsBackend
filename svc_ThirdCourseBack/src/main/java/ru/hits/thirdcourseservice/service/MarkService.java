@@ -67,7 +67,8 @@ public class MarkService {
                             ),
                             new MarkRequirementDto(
                                     mark.getMarkRequirement().getId(),
-                                    mark.getMarkRequirement().getDescription()
+                                    mark.getMarkRequirement().getDescription(),
+                                    mark.getMarkRequirement().getSemester() != null ? mark.getMarkRequirement().getSemester().getId() : null
                             )
                     )
             );
