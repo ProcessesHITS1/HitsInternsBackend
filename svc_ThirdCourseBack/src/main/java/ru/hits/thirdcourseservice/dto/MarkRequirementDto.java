@@ -12,4 +12,5 @@ import java.util.UUID;
 public class MarkRequirementDto {
     private UUID id;
     private String description;
+    private UUID semesterId;
 }
