@@ -69,7 +69,7 @@ namespace Interns.Chats.App.Hubs
         {
             Guid currentUserId = Context?.User?.GetId() ?? throw new BadHttpRequestException("User has no id present");
 
-            if (await _dbContext.Chats.AnyAsync(Chat.CanBeAccessed(chatId, currentUserId)))
+            if (!await _dbContext.Chats.AnyAsync(Chat.CanBeAccessed(chatId, currentUserId)))
             {
                 throw new BadHttpRequestException("Group not found");
             }

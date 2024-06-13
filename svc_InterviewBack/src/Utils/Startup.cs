@@ -23,18 +23,14 @@ public static class Startup
         .AddScoped<IPositionService, PositionsService>()
         .AddScoped<ICompaniesService, CompaniesService>()
         .AddScoped<IStudentsService, StudentsService>()
-        .AddScoped<IRequestService,RequestService>();
+        .AddScoped<IRequestService, RequestService>();
 
         // add clients
-        services.AddHttpClient<CompaniesClient>(client =>
-        {
-            client.BaseAddress = new Uri(config["CompaniesServiceUrl"]!);
-        });
+        services.AddTransient<AuthHandler>();
+        ConfigureHttpClient<CompaniesClient>(services, config["CompaniesServiceUrl"]!);
+        ConfigureHttpClient<UsersClient>(services, config["AuthServiceUrl"]!);
+        ConfigureHttpClient<ThirdCourseClient>(services, config["ThirdCourseServiceUrl"]!);
         services.AddHttpClient<AuthClient>(client =>
-        {
-            client.BaseAddress = new Uri(config["AuthServiceUrl"]!);
-        });
-        services.AddHttpClient<UsersClient>(client =>
         {
             client.BaseAddress = new Uri(config["AuthServiceUrl"]!);
         });
@@ -50,6 +46,14 @@ public static class Startup
         })
         .MigrateDatabase(config);
         return services;
+    }
+
+    private static void ConfigureHttpClient<TClient>(IServiceCollection services, string serviceUrl) where TClient : class
+    {
+        services.AddHttpClient<TClient>(client =>
+        {
+            client.BaseAddress = new Uri(serviceUrl);
+        }).AddHttpMessageHandler<AuthHandler>();
     }
 
 

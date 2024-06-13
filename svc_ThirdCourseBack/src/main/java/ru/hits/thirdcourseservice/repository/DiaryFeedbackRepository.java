@@ -5,8 +5,12 @@ import org.springframework.stereotype.Repository;
 import ru.hits.thirdcourseservice.entity.DiaryEntity;
 import ru.hits.thirdcourseservice.entity.DiaryFeedbackEntity;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface DiaryFeedbackRepository extends JpaRepository<DiaryFeedbackEntity, UUID> {
+
+    Optional<DiaryFeedbackEntity> findByDiary(DiaryEntity diary);
+
 }

@@ -32,4 +32,9 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\NETLib\Interns.Auth\Interns.Auth.csproj" />
+    <ProjectReference Include="..\..\NETLib\Interns.Common\Interns.Common.csproj" />
+  </ItemGroup>
+
 </Project>

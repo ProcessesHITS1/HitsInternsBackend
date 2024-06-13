@@ -6,29 +6,46 @@ namespace svc_InterviewBack.Controllers;
 
 [Route("/api/season")]
 [ApiController]
-public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
+public class SeasonsController(ISeasonsService seasonsService, IStudentsService studentsService, ICompaniesService companiesService) : ControllerBase
 {
-    private readonly ISeasonsService _seasonsService = seasonsService;
 
     /// <summary>
     /// Получает все сезоны.
     /// </summary>
     /// <returns>A list of all seasons.</returns>
     [HttpGet("/api/seasons")]
-    public async Task<ActionResult> GetAll()
+    public async Task<ActionResult<List<Season>>> GetAll()
     {
-        return Ok(await _seasonsService.GetAll());
+        return Ok(await seasonsService.GetAll());
     }
 
     /// <summary>
-    /// Получает детали о сезоне, включая компании и студентов в нем.
+    /// Получает информацию о сезоне.
+    /// </summary>
+    /// <param name="year">The year of the season to retrieve.</param>
+    /// <returns>An ActionResult containing the retrieved Season object.</returns>
+    [HttpGet("{year}/info")]
+    public async Task<ActionResult<Season>> Get(int year)
+    {
+        return Ok(await seasonsService.Get(year));
+    }
+
+    /// <summary>
+    /// ЭНДПОИНТ РАБОТАЕТ, НО ЛУЧШЕ ИСПОЛЬЗОВАТЬ ОТДЕЛЬНЫЕ ДЛЯ СТУДЕНТОВ И КОМПАНИЙ. Получает детали о сезоне, включая компании и студентов в нем.
     /// </summary>
     /// <param name="year">The year of the season to retrieve.</param>
     /// <returns>The season with the specified year.</returns>
+    [Obsolete("Use separate endpoints for companies and students instead")]
     [HttpGet("{year}")]
-    public async Task<ActionResult> Get(int year)
+    public async Task<ActionResult<SeasonDetails>> GetDetails(int year)
     {
-        return Ok(await _seasonsService.Get(year));
+        var season = await seasonsService.Find(year);
+        return Ok(new SeasonDetails
+        {
+            Season = await seasonsService.Get(year),
+            Companies = await companiesService.GetAll(year),
+            Students = studentsService.ConvertToStudentsInfo(season.Students)
+        });
     }
 
     /// <summary>
@@ -37,9 +54,9 @@ public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
     /// <param name="seasonData">The data for the new season.</param>
     /// <returns>The created season.</returns>
     [HttpPost]
-    public async Task<ActionResult> Create(SeasonData seasonData)
+    public async Task<ActionResult<Season>> Create(SeasonData seasonData)
     {
-        return Ok(await _seasonsService.Create(seasonData));
+        return Ok(await seasonsService.Create(seasonData));
     }
 
     /// <summary>
@@ -49,9 +66,9 @@ public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
     /// <param name="seasonData">The updated season data.</param>
     /// <returns>The updated season.</returns>
     [HttpPut("{year}")]
-    public async Task<ActionResult> Update(int year, SeasonData seasonData)
+    public async Task<ActionResult<Season>> Update(int year, SeasonData seasonData)
     {
-        return Ok(await _seasonsService.Update(year, seasonData));
+        return Ok(await seasonsService.Update(year, seasonData));
     }
 
     /// <summary>
@@ -62,7 +79,19 @@ public class SeasonsController(ISeasonsService seasonsService) : ControllerBase
     [HttpDelete("{year}")]
     public async Task<ActionResult> Delete(int year)
     {
-        await _seasonsService.Delete(year);
+        await seasonsService.Delete(year);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Завершает текущий сезон. После завершения в нем нельзя создавать заявки и добавлять компании
+    /// </summary>
+    /// <param name="year">The year of the season to close.</param>
+    /// <returns>An <see cref="ActionResult"/> representing the result of the operation.</returns>
+    [HttpPost("{year}/close")]
+    public async Task<ActionResult> Close(int year)
+    {
+        await seasonsService.Close(year);
         return Ok();
     }
 }

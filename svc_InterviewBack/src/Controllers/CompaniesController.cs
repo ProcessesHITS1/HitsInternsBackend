@@ -18,9 +18,9 @@ public class CompaniesController(ICompaniesService companiesService, ISeasonsSer
     /// <param name="year">The year of the season.</param>
     /// <param name="id">The ID of the company.</param>
     [HttpPost("{year}/company/{id}")]
-    public async Task<ActionResult> Create(int year, Guid id)
+    public async Task<ActionResult<CompanyInSeasonInfo>> Create(int year, Guid id)
     {
-        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false);
+        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false, checkOpen: true);
         return Ok(await _companiesService.Create(id, season));
     }
 
@@ -33,8 +33,19 @@ public class CompaniesController(ICompaniesService companiesService, ISeasonsSer
     [HttpDelete("{year}/company/{id}")]
     public async Task<ActionResult> Delete(int year, Guid id)
     {
-        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false);
+        var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false, checkOpen: true);
         await _companiesService.Delete(id, season);
         return Ok();
+    }
+
+    /// <summary>
+    /// Получает все компании в сезоне.
+    /// </summary>
+    /// <param name="year">The year for which to retrieve the companies.</param>
+    /// <returns>An ActionResult containing the list of companies.</returns>
+    [HttpGet("{year}/companies")]
+    public async Task<ActionResult<List<CompanyInSeasonInfo>>> GetCompanies(int year)
+    {
+        return Ok(await _companiesService.GetAll(year));
     }
 }

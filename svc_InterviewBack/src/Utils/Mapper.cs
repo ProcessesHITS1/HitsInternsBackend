@@ -13,23 +13,38 @@ public class MapperProfile : Profile
     {
         CreateMap<SeasonDb, Season>();
         CreateMap<SeasonData, SeasonDb>();
+
+        // TODO remove this
         CreateMap<SeasonDb, SeasonDetails>()
                 .ForMember(dest => dest.Season, opt => opt.MapFrom(src => new Season
-                (src.Id, src.Year, src.SeasonStart, src.SeasonEnd)));
+                {
+                    Id = src.Id,
+                    Year = src.Year,
+                    SeasonStart = src.SeasonStart,
+                    SeasonEnd = src.SeasonEnd,
+                    IsClosed = src.IsClosed
+                }));
 
         CreateMap<Company, CompanyInSeasonInfo>()
+            .ForMember(dest => dest.NPositions, opt => opt.MapFrom(src => src.Positions.Count))
             .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Season.Year));
-
-        CreateMap<Position, PositionData>();
-
-        CreateMap<Student, StudentInfo>()
-            .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()));
 
         CreateMap<Position, PositionInfo>();
 
-        CreateMap<(Company, Position), PositionDetails>()
-            .ForMember(dest => dest.CompanyInfo, opt => opt.MapFrom(src => src.Item1))
-            .ForMember(dest => dest.PositionInfo, opt => opt.MapFrom(src => src.Item2));
+        CreateMap<Student, StudentInfo>()
+            .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()))
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company != null ? src.Company.Id : (Guid?)null));
+
+        CreateMap<Position, PositionInfo>();
+
+        CreateMap<CompanyAndPosition, PositionInfo>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Position.Id))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Position.Title))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Position.Description))
+            .ForMember(dest => dest.NSeats, opt => opt.MapFrom(src => src.Position.NSeats))
+            .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company.Id))
+            .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
+            .ForMember(dest => dest.SeasonYear, opt => opt.MapFrom(src => src.Company.Season.Year));
 
         CreateMap<(Position, Student), InterviewRequest>()
             .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Item1))

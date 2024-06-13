@@ -17,8 +17,4 @@ public class AddStudentToSemesterDto {
 
     private UUID semesterId;
 
-    private UUID diaryId;
-
-    private boolean internshipPassed;
-
 }

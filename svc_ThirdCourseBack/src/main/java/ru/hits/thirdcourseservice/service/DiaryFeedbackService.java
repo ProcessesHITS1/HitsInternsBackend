@@ -26,13 +26,25 @@ public class DiaryFeedbackService {
         DiaryEntity diary = diaryRepository.findById(addDiaryFeedbackDto.getDiaryId())
                 .orElseThrow(() -> new NotFoundException("Дневник с ID " + addDiaryFeedbackDto.getDiaryId() + " не найден"));
 
-        DiaryFeedbackEntity diaryFeedback = DiaryFeedbackEntity.builder()
-                .diary(diary)
-                .comments(addDiaryFeedbackDto.getComments())
-                .acceptanceStatus(addDiaryFeedbackDto.getAcceptanceStatus())
-                .build();
+        if (diaryFeedbackRepository.findByDiary(diary).isPresent()) {
+            diaryFeedbackRepository.delete(diaryFeedbackRepository.findByDiary(diary).get());
 
-        diaryFeedbackRepository.save(diaryFeedback);
+            DiaryFeedbackEntity diaryFeedback = DiaryFeedbackEntity.builder()
+                    .diary(diary)
+                    .comments(addDiaryFeedbackDto.getComments())
+                    .acceptanceStatus(addDiaryFeedbackDto.getAcceptanceStatus())
+                    .build();
+
+            diaryFeedbackRepository.save(diaryFeedback);
+        } else {
+            DiaryFeedbackEntity diaryFeedback = DiaryFeedbackEntity.builder()
+                    .diary(diary)
+                    .comments(addDiaryFeedbackDto.getComments())
+                    .acceptanceStatus(addDiaryFeedbackDto.getAcceptanceStatus())
+                    .build();
+
+            diaryFeedbackRepository.save(diaryFeedback);
+        }
     }
 
 }

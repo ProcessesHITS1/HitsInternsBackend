@@ -40,7 +40,25 @@ public class StudentInSemesterService {
                     .companyId(studentInSemesterDto.getCompanyId())
                     .semester(semester)
                     .diary(null)
-                    .internshipPassed(studentInSemesterDto.isInternshipPassed())
+                    .internshipPassed(null)
+                    .build();
+
+            studentInSemesterRepository.save(studentInSemester);
+        }
+    }
+
+    @Transactional
+    public void transferToThirdCourse(TransferStudentsToThirdCourseDto transferStudentsToThirdCourseDto) {
+        for (StudentTransferToThirdCourseDto studentTransferToThirdCourseDto : transferStudentsToThirdCourseDto.getStudents()) {
+            SemesterEntity semester = semesterRepository.findByYearAndSemester(transferStudentsToThirdCourseDto.getYear(), 1)
+                    .orElseThrow(() -> new NotFoundException("Первый семестр " + transferStudentsToThirdCourseDto.getYear() +  " года не найден"));
+
+            StudentInSemesterEntity studentInSemester = StudentInSemesterEntity.builder()
+                    .studentId(studentTransferToThirdCourseDto.getId())
+                    .companyId(studentTransferToThirdCourseDto.getCompanyId())
+                    .semester(semester)
+                    .diary(null)
+                    .internshipPassed(null)
                     .build();
 
             studentInSemesterRepository.save(studentInSemester);
@@ -64,7 +82,7 @@ public class StudentInSemesterService {
                     .companyId(studentInSemester.getCompanyId())
                     .semesterId(studentInSemester.getSemester().getId())
                     .diaryId(studentInSemester.getDiary() != null ? studentInSemester.getDiary().getId() : null)
-                    .internshipPassed(studentInSemester.isInternshipPassed())
+                    .internshipPassed(studentInSemester.getInternshipPassed())
                     .build();
 
             studentsInSemesterDtos.add(studentInSemesterDto);
@@ -83,7 +101,7 @@ public class StudentInSemesterService {
                 .companyId(studentInSemester.getCompanyId())
                 .semesterId(studentInSemester.getSemester().getId())
                 .diaryId(studentInSemester.getDiary() != null ? studentInSemester.getDiary().getId() : null)
-                .internshipPassed(studentInSemester.isInternshipPassed())
+                .internshipPassed(studentInSemester.getInternshipPassed())
                 .build();
     }
 

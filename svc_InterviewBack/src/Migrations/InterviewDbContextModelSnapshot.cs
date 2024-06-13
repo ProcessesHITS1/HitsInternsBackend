@@ -80,7 +80,7 @@ namespace svc_InterviewBack.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<int>("NPositions")
+                    b.Property<int>("NSeats")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -160,6 +160,9 @@ namespace svc_InterviewBack.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("SeasonEnd")
                         .HasColumnType("timestamp with time zone");
 
@@ -181,6 +184,9 @@ namespace svc_InterviewBack.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CompanyId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("EmploymentStatus")

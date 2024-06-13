@@ -34,6 +34,16 @@ public class StudentInSemesterController {
     }
 
     @Operation(
+            summary = "Перенести студентов на третий курс.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/transfer-to-third-course")
+    public ResponseEntity<Void> transferToThirdCourse(@RequestBody @Valid TransferStudentsToThirdCourseDto transferStudentsToThirdCourseDto) {
+        studentInSemesterService.transferToThirdCourse(transferStudentsToThirdCourseDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(
             summary = "Получить список всех студентов в семестрах с пагинацией.",
             security = @SecurityRequirement(name = "bearerAuth")
     )

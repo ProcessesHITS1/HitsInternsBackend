@@ -14,6 +14,7 @@ public interface ICompaniesService
 {
     public Task<CompanyInSeasonInfo> Create(Guid id, Season season);
     public Task Delete(Guid id, Season season);
+    public Task<List<CompanyInSeasonInfo>> GetAll(int seasonYear);
 }
 
 
@@ -50,5 +51,22 @@ public class CompaniesService(InterviewDbContext context, CompaniesClient compan
         var res = season.Companies.Remove(season.Companies.First(c => c.Id == companyId));
         if (!res) logger.LogWarning($"Company with id {companyId} was not found in season with year {season.Year}");
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<CompanyInSeasonInfo>> GetAll(int seasonYear)
+    {
+        var companies = await context.Companies
+            .Where(s => s.Season.Year == seasonYear)
+            .Select(c => new CompanyInSeasonInfo
+            {
+                Id = c.Id,
+                Name = c.Name,
+                NPositions = c.Positions.Count,
+                SeasonYear = c.Season.Year
+            })
+            .ToListAsync()
+            ?? throw new NotFoundException($"Season with year {seasonYear} not found");
+
+        return companies;
     }
 }
