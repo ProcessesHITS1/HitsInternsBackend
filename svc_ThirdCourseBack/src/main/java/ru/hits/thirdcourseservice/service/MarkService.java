@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hits.thirdcourseservice.dto.AssignMarkDto;
-import ru.hits.thirdcourseservice.dto.MarkDto;
-import ru.hits.thirdcourseservice.dto.MarkRequirementDto;
-import ru.hits.thirdcourseservice.dto.StudentInSemesterDto;
+import ru.hits.thirdcourseservice.dto.*;
 import ru.hits.thirdcourseservice.entity.MarkEntity;
 import ru.hits.thirdcourseservice.entity.MarkRequirementEntity;
 import ru.hits.thirdcourseservice.entity.StudentInSemesterEntity;
@@ -43,6 +40,15 @@ public class MarkService {
                 .value(assignMarkDto.getValue())
                 .build();
 
+        markRepository.save(mark);
+    }
+
+    @Transactional
+    public void updateMark(UpdateMarkDto updateMarkDto, UUID markId) {
+        MarkEntity mark = markRepository.findById(markId)
+                .orElseThrow(() -> new NotFoundException("Оценка с ID " + markId + " не найдена"));
+
+        mark.setValue(updateMarkDto.getValue());
         markRepository.save(mark);
     }
 
