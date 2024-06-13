@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hits.thirdcourseservice.dto.AssignMarkDto;
 import ru.hits.thirdcourseservice.dto.MarkDto;
+import ru.hits.thirdcourseservice.dto.UpdateMarkDto;
 import ru.hits.thirdcourseservice.service.MarkService;
 
 import java.util.List;
@@ -31,6 +32,16 @@ public class MarkController {
     @PostMapping("/student-in-semester/{studentInSemesterId}")
     public ResponseEntity<Void> assignMark(@RequestBody AssignMarkDto assignMarkDto, @PathVariable UUID studentInSemesterId) {
         markService.assignMark(assignMarkDto, studentInSemesterId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Обновить оценку.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateMark(@RequestBody UpdateMarkDto updateMarkDto, @PathVariable UUID id) {
+        markService.updateMark(updateMarkDto, id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
