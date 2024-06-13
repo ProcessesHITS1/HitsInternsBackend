@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using svc_InterviewBack.DAL;
@@ -11,9 +12,11 @@ using svc_InterviewBack.DAL;
 namespace svc_InterviewBack.Migrations
 {
     [DbContext(typeof(InterviewDbContext))]
-    partial class InterviewDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240607093231_HistoryRequest2")]
+    partial class HistoryRequest2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,8 +54,11 @@ namespace svc_InterviewBack.Migrations
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RequestResultId")
+                    b.Property<Guid?>("RequestStatusSnapshotId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("ResultStatus")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid");
@@ -60,8 +66,6 @@ namespace svc_InterviewBack.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PositionId");
-
-                    b.HasIndex("RequestResultId");
 
                     b.HasIndex("StudentId");
 
@@ -94,26 +98,6 @@ namespace svc_InterviewBack.Migrations
                     b.ToTable("Positions");
                 });
 
-            modelBuilder.Entity("svc_InterviewBack.DAL.RequestResult", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("OfferGiven")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("ResultStatus")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RequestResult");
-                });
-
             modelBuilder.Entity("svc_InterviewBack.DAL.RequestStatusSnapshot", b =>
                 {
                     b.Property<Guid>("Id")
@@ -126,32 +110,20 @@ namespace svc_InterviewBack.Migrations
                     b.Property<Guid>("InterviewRequestId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("RequestStatusTemplateName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid?>("PreviousRequestStatusSnapshotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RequestStatus")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InterviewRequestId");
+                    b.HasIndex("InterviewRequestId")
+                        .IsUnique();
 
-                    b.HasIndex("RequestStatusTemplateName");
+                    b.HasIndex("PreviousRequestStatusSnapshotId");
 
                     b.ToTable("RequestStatusSnapshots");
-                });
-
-            modelBuilder.Entity("svc_InterviewBack.DAL.RequestStatusTemplate", b =>
-                {
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("SeasonId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Name");
-
-                    b.HasIndex("SeasonId");
-
-                    b.ToTable("RequestStatusTemplates");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Season", b =>
@@ -219,10 +191,6 @@ namespace svc_InterviewBack.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("svc_InterviewBack.DAL.RequestResult", "RequestResult")
-                        .WithMany()
-                        .HasForeignKey("RequestResultId");
-
                     b.HasOne("svc_InterviewBack.DAL.Student", "Student")
                         .WithMany("InterviewRequests")
                         .HasForeignKey("StudentId")
@@ -230,8 +198,6 @@ namespace svc_InterviewBack.Migrations
                         .IsRequired();
 
                     b.Navigation("Position");
-
-                    b.Navigation("RequestResult");
 
                     b.Navigation("Student");
                 });
@@ -246,27 +212,18 @@ namespace svc_InterviewBack.Migrations
             modelBuilder.Entity("svc_InterviewBack.DAL.RequestStatusSnapshot", b =>
                 {
                     b.HasOne("svc_InterviewBack.DAL.InterviewRequest", "InterviewRequest")
-                        .WithMany("RequestStatusSnapshots")
-                        .HasForeignKey("InterviewRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithOne("RequestStatusSnapshot")
+                        .HasForeignKey("svc_InterviewBack.DAL.RequestStatusSnapshot", "InterviewRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("svc_InterviewBack.DAL.RequestStatusTemplate", "RequestStatusTemplate")
+                    b.HasOne("svc_InterviewBack.DAL.RequestStatusSnapshot", "PreviousRequestStatusSnapshot")
                         .WithMany()
-                        .HasForeignKey("RequestStatusTemplateName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PreviousRequestStatusSnapshotId");
 
                     b.Navigation("InterviewRequest");
 
-                    b.Navigation("RequestStatusTemplate");
-                });
-
-            modelBuilder.Entity("svc_InterviewBack.DAL.RequestStatusTemplate", b =>
-                {
-                    b.HasOne("svc_InterviewBack.DAL.Season", null)
-                        .WithMany("RequestStatuses")
-                        .HasForeignKey("SeasonId");
+                    b.Navigation("PreviousRequestStatusSnapshot");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Student", b =>
@@ -287,14 +244,12 @@ namespace svc_InterviewBack.Migrations
 
             modelBuilder.Entity("svc_InterviewBack.DAL.InterviewRequest", b =>
                 {
-                    b.Navigation("RequestStatusSnapshots");
+                    b.Navigation("RequestStatusSnapshot");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Season", b =>
                 {
                     b.Navigation("Companies");
-
-                    b.Navigation("RequestStatuses");
 
                     b.Navigation("Students");
                 });

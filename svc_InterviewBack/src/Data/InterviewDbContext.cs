@@ -10,7 +10,9 @@ public class InterviewDbContext(DbContextOptions<InterviewDbContext> options) : 
     public DbSet<Season> Seasons { get; set; }
     public DbSet<Position> Positions { get; set; }
     public DbSet<InterviewRequest> InterviewRequests { get; set; }
+    public DbSet<RequestResult> RequestResult { get; set; }
     public DbSet<RequestStatusSnapshot> RequestStatusSnapshots { get; set; }
+    public DbSet<RequestStatusTemplate> RequestStatusTemplates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,10 +21,8 @@ public class InterviewDbContext(DbContextOptions<InterviewDbContext> options) : 
             .IsUnique();
         
         modelBuilder.Entity<InterviewRequest>()
-            .HasOne(ir => ir.RequestStatusSnapshot)
-            .WithOne(rs => rs.InterviewRequest)
-            .HasForeignKey<RequestStatusSnapshot>(rs => rs.InterviewRequestId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
+            .HasOne(ir => ir.RequestResult).WithOne()
+            .HasForeignKey<RequestResult>(rr => rr.Id)
+            .OnDelete(DeleteBehavior.Cascade);
     }   //TODO: on position Creation -> update Season NPositions
 }

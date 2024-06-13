@@ -35,7 +35,6 @@ public record CompanyInSeasonInfo
     public required int NPositions { get; init; }
 }
 
-
 // Returned to the client
 public record StudentInfo
 {
@@ -49,9 +48,9 @@ public record PositionData
 {
     public required string? Title { get; init; }
     public string? Description { get; init; }
+
     [Range(1, int.MaxValue, ErrorMessage = "NPosition must be 1 or more")]
     public int? NPositions { get; init; }
-
 }
 
 // On search
@@ -60,7 +59,6 @@ public record PositionQuery
     public string Query { get; init; } = "";
     public List<Guid> CompanyIds { get; init; } = [];
 }
-
 
 // Returned to the client
 public record PositionInfo : PositionData
@@ -80,4 +78,11 @@ public record RequestDetails
     public required Guid StudentId { get; init; }
     public required Guid PositionId { get; init; }
     public ResultStatus Status { get; init; }
+}
+
+public record RequestResultData
+{
+    public ResultStatus? ResultStatus { get; init; }
+    public string? Description { get; init; }
+    public bool? OfferGiven { get; init; }
 }

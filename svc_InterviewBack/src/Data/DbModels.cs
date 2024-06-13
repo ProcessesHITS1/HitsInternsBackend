@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace svc_InterviewBack.DAL;
 
 // Basically, these entities represent the tables in the database
@@ -33,6 +35,8 @@ public record Season
     public DateTime SeasonEnd { get; init; }
     public required List<Company> Companies { get; init; }
     public required List<Student> Students { get; init; }
+    
+    public List<RequestStatusTemplate>? RequestStatuses { get; set; }
 };
 
 // Job position in a company
@@ -53,11 +57,17 @@ public record InterviewRequest
     public Guid Id { get; init; }
     public required Student Student { get; init; }
     public required Position Position { get; init; }
-
-    public Guid? RequestStatusSnapshotId { get; set; } // Foreign key to the latest status snapshot
-    public RequestStatusSnapshot RequestStatusSnapshot { get; set; } // Navigation property to the latest status snapshot
-    public ResultStatus ResultStatus { get; set; } = ResultStatus.Pending;
+    public RequestResult? RequestResult { get; set; } 
+    public ICollection<RequestStatusSnapshot> RequestStatusSnapshots { get; set; } = new List<RequestStatusSnapshot>(); // History of status snapshots
 };
+
+public record RequestResult
+{
+    public Guid Id { get; init; }
+    public string? Description { get; set; }
+    public bool OfferGiven { get; set; }
+    public ResultStatus ResultStatus { get; set; } = ResultStatus.Pending;
+}
 
 public enum ResultStatus
 {
@@ -66,24 +76,19 @@ public enum ResultStatus
     Rejected
 }
 
-public enum RequestStatus
-{
-    Waiting,
-    TestGiven,
-    Interviewed,
-    Done,
-    Canceled
-}
 
 public class RequestStatusSnapshot
 {
     public Guid Id { get; init; }
     public DateTime DateTime { get; init; }
-    public RequestStatus RequestStatus { get; init; }
-    public Guid InterviewRequestId { get; init; } // Foreign key to the associated InterviewRequest
+
+    public RequestStatusTemplate RequestStatusTemplate { get; init; }
     public InterviewRequest InterviewRequest { get; init; }
-    public Guid? PreviousRequestStatusSnapshotId { get; init; } // Reference to the previous status snapshot
-    public RequestStatusSnapshot? PreviousRequestStatusSnapshot { get; init; }
+    
 }
 
-//Request -> latest RequestStatus -> latest -1 status
+public class RequestStatusTemplate
+{
+    [Key]
+    public string Name { get; init; }
+}
