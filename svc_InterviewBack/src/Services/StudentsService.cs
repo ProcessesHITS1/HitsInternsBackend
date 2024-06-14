@@ -35,6 +35,7 @@ public class StudentsService(InterviewDbContext context, UsersClient usersClient
         {
             Id = user.Id,
             Name = user.LastName + " " + user.FirstName + " " + user.Patronymic,
+            SeasonId = season.Id,
             Season = season,
             EmploymentStatus = EmploymentStatus.Unemployed,
             InterviewRequests = []
