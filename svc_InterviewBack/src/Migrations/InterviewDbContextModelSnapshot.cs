@@ -22,6 +22,21 @@ namespace svc_InterviewBack.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("RequestStatusTemplateSeason", b =>
+                {
+                    b.Property<string>("RequestStatusesName")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("SeasonsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("RequestStatusesName", "SeasonsId");
+
+                    b.HasIndex("SeasonsId");
+
+                    b.ToTable("RequestStatusTemplateSeason");
+                });
+
             modelBuilder.Entity("svc_InterviewBack.DAL.Company", b =>
                 {
                     b.Property<Guid>("Id")
@@ -51,9 +66,6 @@ namespace svc_InterviewBack.Migrations
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RequestResultId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid");
 
@@ -63,10 +75,6 @@ namespace svc_InterviewBack.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PositionId");
-
-                    b.HasIndex("RequestResultId");
-
-                    b.HasIndex("StudentId");
 
                     b.HasIndex("StudentId", "StudentSeasonId");
 
@@ -102,7 +110,6 @@ namespace svc_InterviewBack.Migrations
             modelBuilder.Entity("svc_InterviewBack.DAL.RequestResult", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
@@ -149,12 +156,7 @@ namespace svc_InterviewBack.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("SeasonId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Name");
-
-                    b.HasIndex("SeasonId");
 
                     b.ToTable("RequestStatusTemplates");
                 });
@@ -212,6 +214,21 @@ namespace svc_InterviewBack.Migrations
                     b.ToTable("Students");
                 });
 
+            modelBuilder.Entity("RequestStatusTemplateSeason", b =>
+                {
+                    b.HasOne("svc_InterviewBack.DAL.RequestStatusTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("RequestStatusesName")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("svc_InterviewBack.DAL.Season", null)
+                        .WithMany()
+                        .HasForeignKey("SeasonsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("svc_InterviewBack.DAL.Company", b =>
                 {
                     b.HasOne("svc_InterviewBack.DAL.Season", "Season")
@@ -231,10 +248,6 @@ namespace svc_InterviewBack.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("svc_InterviewBack.DAL.RequestResult", "RequestResult")
-                        .WithMany()
-                        .HasForeignKey("RequestResultId");
-
                     b.HasOne("svc_InterviewBack.DAL.Student", "Student")
                         .WithMany("InterviewRequests")
                         .HasForeignKey("StudentId", "StudentSeasonId")
@@ -242,8 +255,6 @@ namespace svc_InterviewBack.Migrations
                         .IsRequired();
 
                     b.Navigation("Position");
-
-                    b.Navigation("RequestResult");
 
                     b.Navigation("Student");
                 });
@@ -253,6 +264,15 @@ namespace svc_InterviewBack.Migrations
                     b.HasOne("svc_InterviewBack.DAL.Company", null)
                         .WithMany("Positions")
                         .HasForeignKey("CompanyId");
+                });
+
+            modelBuilder.Entity("svc_InterviewBack.DAL.RequestResult", b =>
+                {
+                    b.HasOne("svc_InterviewBack.DAL.InterviewRequest", null)
+                        .WithOne("RequestResult")
+                        .HasForeignKey("svc_InterviewBack.DAL.RequestResult", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.RequestStatusSnapshot", b =>
@@ -272,13 +292,6 @@ namespace svc_InterviewBack.Migrations
                     b.Navigation("InterviewRequest");
 
                     b.Navigation("RequestStatusTemplate");
-                });
-
-            modelBuilder.Entity("svc_InterviewBack.DAL.RequestStatusTemplate", b =>
-                {
-                    b.HasOne("svc_InterviewBack.DAL.Season", null)
-                        .WithMany("RequestStatuses")
-                        .HasForeignKey("SeasonId");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Student", b =>
@@ -305,14 +318,14 @@ namespace svc_InterviewBack.Migrations
 
             modelBuilder.Entity("svc_InterviewBack.DAL.InterviewRequest", b =>
                 {
+                    b.Navigation("RequestResult");
+
                     b.Navigation("RequestStatusSnapshots");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Season", b =>
                 {
                     b.Navigation("Companies");
-
-                    b.Navigation("RequestStatuses");
 
                     b.Navigation("Students");
                 });

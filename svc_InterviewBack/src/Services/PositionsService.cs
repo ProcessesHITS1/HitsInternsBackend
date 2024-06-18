@@ -5,12 +5,13 @@ using Microsoft.IdentityModel.Tokens;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Utils;
+using svc_InterviewBack.Utils.Extensions;
 
 namespace svc_InterviewBack.Services;
 
 public interface IPositionService
 {
-    Task<PositionInfo> Create(PositionData position);
+    Task<PositionInfo> Create(PositionCreation position);
     Task Delete(Guid id);
     Task<PaginatedItems<PositionInfo>> Search(PositionQuery query, int page);
     Task<PositionInfo> Update(Guid positionId, PositionUpdate positionData);
@@ -19,7 +20,7 @@ public interface IPositionService
 public class PositionsService(InterviewDbContext context, IMapper mapper) : IPositionService
 {
     private const int PageSize = 10;
-    public async Task<PositionInfo> Create(PositionData position)
+    public async Task<PositionInfo> Create(PositionCreation position)
     {
         var season = await context.Seasons.FirstOrDefaultAsync(s => s.Year == position.SeasonYear)
             ?? throw new NotFoundException($"Season with year {position.SeasonYear} not found");
@@ -77,21 +78,9 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
     {
         var positionEntity = await context.Positions.FindAsync(positionId);
         if (positionEntity == null) throw new NotFoundException($"Position {positionId} not found");
+        
+        positionEntity.UpdateProperties(mapper.Map<Position>(positionData));
 
-        if (positionData.Title != null)
-        {
-            positionEntity.Title = positionData.Title;
-        }
-
-        if (positionData.Description != null)
-        {
-            positionEntity.Description = positionData.Description;
-        }
-
-        if (positionData.NSeats.HasValue)
-        {
-            positionEntity.NSeats = positionData.NSeats.Value;
-        }
         await context.SaveChangesAsync();
         return mapper.Map<PositionInfo>(positionEntity);
     }

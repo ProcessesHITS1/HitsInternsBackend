@@ -42,8 +42,8 @@ public record Season
     public DateTime SeasonEnd { get; set; }
     public required List<Company> Companies { get; init; }
     public required List<Student> Students { get; init; }
-    
-    public List<RequestStatusTemplate>? RequestStatuses { get; set; }
+
+    public List<RequestStatusTemplate>? RequestStatuses { get; set; } = [];
 };
 
 // Job position in a company
@@ -87,7 +87,7 @@ public enum ResultStatus
 }
 
 
-public class RequestStatusSnapshot
+public record RequestStatusSnapshot
 {
     public Guid Id { get; init; }
     public DateTime DateTime { get; init; }
@@ -97,8 +97,10 @@ public class RequestStatusSnapshot
     
 }
 
-public class RequestStatusTemplate
+public record RequestStatusTemplate
 {
     [Key]
     public string Name { get; init; }
+
+    public List<Season> Seasons { get; set; } = [];
 }

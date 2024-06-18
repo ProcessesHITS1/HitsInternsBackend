@@ -52,9 +52,9 @@ public record StudentInfo
 }
 
 // On creation
-public record PositionData
+public record PositionCreation
 {
-    public required string? Title { get; init; }
+    public required string Title { get; init; }
     public string? Description { get; init; }
     [Range(1, int.MaxValue, ErrorMessage = "NSeats must be 1 or more")]
     public int NSeats { get; init; }
@@ -64,6 +64,13 @@ public record PositionData
 
 }
 
+public record PositionUpdate
+{
+    public string? Title { get; init; }
+    public string? Description { get; init; }
+    [Range(1, int.MaxValue, ErrorMessage = "NSeats must be 1 or more")]
+    public int?  NSeats { get; init; }
+}
 // On search
 public record PositionQuery
 {
@@ -75,7 +82,7 @@ public record PositionQuery
 
 
 // Returned to the client
-public record PositionInfo : PositionData
+public record PositionInfo : PositionCreation
 {
     public Guid Id { get; init; }
     public int NRequests { get; init; }
@@ -96,7 +103,7 @@ public record RequestData
     public Guid StudentId { get; init; }
     public string StudentName { get; init; }
     public Guid PositionId { get; init; }
-    public List<RequestStatusSnapshotData> RequestStatusSnapshots { get; init; } = new();
+    public List<RequestStatusSnapshotData> RequestStatusSnapshots { get; init; } = [];
     public RequestResultData? RequestResult { get; init; }
 }
 public record RequestDetails
@@ -109,21 +116,20 @@ public record RequestDetails
 
 public record RequestResultData
 {
+    public ResultStatus ResultStatus { get; init; }
+    public string? Description { get; init; }
+    public bool OfferGiven { get; init; }
+}
+
+public record RequestResultUpdate
+{
     public ResultStatus? ResultStatus { get; init; }
     public string? Description { get; init; }
     public bool? OfferGiven { get; init; }
 }
-
 public record RequestStatusSnapshotData
 {
     public Guid Id { get; init; }
     public DateTime DateTime { get; init; }
     public string Status { get; init; }
-}
-public record PositionUpdate
-{
-    public required string? Title { get; init; }
-    public string? Description { get; init; }
-    [Range(1, int.MaxValue, ErrorMessage = "NSeats must be 1 or more")]
-    public int?  NSeats { get; init; }
 }

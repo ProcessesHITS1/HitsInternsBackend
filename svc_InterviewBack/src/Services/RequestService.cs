@@ -9,19 +9,19 @@ namespace svc_InterviewBack.Services;
 
 public interface IRequestService
 {
-    Task<RequestDetails> CreateAsync(Guid studentId, Guid positionId, string statusName);
-    Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultData reqResult);
+    Task<RequestDetails> Create(Guid studentId, Guid positionId, string statusName);
+    Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult);
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, string newRequestStatus);
     Task CreateRequestStatusInSeason(int year, string statusName);
     Task<List<RequestStatusTemplate>> GetRequestStatusesInSeason(int year);
 
-    Task<PaginatedItems<RequestData>> GetRequests(bool isAbleToSeeOtherPeopleRequests, RequestQuery requestQuery,
+    Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery,
         int page, int pageSize);
 }
 
 public class RequestService(InterviewDbContext context, IMapper mapper) : IRequestService
 {
-    public async Task<RequestDetails> CreateAsync(Guid studentId, Guid positionId, string statusName)
+    public async Task<RequestDetails> Create(Guid studentId, Guid positionId, string statusName)
     {
         var student = await context.Students
             .Include(s => s.Season)
@@ -110,7 +110,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultData reqResult)
+    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult)
     {
         var request = await context.InterviewRequests
             .Include(r => r.RequestResult)
@@ -196,8 +196,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         return season.RequestStatuses?.ToList() ?? [];
     }
 
-    public async Task<PaginatedItems<RequestData>> GetRequests(bool isAbleToSeeOtherPeopleRequests,
-        RequestQuery requestQuery, int page, int pageSize)
+    public async Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
     {
         // Base query for all interview requests
         var query = context.InterviewRequests
