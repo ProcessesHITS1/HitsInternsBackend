@@ -38,7 +38,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         var interviewRequest = new InterviewRequest
         {
-            Id = Guid.NewGuid(),
             Student = student,
             Position = position,
         };
@@ -55,7 +54,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         var newSnapshot = new RequestStatusSnapshot
         {
-            Id = Guid.NewGuid(),
             DateTime = DateTime.UtcNow,
             RequestStatusTemplate = initialStatusTemplate,
             InterviewRequest = interviewRequest
@@ -98,7 +96,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         var newSnapshot = new RequestStatusSnapshot
         {
-            Id = Guid.NewGuid(),
             DateTime = DateTime.UtcNow,
             RequestStatusTemplate = statusTemplate,
             InterviewRequest = request
