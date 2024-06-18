@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Interns.Common.Pagination;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
@@ -15,12 +14,14 @@ public interface IRequestService
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, string newRequestStatus);
     Task CreateRequestStatusInSeason(int year, string statusName);
     Task<List<RequestStatusTemplate>> GetRequestStatusesInSeason(int year);
-    Task<PaginatedItems<RequestData>> GetRequests(bool isAbleToSeeOtherPeopleRequests, RequestQuery requestQuery,int page,int pageSize);
+
+    Task<PaginatedItems<RequestData>> GetRequests(bool isAbleToSeeOtherPeopleRequests, RequestQuery requestQuery,
+        int page, int pageSize);
 }
 
 public class RequestService(InterviewDbContext context, IMapper mapper) : IRequestService
 {
-    public async Task<RequestDetails> CreateAsync(Guid studentId, Guid positionId,string statusName)
+    public async Task<RequestDetails> CreateAsync(Guid studentId, Guid positionId, string statusName)
     {
         var student = await context.Students
             .Include(s => s.Season)
@@ -70,7 +71,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         return interviewRequestDto;
     }
-
 
 
     public async Task<RequestDetails> UpdateRequestStatus(Guid requestId, string newRequestStatus)
@@ -196,89 +196,86 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         return season.RequestStatuses?.ToList() ?? [];
     }
 
-    public async Task<PaginatedItems<RequestData>> GetRequests(bool isAbleToSeeOtherPeopleRequests, RequestQuery requestQuery, int page, int pageSize)
-{
-    // Base query for all interview requests
-    var query = context.InterviewRequests
-        .Include(ir => ir.Student)
-        .Include(ir => ir.Position)
-        .Include(ir => ir.RequestStatusSnapshots)
-        .ThenInclude(s=>s.RequestStatusTemplate)
-        .Include(ir => ir.RequestResult)
-        .AsQueryable();
-
-    if (requestQuery.RequestIds != null && requestQuery.RequestIds.Count != 0)
+    public async Task<PaginatedItems<RequestData>> GetRequests(bool isAbleToSeeOtherPeopleRequests,
+        RequestQuery requestQuery, int page, int pageSize)
     {
-        query = query.Where(r => requestQuery.RequestIds.Contains(r.Id));
-    }
+        // Base query for all interview requests
+        var query = context.InterviewRequests
+            .Include(ir => ir.Student)
+            .Include(ir => ir.Position)
+            .Include(ir => ir.RequestStatusSnapshots)
+            .ThenInclude(s => s.RequestStatusTemplate)
+            .Include(ir => ir.RequestResult)
+            .AsQueryable();
 
-    if (requestQuery.StudentIds != null && requestQuery.StudentIds.Count != 0)
-    {
-        query = query.Where(r => requestQuery.StudentIds.Contains(r.Student.Id));
-    }
-
-    // TODO: company filtering
-
-    if (requestQuery.IncludeHistory)
-    {
-        query = query.Include(ir => ir.RequestStatusSnapshots)
-                     .OrderByDescending(ir => ir.RequestStatusSnapshots.Max(s => s.DateTime));
-    }
-    else
-    {
-        query = query.OrderByDescending(ir => ir.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).FirstOrDefault().DateTime);
-    }
-
-    var pagedRequests = await query
-        .Skip((page - 1) * pageSize)
-        .Take(pageSize)
-        .ToListAsync();
-
-    var result = pagedRequests.Select(r => 
-    {
-        var latestSnapshot = r.RequestStatusSnapshots.MaxBy(s => s.DateTime);
-        return new RequestData
+        if (requestQuery.RequestIds != null && requestQuery.RequestIds.Count != 0)
         {
-            Id = r.Id,
-            StudentId = r.Student?.Id ?? Guid.Empty,
-            StudentName = r.Student?.Name ?? string.Empty,
-            PositionId = r.Position?.Id ?? Guid.Empty,
-            RequestStatusSnapshots = requestQuery.IncludeHistory
-                ? r.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).Select(s => new RequestStatusSnapshotData
-                {
-                    Id = s.Id,
-                    DateTime = s.DateTime,
-                    Status = s.RequestStatusTemplate?.Name ?? string.Empty
-                }).ToList()
-                : new List<RequestStatusSnapshotData>
-                {
-                    new RequestStatusSnapshotData
-                    {
-                        Id = latestSnapshot?.Id ?? Guid.Empty,
-                        DateTime = latestSnapshot?.DateTime ?? DateTime.MinValue,
-                        Status = latestSnapshot?.RequestStatusTemplate?.Name ?? string.Empty
-                    }
-                },
-            RequestResult = r.RequestResult != null ? new RequestResultData
+            query = query.Where(r => requestQuery.RequestIds.Contains(r.Id));
+        }
+
+        if (requestQuery.StudentIds != null && requestQuery.StudentIds.Count != 0)
+        {
+            query = query.Where(r => requestQuery.StudentIds.Contains(r.Student.Id));
+        }
+
+        // TODO: company filtering
+
+        if (requestQuery.IncludeHistory)
+        {
+            query = query.Include(ir => ir.RequestStatusSnapshots)
+                .OrderByDescending(ir => ir.RequestStatusSnapshots.Max(s => s.DateTime));
+        }
+        else
+        {
+            query = query.OrderByDescending(ir =>
+                ir.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).FirstOrDefault().DateTime);
+        }
+
+        var pagedRequests = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var result = pagedRequests.Select(r =>
+        {
+            var latestSnapshot = r.RequestStatusSnapshots.MaxBy(s => s.DateTime);
+            return new RequestData
             {
-                ResultStatus = r.RequestResult.ResultStatus,
-                Description = r.RequestResult.Description,
-                OfferGiven = r.RequestResult.OfferGiven
-            } : null
-        };
-    }).ToList();
+                Id = r.Id,
+                StudentId = r.Student.Id,
+                StudentName = r.Student.Name,
+                PositionId = r.Position.Id,
+                RequestStatusSnapshots = requestQuery.IncludeHistory
+                    ? r.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).Select(s =>
+                        new RequestStatusSnapshotData
+                        {
+                            Id = s.Id,
+                            DateTime = s.DateTime,
+                            Status = s.RequestStatusTemplate.Name
+                        }).ToList()
+                    :
+                    [
+                        new RequestStatusSnapshotData
+                        {
+                            Id = latestSnapshot?.Id ?? Guid.Empty,
+                            DateTime = latestSnapshot?.DateTime ?? DateTime.MinValue,
+                            Status = latestSnapshot?.RequestStatusTemplate.Name ?? string.Empty
+                        }
+                    ],
+                RequestResult = mapper.Map<RequestResultData>(r.RequestResult)
+            };
+        }).ToList();
 
-    var totalItems = await query.CountAsync();
-    return new PaginatedItems<RequestData>
-    {
-        PaginationInfo = new PaginationInfo
+        var totalItems = await query.CountAsync();
+        return new PaginatedItems<RequestData>
         {
-            CurrentPage = page,
-            TotalItems = totalItems,
-            PageSize = pageSize
-        },
-        Items = result
-    };
-}
-
+            PaginationInfo = new PaginationInfo
+            {
+                CurrentPage = page,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            },
+            Items = result
+        };
+    }
 }

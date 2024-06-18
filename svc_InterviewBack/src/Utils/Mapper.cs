@@ -56,6 +56,7 @@ public class MapperProfile : Profile
 
         CreateMap<PositionData, Position>();
 
+        CreateMap<RequestResult,RequestResultData>();
     }
 
 }
