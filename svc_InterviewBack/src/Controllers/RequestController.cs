@@ -11,18 +11,48 @@ namespace svc_InterviewBack.Controllers;
 [Route("/api/request")]
 public class RequestController(IRequestService requestService) : ControllerBase
 {
+    
+    
     [HttpGet]
+    //TODO:Set Role 
     //Authorized - Staff
-    public async Task<ActionResult> GetRequests()
+    public async Task<ActionResult> GetRequests(
+        [FromQuery(Name = "companies")] List<Guid>? companyIds,
+        [FromQuery(Name = "students")] List<Guid>? studentIds,
+        [FromQuery(Name = "requests")] List<Guid>? requestIds,
+        int page = 1,
+        int pageSize=10,
+        bool includeHistory=false 
+        )
     {
-        return Ok(await requestService.GetRequests());
+        var requestsQuery = new RequestQuery
+        {
+            RequestIds = requestIds,
+            StudentIds = studentIds,
+            CompanyIds = companyIds,
+            IncludeHistory = includeHistory
+        };
+        return Ok(await requestService.GetRequests(true,requestsQuery, page, pageSize));
     }
 
     //Authorized - student's history || Staff
-    [HttpGet("{id}")]
-    public async Task<ActionResult> GetStudentRequests()
+    [HttpGet("student")]
+    public async Task<ActionResult> GetStudentRequests( 
+        [FromQuery(Name = "companies")] List<Guid>? companyIds,
+        [FromQuery(Name = "requests")] List<Guid>? requestIds,
+        int page = 1,
+        int pageSize=10,
+        bool includeHistory=false)
     {
-        return Ok(await requestService.GetRequests());
+        var studentId = User.GetId();
+        var requestsQuery = new RequestQuery
+        {
+            StudentIds = new List<Guid>{studentId},
+            RequestIds = requestIds,
+            CompanyIds = companyIds,
+            IncludeHistory = includeHistory
+        };
+        return Ok(await requestService.GetRequests(true,requestsQuery, page, pageSize));
     }
 
     [HttpPost("position/{positionId}/status/{statusName}")] //student role

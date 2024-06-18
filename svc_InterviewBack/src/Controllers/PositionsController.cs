@@ -69,7 +69,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     /// <param name="positionId">The ID of the position to update.</param>
     /// /// <param name="positionData">Updated position data.</param>
     [HttpPut("{positionId}")]
-    public async Task<ActionResult> Update(Guid positionId, PositionData positionData)
+    public async Task<ActionResult> Update(Guid positionId, PositionUpdate positionData)
     {
         //Update Position Info
         return Ok(await positionService.Update(positionId, positionData));

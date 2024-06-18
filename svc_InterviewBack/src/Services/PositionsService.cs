@@ -13,7 +13,7 @@ public interface IPositionService
     Task<PositionInfo> Create(PositionData position);
     Task Delete(Guid id);
     Task<PaginatedItems<PositionInfo>> Search(PositionQuery query, int page);
-    Task<PositionInfo> Update(Guid positionId, PositionData positionData);
+    Task<PositionInfo> Update(Guid positionId, PositionUpdate positionData);
 }
 
 public class PositionsService(InterviewDbContext context, IMapper mapper) : IPositionService
@@ -73,7 +73,7 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
         );
     }
 
-    public async Task<PositionInfo> Update(Guid positionId, PositionData positionData)
+    public async Task<PositionInfo> Update(Guid positionId, PositionUpdate positionData)
     {
         var positionEntity = await context.Positions.FindAsync(positionId);
         if (positionEntity == null) throw new NotFoundException($"Position {positionId} not found");
@@ -88,9 +88,9 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
             positionEntity.Description = positionData.Description;
         }
 
-        if (positionData.NPositions.HasValue)
+        if (positionData.NSeats.HasValue)
         {
-            positionEntity.NPositions = positionData.NPositions.Value;
+            positionEntity.NSeats = positionData.NSeats.Value;
         }
         await context.SaveChangesAsync();
         return mapper.Map<PositionInfo>(positionEntity);
