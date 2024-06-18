@@ -14,6 +14,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=interview-db;Username=postgres;Password=postgres
       - CompaniesServiceUrl=http://company:8090
       - AuthServiceUrl=http://auth:8080
+      - ThirdCourseServiceUrl=http://third-course:8091
       - AuthLogin=${AuthLogin}
       - AuthPassword=${AuthPassword}
       - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT}
