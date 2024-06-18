@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace svc_InterviewBack.DAL;
 
@@ -12,10 +14,12 @@ public record Company
     public required List<Position> Positions { get; init; }
 }
 
+[PrimaryKey(nameof(Id), nameof(SeasonId))]
 public record Student
 {
     public Guid Id { get; init; }
     public required string Name { get; init; }
+    public required Guid SeasonId { get; init; }
     public required Season Season { get; init; }
     public required EmploymentStatus EmploymentStatus { get; init; }
     public Company? Company { get; set; }
