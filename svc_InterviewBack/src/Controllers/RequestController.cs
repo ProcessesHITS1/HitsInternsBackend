@@ -12,7 +12,14 @@ namespace svc_InterviewBack.Controllers;
 public class RequestController(IRequestService requestService) : ControllerBase
 {
     
-    
+    /// <summary>
+    /// Получает информацию о запросах стажировку. Endpoint для администратора.
+    /// </summary>
+    /// <param name="companyIds">Пока что не работает.</param>
+    /// <param name="studentIds">фильтрация по студентам.</param>
+    /// <param name="requestIds">фильтрация по запросам.</param>
+    /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
+    /// <returns>Пагинированные запросы.</returns>
     [HttpGet]
     //TODO:Set Role 
     //Authorized - Staff
@@ -35,7 +42,13 @@ public class RequestController(IRequestService requestService) : ControllerBase
         return Ok(await requestService.GetRequests(true,requestsQuery, page, pageSize));
     }
 
-    //Authorized - student's history || Staff
+    /// <summary>
+    /// Получает информацию о запросах стажировку. Endpoint для студента.
+    /// </summary>
+    /// <param name="companyIds">Пока что не работает.</param>
+    /// <param name="requestIds">фильтрация по запросам.</param>
+    /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
+    /// <returns>Пагинированные запросы.</returns>
     [HttpGet("student")]
     public async Task<ActionResult> GetStudentRequests( 
         [FromQuery(Name = "companies")] List<Guid>? companyIds,
@@ -62,26 +75,33 @@ public class RequestController(IRequestService requestService) : ControllerBase
         return Ok(await requestService.CreateAsync(studentId, positionId,statusName));
     }
 
+    /// <summary>
+    /// Обновить результат запроса. Статусы:(Pending,Accepted,Rejected)
+    /// </summary>
     
-    [HttpPut("{requestId}/result_status")]
+    [HttpPut("{requestId}/result_status")] //TODO: add checks for user's identity 
     public async Task<ActionResult> UpdateResultStatus(Guid requestId, RequestResultData reqResult)
     {
         return Ok(await requestService.UpdateResultStatus(requestId,reqResult));
     }
 
-    [HttpPut("{requestId}/request_status/{requestStatus}")] 
+    [HttpPut("{requestId}/request_status/{requestStatus}")] //TODO: add checks for user's identity 
     public async Task<ActionResult> UpdateRequestStatus(Guid requestId,string requestStatus)
     {
         return Ok(await requestService.UpdateRequestStatus(requestId,requestStatus));
     }
     
-    
+    /// <summary>
+    /// Получает все допустимые статусы запроса в сезоне
+    /// </summary>
     [HttpGet("season/{year}/request_statuses")]
     public async Task<ActionResult> GetRequestStatusesInSeason(int year)
     {
         return Ok(await requestService.GetRequestStatusesInSeason(year));
     }
-
+    /// <summary>
+    /// Создать статус в сезоне
+    /// </summary>
     [HttpPost("season/{year}/request_status/{statusName}")]
     public async Task<ActionResult> CreateRequestStatusInSeason(int year, string statusName)
     {
