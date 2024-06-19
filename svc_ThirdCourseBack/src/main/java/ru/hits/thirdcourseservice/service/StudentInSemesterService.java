@@ -50,8 +50,14 @@ public class StudentInSemesterService {
     @Transactional
     public void transferToThirdCourse(TransferStudentsToThirdCourseDto transferStudentsToThirdCourseDto) {
         for (StudentTransferToThirdCourseDto studentTransferToThirdCourseDto : transferStudentsToThirdCourseDto.getStudents()) {
-            SemesterEntity semester = semesterRepository.findByYearAndSemester(transferStudentsToThirdCourseDto.getYear(), 1)
-                    .orElseThrow(() -> new NotFoundException("Первый семестр " + transferStudentsToThirdCourseDto.getYear() +  " года не найден"));
+            SemesterEntity semester = SemesterEntity.builder()
+                    .year(transferStudentsToThirdCourseDto.getYear())
+                    .semester(1)
+                    .seasonId(null)
+                    .documentsDeadline(null)
+                    .isClosed(false)
+                    .build();
+            semesterRepository.save(semester);
 
             StudentInSemesterEntity studentInSemester = StudentInSemesterEntity.builder()
                     .studentId(studentTransferToThirdCourseDto.getId())
@@ -103,6 +109,16 @@ public class StudentInSemesterService {
                 .diaryId(studentInSemester.getDiary() != null ? studentInSemester.getDiary().getId() : null)
                 .internshipPassed(studentInSemester.getInternshipPassed())
                 .build();
+    }
+
+    @Transactional
+    public void updateStudentInSemester(UUID studentInSemesterId, UpdateStudentInSemesterDto updateStudentInSemesterDto) {
+        StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findById(studentInSemesterId)
+                .orElseThrow(() -> new NotFoundException("Студент в семестре с ID " + studentInSemesterId + " не найден"));
+
+        studentInSemester.setCompanyId(updateStudentInSemesterDto.getCompanyId());
+
+        studentInSemesterRepository.save(studentInSemester);
     }
 
 }

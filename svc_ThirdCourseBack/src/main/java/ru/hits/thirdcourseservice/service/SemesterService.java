@@ -7,14 +7,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hits.thirdcourseservice.dto.CreateUpdateSemesterDto;
-import ru.hits.thirdcourseservice.dto.PageInfoDto;
-import ru.hits.thirdcourseservice.dto.SemesterDto;
-import ru.hits.thirdcourseservice.dto.SemestersWithPaginationDto;
+import ru.hits.thirdcourseservice.dto.*;
 import ru.hits.thirdcourseservice.entity.SemesterEntity;
+import ru.hits.thirdcourseservice.entity.StudentInSemesterEntity;
 import ru.hits.thirdcourseservice.exception.NotFoundException;
 import ru.hits.thirdcourseservice.helpingservices.CheckPaginationInfoService;
 import ru.hits.thirdcourseservice.repository.SemesterRepository;
+import ru.hits.thirdcourseservice.repository.StudentInSemesterRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +26,7 @@ import java.util.stream.Collectors;
 public class SemesterService {
 
     private final SemesterRepository semesterRepository;
+    private final StudentInSemesterRepository studentInSemesterRepository;
     private final CheckPaginationInfoService checkPaginationInfoService;
 
     @Transactional
@@ -52,6 +52,37 @@ public class SemesterService {
         semester.setDocumentsDeadline(createUpdateSemesterDto.getDocumentsDeadline());
 
         semesterRepository.save(semester);
+    }
+
+    @Transactional
+    public void cloneSemester(CloneSemesterDto cloneSemesterDto) {
+        UUID semesterIdToClone = cloneSemesterDto.getSemesterIdToClone();
+        SemesterEntity semesterToClone = semesterRepository.findById(semesterIdToClone)
+                .orElseThrow(() -> new NotFoundException("Семестр с ID " + semesterIdToClone + " не найден"));
+
+        CreateUpdateSemesterDto newSemesterData = cloneSemesterDto.getNewSemesterData();
+
+        SemesterEntity newSemester = SemesterEntity.builder()
+                .year(newSemesterData.getYear())
+                .semester(newSemesterData.getSemester())
+                .seasonId(newSemesterData.getSeasonId())
+                .documentsDeadline(newSemesterData.getDocumentsDeadline())
+                .isClosed(false)
+                .build();
+
+        semesterRepository.save(newSemester);
+
+        List<StudentInSemesterEntity> studentsInOldSemester = studentInSemesterRepository.findAllBySemester(semesterToClone);
+        for (StudentInSemesterEntity student : studentsInOldSemester) {
+            StudentInSemesterEntity newStudentInSemester = StudentInSemesterEntity.builder()
+                    .studentId(student.getStudentId())
+                    .semester(newSemester)
+                    .companyId(student.getCompanyId())
+                    .diary(null)
+                    .internshipPassed(null)
+                    .build();
+            studentInSemesterRepository.save(newStudentInSemester);
+        }
     }
 
     @Transactional

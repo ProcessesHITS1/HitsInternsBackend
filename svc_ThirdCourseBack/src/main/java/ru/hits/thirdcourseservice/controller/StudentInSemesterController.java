@@ -66,4 +66,14 @@ public class StudentInSemesterController {
         return new ResponseEntity<>(studentInSemesterDto, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Обновить данные студента в семестре.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateStudentInSemester(@PathVariable UUID id, @RequestBody @Valid UpdateStudentInSemesterDto updateStudentInSemesterDto) {
+        studentInSemesterService.updateStudentInSemester(id, updateStudentInSemesterDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
