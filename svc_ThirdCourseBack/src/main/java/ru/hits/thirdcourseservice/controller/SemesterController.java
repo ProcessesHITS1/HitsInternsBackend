@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hits.thirdcourseservice.dto.CloneSemesterDto;
 import ru.hits.thirdcourseservice.dto.CreateUpdateSemesterDto;
 import ru.hits.thirdcourseservice.dto.SemesterDto;
 import ru.hits.thirdcourseservice.dto.SemestersWithPaginationDto;
@@ -52,6 +53,16 @@ public class SemesterController {
     @PutMapping("/{id}/close")
     public ResponseEntity<Void> closeSemester(@PathVariable UUID id) {
         semesterService.closeSemester(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Клонировать семестр.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/clone")
+    public ResponseEntity<Void> cloneSemester(@RequestBody @Valid CloneSemesterDto cloneSemesterDto) {
+        semesterService.cloneSemester(cloneSemesterDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
