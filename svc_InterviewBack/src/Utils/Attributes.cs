@@ -9,3 +9,11 @@ public class SeasonYearRangeAttribute : RangeAttribute
         ErrorMessage = "SeasonYear must be between 2010 and 3000";
     }
 }
+
+public class NSeatsRangeAttribute : RangeAttribute
+{
+    public NSeatsRangeAttribute() : base(1, 100)
+    {
+        ErrorMessage = "NSeats must be between 1 & 100";
+    }
+}

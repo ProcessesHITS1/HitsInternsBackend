@@ -1,13 +1,17 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace svc_InterviewBack.DAL;
 
 
 // Basically these entities represent the tables in the database
+[PrimaryKey(nameof(Id), nameof(SeasonId))]
 public record Company
 {
     public Guid Id { get; init; }
     public required string Name { get; init; }
+    public required Guid SeasonId { get; init; }
     public required Season Season { get; init; }
     public required List<Position> Positions { get; init; }
 }
@@ -40,16 +44,20 @@ public record Season
     public DateTime SeasonEnd { get; set; }
     public required List<Company> Companies { get; init; }
     public required List<Student> Students { get; init; }
+
+    public List<RequestStatusTemplate> RequestStatusTemplates { get; set; } = [];
 };
 
 // Job position in a company
 public record Position
 {
     public Guid Id { get; init; }
-    public required string Title { get; init; }
-    public string? Description { get; init; }
+    public required string Title { get; set; }
+
+    public string? Description { get; set; }
+
     // Number of positions available
-    public required int NSeats { get; init; }
+    public required int NSeats { get; set; }
 };
 
 public record CompanyAndPosition(Company Company, Position Position);
@@ -61,13 +69,41 @@ public record InterviewRequest
     public Guid Id { get; init; }
     public required Student Student { get; init; }
     public required Position Position { get; init; }
-    public RequestStatus Status { get; init; } = RequestStatus.Pending;
+    public RequestResult? RequestResult { get; set; } 
+    public ICollection<RequestStatusSnapshot> RequestStatusSnapshots { get; set; } = new List<RequestStatusSnapshot>(); // History of status snapshots
 };
 
+public record RequestResult
+{
+    public Guid Id { get; init; }
+    public string? Description { get; set; }//TODO:null or ""
+    public bool OfferGiven { get; set; }
+    public ResultStatus ResultStatus { get; set; }
+}
 
-public enum RequestStatus
+public enum ResultStatus
 {
     Pending,
     Accepted,
     Rejected
+}
+
+
+public record RequestStatusSnapshot
+{
+    public Guid Id { get; init; }
+    public DateTime DateTime { get; init; } 
+    //TODO: add description 
+
+    public RequestStatusTemplate RequestStatusTemplate { get; init; }
+    public InterviewRequest InterviewRequest { get; init; }
+    
+}
+
+public record RequestStatusTemplate
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; }
+
+    public List<Season> Seasons { get; set; } = [];
 }

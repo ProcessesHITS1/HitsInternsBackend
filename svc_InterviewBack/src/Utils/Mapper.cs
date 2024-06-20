@@ -54,8 +54,11 @@ public class MapperProfile : Profile
             .ForMember(dest => dest.PositionId, opt => opt.MapFrom(src => src.Position.Id))
             .ForMember(dest => dest.StudentId, opt => opt.MapFrom(src => src.Student.Id));
 
-        CreateMap<PositionData, Position>();
-
+        CreateMap<PositionCreation, Position>();
+        CreateMap<PositionUpdate, Position>();
+        CreateMap<RequestResult,RequestResultData>();
+        CreateMap<RequestResultUpdate,RequestResult>();
+        CreateMap<RequestStatusTemplate,RequestStatusTemplateData>();
     }
 
 }

@@ -19,7 +19,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     /// <param name="positionData">The data for the position.</param>
     /// <returns>The created position.</returns>
     [HttpPost]
-    public async Task<ActionResult<PositionInfo>> Create(PositionData positionData)
+    public async Task<ActionResult<PositionInfo>> Create(PositionCreation positionData)
     {
         return Ok(await positionService.Create(positionData));
     }
@@ -63,6 +63,18 @@ public class PositionsController(IPositionService positionService) : ControllerB
         }
         return Ok(await positionService.Search(queryModel, page));
     }
+    /// <summary>
+    /// Обновление позиции.
+    /// </summary>
+    /// <param name="positionId">The ID of the position to update.</param>
+    /// /// <param name="positionData">Updated position data.</param>
+    [HttpPut("{positionId}")]
+    public async Task<ActionResult<PositionUpdate>> PositionUpdate(Guid positionId, PositionUpdate positionData)
+    {
+        //Update Position Info
+        return Ok(await positionService.Update(positionId, positionData));
+    }
+    
 
     private static bool ValidatePositionQuery(PositionQuery query, out string errorMessage)
     {
