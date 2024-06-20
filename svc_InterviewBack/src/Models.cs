@@ -56,7 +56,7 @@ public record PositionCreation
 {
     public required string Title { get; init; }
     public string? Description { get; init; }
-    [Range(1, int.MaxValue, ErrorMessage = "NSeats must be 1 or more")]
+    [NSeatsRange]
     public int NSeats { get; init; }
     public Guid CompanyId { get; init; }
     [SeasonYearRange]
@@ -68,7 +68,7 @@ public record PositionUpdate
 {
     public string? Title { get; init; }
     public string? Description { get; init; }
-    [Range(1, int.MaxValue, ErrorMessage = "NSeats must be 1 or more")]
+    [NSeatsRange]
     public int?  NSeats { get; init; }
 }
 // On search
