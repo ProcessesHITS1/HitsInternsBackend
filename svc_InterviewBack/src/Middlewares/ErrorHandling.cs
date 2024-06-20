@@ -26,27 +26,25 @@ public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandling
         catch (Exception ex)
         {
             context.Response.ContentType = "application/json";
-            if (ex is NotFoundException)
+            switch (ex)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            }
-            else if (ex is BadRequestException)
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            }
-            else if (ex is MicroserviceException or HttpRequestException)
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                _logger.LogWarning(ex.Message);
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Microservice error. " + ex.Message }));
-                return;
-            }
-            else
-            {
-                _logger.LogError(ex, "An error occurred: {ErrorMessage}", ex.Message);
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Internal server error" }));
-                return;
+                case NotFoundException:
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    break;
+                case BadRequestException:
+                case AccessDeniedException:
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    break;
+                case MicroserviceException or HttpRequestException:
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    _logger.LogWarning(ex.Message);
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Microservice error. " + ex.Message }));
+                    return;
+                default:
+                    _logger.LogError(ex, "An error occurred: {ErrorMessage}", ex.Message);
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Internal server error" }));
+                    return;
             }
             _logger.LogInformation(ex.Message);
             await context.Response.WriteAsync(JsonSerializer.Serialize(new { error = ex.Message }));

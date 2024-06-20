@@ -2,6 +2,7 @@ using Interns.Auth.Extensions;
 using Interns.Common.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
 
@@ -21,12 +22,12 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet]
-    //TODO:Set Role 
+    //TODO:Set Role , фильтрация по позициям?
     //Authorized - Staff
     public async Task<ActionResult<PaginatedItems<RequestData>>> GetRequests(
-        [FromQuery(Name = "companies")] List<Guid>? companyIds,
-        [FromQuery(Name = "students")] List<Guid>? studentIds,
-        [FromQuery(Name = "requests")] List<Guid>? requestIds,
+        [FromQuery(Name = "companyIds")] List<Guid>? companyIds,
+        [FromQuery(Name = "studentIds")] List<Guid>? studentIds,
+        [FromQuery(Name = "requestIds")] List<Guid>? requestIds,
         int page = 1,
         int pageSize = 10,
         bool includeHistory = false
@@ -45,13 +46,11 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Получает информацию о запросах стажировку. Endpoint для студента.
     /// </summary>
-    /// <param name="companyIds">Пока что не работает.</param>
     /// <param name="requestIds">фильтрация по запросам.</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet("my")]
     public async Task<ActionResult<PaginatedItems<RequestData>>> GetStudentRequests(
-        [FromQuery(Name = "companies")] List<Guid>? companyIds,
         [FromQuery(Name = "requests")] List<Guid>? requestIds,
         int page = 1,
         int pageSize = 10,
@@ -62,11 +61,20 @@ public class RequestController(IRequestService requestService) : ControllerBase
         {
             StudentIds = [studentId],
             RequestIds = requestIds,
-            CompanyIds = companyIds,
             IncludeHistory = includeHistory
         };
         return Ok(await requestService.GetRequests(requestsQuery, page, pageSize));
     }
+
+    [HttpGet("{requestId}")]
+    public async Task<ActionResult<RequestData>> GetRequest(Guid requestId)
+    {
+        var isStudent = User.IsInRole(UserRoles.STUDENT);
+        var userId = User.GetId();
+
+        return Ok(await requestService.GetRequest(requestId, userId, isStudent));
+    }
+
 
     /// <summary>
     /// Создать запрос с начальным статусом.
@@ -95,6 +103,4 @@ public class RequestController(IRequestService requestService) : ControllerBase
     {
         return Ok(await requestService.UpdateRequestStatus(requestId, requestStatusId));
     }
-
-
 }

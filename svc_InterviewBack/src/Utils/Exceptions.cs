@@ -8,6 +8,10 @@ public class BadRequestException(string message) : Exception(message)
 {
 }
 
+public class AccessDeniedException(string message) : Exception(message)
+{
+}
+
 public class MicroserviceException(string message) : Exception(message)
 {
 }

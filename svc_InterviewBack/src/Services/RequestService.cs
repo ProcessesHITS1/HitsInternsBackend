@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Utils;
-
 using svc_InterviewBack.Utils.Extensions;
 
 namespace svc_InterviewBack.Services;
@@ -14,10 +13,11 @@ public interface IRequestService
     Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId);
     Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult);
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId);
-   
 
     Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery,
         int page, int pageSize);
+
+    Task<RequestData> GetRequest(Guid requestId, Guid? userId, bool isStudent);
 }
 
 public class RequestService(InterviewDbContext context, IMapper mapper) : IRequestService
@@ -39,7 +39,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         if (position == null) throw new NotFoundException($"Position was not found, id:{positionId}");
 
         var reqResult = new RequestResult();
-        
+
         var interviewRequest = new InterviewRequest
         {
             Student = student,
@@ -47,7 +47,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             RequestResult = reqResult
         };
 
-        
+
         var season = student.Season;
 
         // Find the initial status in season
@@ -93,11 +93,12 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var season = request.Student.Season;
 
         // Check if the new request status exists in the season
-        var statusTemplate = season.RequestStatusTemplates?.Find(st=>st.Id==newRequestStatusId);
+        var statusTemplate = season.RequestStatusTemplates?.Find(st => st.Id == newRequestStatusId);
         //TODO: fix response
         if (statusTemplate == null)
         {
-            throw new NotFoundException($"Request status with Id '{newRequestStatusId}' not found in season {season.Year}");
+            throw new NotFoundException(
+                $"Request status with Id '{newRequestStatusId}' not found in season {season.Year}");
         }
 
         var newSnapshot = new RequestStatusSnapshot
@@ -139,8 +140,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-
-
     public async Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
     {
         // Base query for all interview requests
@@ -162,7 +161,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             query = query.Where(r => requestQuery.StudentIds.Contains(r.Student.Id));
         }
 
-        // TODO: company filtering
+        // TODO: position filtering
 
         if (requestQuery.IncludeHistory)
         {
@@ -189,6 +188,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
                 StudentId = r.Student.Id,
                 StudentName = r.Student.Name,
                 PositionId = r.Position.Id,
+                PositionTitle = r.Position.Title,
                 RequestStatusSnapshots = requestQuery.IncludeHistory
                     ? r.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).Select(s =>
                         new RequestStatusSnapshotData
@@ -220,6 +220,41 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
                 PageSize = pageSize
             },
             Items = result
+        };
+    }
+
+    public async Task<RequestData> GetRequest(Guid requestId, Guid? userId, bool isStudent)
+    {
+        var request = await context.InterviewRequests.Include(ir => ir.Student)
+            .Include(ir => ir.Position)
+            .Include(ir => ir.RequestStatusSnapshots)
+            .ThenInclude(s => s.RequestStatusTemplate)
+            .Include(ir => ir.RequestResult).FirstOrDefaultAsync(r => r.Id == requestId);
+
+        if (request == null)
+            throw new NotFoundException($"Request with id: {requestId} , not found.");
+
+
+        if (request.Student.Id != userId && isStudent)
+            throw new AccessDeniedException(
+                $"Access denied: User {userId} is not authorized to access request with id: {requestId}. ");
+
+        return new RequestData
+        {
+            Id = request.Id,
+            StudentId = request.Student.Id,
+            StudentName = request.Student.Name,
+            PositionId = request.Position.Id,
+            PositionTitle = request.Position.Title,
+            RequestStatusSnapshots = request.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).Select(s =>
+                new RequestStatusSnapshotData
+                {
+                    Id = s.Id,
+                    DateTime = s.DateTime,
+                    Status = s.RequestStatusTemplate.Name
+                }).ToList(),
+
+            RequestResult = mapper.Map<RequestResultData>(request.RequestResult)
         };
     }
 }

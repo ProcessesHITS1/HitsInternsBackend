@@ -103,6 +103,7 @@ public record RequestData
     public Guid StudentId { get; init; }
     public string StudentName { get; init; }
     public Guid PositionId { get; init; }
+    public string PositionTitle { get; init; }
     public List<RequestStatusSnapshotData> RequestStatusSnapshots { get; init; } = [];
     public RequestResultData? RequestResult { get; init; }
 }
