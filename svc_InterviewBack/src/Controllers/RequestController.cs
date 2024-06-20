@@ -71,11 +71,11 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Создать запрос с начальным статусом.
     /// </summary>
-    [HttpPost("position/{positionId}/status/{statusName}")] //student role
-    public async Task<ActionResult<RequestDetails>> Create(Guid positionId, string statusName)
+    [HttpPost("position/{positionId}/status/{requestStatusId}")] //student role
+    public async Task<ActionResult<RequestDetails>> Create(Guid positionId, Guid requestStatusId)
     {
         var studentId = User.GetId();
-        return Ok(await requestService.Create(studentId, positionId, statusName));
+        return Ok(await requestService.Create(studentId, positionId, requestStatusId));
     }
 
     /// <summary>
@@ -90,10 +90,10 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Обновить статус запроса.
     /// </summary>
-    [HttpPut("{requestId}/request_status/{requestStatus}")] //TODO: add checks for user's identity 
-    public async Task<ActionResult> UpdateRequestStatus(Guid requestId, string requestStatus)
+    [HttpPut("{requestId}/request_status/{requestStatusId}")] //TODO: add checks for user's identity 
+    public async Task<ActionResult> UpdateRequestStatus(Guid requestId, Guid requestStatusId)
     {
-        return Ok(await requestService.UpdateRequestStatus(requestId, requestStatus));
+        return Ok(await requestService.UpdateRequestStatus(requestId, requestStatusId));
     }
 
 

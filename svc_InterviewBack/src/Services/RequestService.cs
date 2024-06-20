@@ -11,9 +11,9 @@ namespace svc_InterviewBack.Services;
 
 public interface IRequestService
 {
-    Task<RequestDetails> Create(Guid studentId, Guid positionId, string statusName);
+    Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId);
     Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult);
-    Task<RequestDetails> UpdateRequestStatus(Guid requestId, string newRequestStatus);
+    Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId);
    
 
     Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery,
@@ -22,7 +22,7 @@ public interface IRequestService
 
 public class RequestService(InterviewDbContext context, IMapper mapper) : IRequestService
 {
-    public async Task<RequestDetails> Create(Guid studentId, Guid positionId, string statusName)
+    public async Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId)
     {
         var student = await context.Students
             .Include(s => s.Season)
@@ -51,11 +51,11 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var season = student.Season;
 
         // Find the initial status in season
-        var initialStatusTemplate = season.RequestStatusTemplates?.FirstOrDefault(rst => rst.Name == statusName);
+        var initialStatusTemplate = season.RequestStatusTemplates?.Find(rst => rst.Id == reqStatusId);
 
         if (initialStatusTemplate == null)
         {
-            throw new KeyNotFoundException($"Initial request status 'Waiting' not found in season {season.Year}");
+            throw new NotFoundException($"Initial request status 'Waiting' not found in season {season.Year}");
         }
 
         var newSnapshot = new RequestStatusSnapshot
@@ -79,7 +79,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-    public async Task<RequestDetails> UpdateRequestStatus(Guid requestId, string newRequestStatus)
+    public async Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId)
     {
         var request = await context.InterviewRequests
             .Include(r => r.RequestStatusSnapshots)
@@ -93,11 +93,11 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var season = request.Student.Season;
 
         // Check if the new request status exists in the season
-        var statusTemplate = season.RequestStatusTemplates?.First(rst => rst.Name == newRequestStatus);
+        var statusTemplate = season.RequestStatusTemplates?.Find(st=>st.Id==newRequestStatusId);
         //TODO: fix response
         if (statusTemplate == null)
         {
-            throw new KeyNotFoundException($"Request status '{newRequestStatus}' not found in season {season.Year}");
+            throw new NotFoundException($"Request status with Id '{newRequestStatusId}' not found in season {season.Year}");
         }
 
         var newSnapshot = new RequestStatusSnapshot
