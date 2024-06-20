@@ -8,7 +8,7 @@ public static class EntityExtensions
         foreach (var property in properties)
         {
             var newValue = property.GetValue(updateData);
-            if (newValue != null)
+            if (newValue != null && !(newValue is Guid guidValue && guidValue == Guid.Empty))
             {
                 property.SetValue(entity, newValue);
             }

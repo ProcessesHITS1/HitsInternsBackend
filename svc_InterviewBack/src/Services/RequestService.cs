@@ -5,6 +5,8 @@ using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Utils;
 
+using svc_InterviewBack.Utils.Extensions;
+
 namespace svc_InterviewBack.Services;
 
 public interface IRequestService
@@ -81,7 +83,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .ThenInclude(se => se.RequestStatusTemplates)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
-        if (request == null) throw new KeyNotFoundException($"Request {requestId} not found");
+        if (request == null) throw new NotFoundException($"Request {requestId} not found");
 
         var season = request.Student.Season;
 
@@ -119,30 +121,12 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         if (request.RequestResult == null)
         {
-            request.RequestResult = new RequestResult
-            {
-                Description = reqResult.Description,
-                OfferGiven = reqResult.OfferGiven ?? false,
-                ResultStatus = reqResult.ResultStatus ?? ResultStatus.Pending
-            };
+            request.RequestResult = mapper.Map<RequestResult>(reqResult);
             context.Add(request.RequestResult);
         }
         else
         {
-            if (reqResult.Description != null)
-            {
-                request.RequestResult.Description = reqResult.Description;
-            }
-
-            if (reqResult.OfferGiven.HasValue)
-            {
-                request.RequestResult.OfferGiven = reqResult.OfferGiven.Value;
-            }
-
-            if (reqResult.ResultStatus.HasValue)
-            {
-                request.RequestResult.ResultStatus = reqResult.ResultStatus.Value;
-            }
+            request.RequestResult.UpdateProperties(mapper.Map<RequestResult>(reqResult));
         }
 
         await context.SaveChangesAsync();

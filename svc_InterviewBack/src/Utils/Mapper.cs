@@ -57,6 +57,7 @@ public class MapperProfile : Profile
         CreateMap<PositionCreation, Position>();
         CreateMap<PositionUpdate, Position>();
         CreateMap<RequestResult,RequestResultData>();
+        CreateMap<RequestResultUpdate,RequestResult>();
         CreateMap<RequestStatusTemplate,RequestStatusTemplateData>();
     }
 

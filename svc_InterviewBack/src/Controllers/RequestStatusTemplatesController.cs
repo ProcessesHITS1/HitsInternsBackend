@@ -32,4 +32,5 @@ public class RequestStatusTemplatesController(IRequestStatusTemplateService requ
         return Ok();
     }
     
+    //Todo: add remove StatusTemplate from season endpoint
 }
