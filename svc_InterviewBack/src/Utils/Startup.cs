@@ -23,7 +23,8 @@ public static class Startup
         .AddScoped<IPositionService, PositionsService>()
         .AddScoped<ICompaniesService, CompaniesService>()
         .AddScoped<IStudentsService, StudentsService>()
-        .AddScoped<IRequestService, RequestService>();
+        .AddScoped<IRequestService, RequestService>()
+        .AddScoped<IRequestStatusTemplateService,RequestStatusTemplateService>();
 
         // add clients
         services.AddTransient<AuthHandler>();

@@ -12,8 +12,7 @@ public interface IRequestService
     Task<RequestDetails> Create(Guid studentId, Guid positionId, string statusName);
     Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult);
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, string newRequestStatus);
-    Task CreateRequestStatusInSeason(int year, string statusName);
-    Task<List<RequestStatusTemplate>> GetRequestStatusesInSeason(int year);
+   
 
     Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery,
         int page, int pageSize);
@@ -25,7 +24,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     {
         var student = await context.Students
             .Include(s => s.Season)
-            .ThenInclude(se => se.RequestStatuses)
+            .ThenInclude(se => se.RequestStatusTemplates)
             .FirstOrDefaultAsync(s => s.Id == studentId);
 
         if (student == null)
@@ -46,7 +45,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var season = student.Season;
 
         // Find the initial status in season
-        var initialStatusTemplate = season.RequestStatuses?.FirstOrDefault(rst => rst.Name == statusName);
+        var initialStatusTemplate = season.RequestStatusTemplates?.FirstOrDefault(rst => rst.Name == statusName);
 
         if (initialStatusTemplate == null)
         {
@@ -79,7 +78,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .Include(r => r.RequestStatusSnapshots)
             .Include(r => r.Student)
             .ThenInclude(s => s.Season)
-            .ThenInclude(se => se.RequestStatuses)
+            .ThenInclude(se => se.RequestStatusTemplates)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
         if (request == null) throw new KeyNotFoundException($"Request {requestId} not found");
@@ -87,7 +86,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var season = request.Student.Season;
 
         // Check if the new request status exists in the season
-        var statusTemplate = season.RequestStatuses?.First(rst => rst.Name == newRequestStatus);
+        var statusTemplate = season.RequestStatusTemplates?.First(rst => rst.Name == newRequestStatus);
         //TODO: fix response
         if (statusTemplate == null)
         {
@@ -151,50 +150,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-    public async Task CreateRequestStatusInSeason(int year, string statusName)
-    {
-        // Check if the season exists for the given year
-        var season = await context.Seasons.Include(s => s.RequestStatuses)
-            .FirstOrDefaultAsync(s => s.Year == year);
-        if (season == null)
-        {
-            throw new KeyNotFoundException($"Season for year {year} not found");
-        }
 
-        // Check if the status already exists in the database
-        var statusTemplate = await context.RequestStatusTemplates
-            .FirstOrDefaultAsync(rst => rst.Name == statusName);
-        if (statusTemplate == null)
-        {
-            // If the status doesn't exist, create it
-            statusTemplate = new RequestStatusTemplate
-            {
-                Name = statusName
-            };
-            context.RequestStatusTemplates.Add(statusTemplate);
-        }
-
-        // Check if the status is already associated with the season
-        season.RequestStatuses ??= [];
-        if (season.RequestStatuses.All(rs => rs.Name != statusName))
-        {
-            season.RequestStatuses.Add(statusTemplate);
-        }
-
-        await context.SaveChangesAsync();
-    }
-
-    public async Task<List<RequestStatusTemplate>> GetRequestStatusesInSeason(int year)
-    {
-        var season = await context.Seasons.Include(s => s.RequestStatuses)
-            .FirstOrDefaultAsync(s => s.Year == year);
-        if (season == null)
-        {
-            throw new KeyNotFoundException($"Season for year {year} not found");
-        }
-
-        return season.RequestStatuses?.ToList() ?? [];
-    }
 
     public async Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
     {

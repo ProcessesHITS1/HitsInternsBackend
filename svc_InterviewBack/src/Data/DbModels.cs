@@ -43,7 +43,7 @@ public record Season
     public required List<Company> Companies { get; init; }
     public required List<Student> Students { get; init; }
 
-    public List<RequestStatusTemplate>? RequestStatuses { get; set; } = [];
+    public List<RequestStatusTemplate> RequestStatusTemplates { get; set; } = [];
 };
 
 // Job position in a company
@@ -76,7 +76,7 @@ public record RequestResult
     public Guid Id { get; init; }
     public string? Description { get; set; }
     public bool OfferGiven { get; set; }
-    public ResultStatus ResultStatus { get; set; } = ResultStatus.Pending;
+    public ResultStatus ResultStatus { get; set; } = ResultStatus.Pending;//TODO:nullable - pending
 }
 
 public enum ResultStatus
@@ -99,7 +99,7 @@ public record RequestStatusSnapshot
 
 public record RequestStatusTemplate
 {
-    [Key]
+    public Guid Id { get; init; }
     public string Name { get; init; }
 
     public List<Season> Seasons { get; set; } = [];

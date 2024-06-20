@@ -49,7 +49,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <param name="requestIds">фильтрация по запросам.</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
-    [HttpGet("student")]
+    [HttpGet("my")]
     public async Task<ActionResult<PaginatedItems<RequestData>>> GetStudentRequests(
         [FromQuery(Name = "companies")] List<Guid>? companyIds,
         [FromQuery(Name = "requests")] List<Guid>? requestIds,
@@ -96,22 +96,5 @@ public class RequestController(IRequestService requestService) : ControllerBase
         return Ok(await requestService.UpdateRequestStatus(requestId, requestStatus));
     }
 
-    /// <summary>
-    /// Получает все допустимые статусы запроса в сезоне
-    /// </summary>
-    [HttpGet("season/{year}/request_statuses")] //TODO:permission admin
-    public async Task<ActionResult> GetRequestStatusesInSeason(int year)
-    {
-        return Ok(await requestService.GetRequestStatusesInSeason(year));
-    }
 
-    /// <summary>
-    /// Создать статус в сезоне
-    /// </summary>
-    [HttpPost("season/{year}/request_status/{statusName}")] //TODO:permission admin
-    public async Task<ActionResult> CreateRequestStatusInSeason(int year, string statusName)
-    {
-        await requestService.CreateRequestStatusInSeason(year, statusName);
-        return Ok();
-    }
 }

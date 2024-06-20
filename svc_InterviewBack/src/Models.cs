@@ -133,3 +133,9 @@ public record RequestStatusSnapshotData
     public DateTime DateTime { get; init; }
     public string Status { get; init; }
 }
+
+public record RequestStatusTemplateData
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; }
+}

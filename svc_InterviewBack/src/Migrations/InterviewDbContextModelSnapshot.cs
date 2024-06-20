@@ -24,13 +24,13 @@ namespace svc_InterviewBack.Migrations
 
             modelBuilder.Entity("RequestStatusTemplateSeason", b =>
                 {
-                    b.Property<string>("RequestStatusesName")
-                        .HasColumnType("text");
+                    b.Property<Guid>("RequestStatusTemplatesId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("SeasonsId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("RequestStatusesName", "SeasonsId");
+                    b.HasKey("RequestStatusTemplatesId", "SeasonsId");
 
                     b.HasIndex("SeasonsId");
 
@@ -138,25 +138,32 @@ namespace svc_InterviewBack.Migrations
                     b.Property<Guid>("InterviewRequestId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("RequestStatusTemplateName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("RequestStatusTemplateId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("InterviewRequestId");
 
-                    b.HasIndex("RequestStatusTemplateName");
+                    b.HasIndex("RequestStatusTemplateId");
 
                     b.ToTable("RequestStatusSnapshots");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.RequestStatusTemplate", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Name");
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("RequestStatusTemplates");
                 });
@@ -218,7 +225,7 @@ namespace svc_InterviewBack.Migrations
                 {
                     b.HasOne("svc_InterviewBack.DAL.RequestStatusTemplate", null)
                         .WithMany()
-                        .HasForeignKey("RequestStatusesName")
+                        .HasForeignKey("RequestStatusTemplatesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -285,7 +292,7 @@ namespace svc_InterviewBack.Migrations
 
                     b.HasOne("svc_InterviewBack.DAL.RequestStatusTemplate", "RequestStatusTemplate")
                         .WithMany()
-                        .HasForeignKey("RequestStatusTemplateName")
+                        .HasForeignKey("RequestStatusTemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
