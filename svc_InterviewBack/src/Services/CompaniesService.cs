@@ -25,13 +25,14 @@ public class CompaniesService(InterviewDbContext context, CompaniesClient compan
         // check that company exists
         var company = await companiesClient.Get(id);
 
-        // check if company exists in season
+        // check if a company exists in season
         if (season.Companies.Any(c => c.Id == id))
             throw new BadRequestException($"Company with id {id} already exists in season with year {season.Year}");
 
         var companyInSeason = new Company
         {
             Id = company.Id,
+            SeasonId = season.Id,
             Name = company.Name,
             Season = season,
             Positions = []

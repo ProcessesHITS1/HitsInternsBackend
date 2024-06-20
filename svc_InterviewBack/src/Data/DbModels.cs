@@ -6,10 +6,12 @@ namespace svc_InterviewBack.DAL;
 
 
 // Basically these entities represent the tables in the database
+[PrimaryKey(nameof(Id), nameof(SeasonId))]
 public record Company
 {
     public Guid Id { get; init; }
     public required string Name { get; init; }
+    public required Guid SeasonId { get; init; }
     public required Season Season { get; init; }
     public required List<Position> Positions { get; init; }
 }
