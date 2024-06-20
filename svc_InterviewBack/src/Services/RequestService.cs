@@ -38,13 +38,11 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .FirstOrDefaultAsync(p => p.Id == positionId);
         if (position == null) throw new NotFoundException($"Position was not found, id:{positionId}");
 
-        var reqResult = new RequestResult();
 
         var interviewRequest = new InterviewRequest
         {
             Student = student,
             Position = position,
-            RequestResult = reqResult
         };
 
 
@@ -68,7 +66,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         interviewRequest.RequestStatusSnapshots.Add(newSnapshot);
 
         context.InterviewRequests.Add(interviewRequest);
-        context.RequestResult.Add(reqResult);
         context.RequestStatusSnapshots.Add(newSnapshot);
 
         await context.SaveChangesAsync();
@@ -82,7 +79,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId)
     {
         var request = await context.InterviewRequests
-            .Include(r => r.RequestStatusSnapshots)
             .Include(r => r.Student)
             .ThenInclude(s => s.Season)
             .ThenInclude(se => se.RequestStatusTemplates)
@@ -109,8 +105,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         };
 
         request.RequestStatusSnapshots.Add(newSnapshot);
-
-        context.RequestStatusSnapshots.Add(newSnapshot);
+        
         await context.SaveChangesAsync();
 
         return mapper.Map<RequestDetails>(request);

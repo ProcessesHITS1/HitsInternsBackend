@@ -12,8 +12,8 @@ using svc_InterviewBack.DAL;
 namespace svc_InterviewBack.Migrations
 {
     [DbContext(typeof(InterviewDbContext))]
-    [Migration("20240620063005_RequestResultStatusNullable")]
-    partial class RequestResultStatusNullable
+    [Migration("20240620104259_CompanySeasonKey")]
+    partial class CompanySeasonKey
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,17 +43,16 @@ namespace svc_InterviewBack.Migrations
             modelBuilder.Entity("svc_InterviewBack.DAL.Company", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SeasonId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("SeasonId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
+                    b.HasKey("Id", "SeasonId");
 
                     b.HasIndex("SeasonId");
 
@@ -93,6 +92,9 @@ namespace svc_InterviewBack.Migrations
                     b.Property<Guid?>("CompanyId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("CompanySeasonId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -105,7 +107,7 @@ namespace svc_InterviewBack.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex("CompanyId", "CompanySeasonId");
 
                     b.ToTable("Positions");
                 });
@@ -121,7 +123,7 @@ namespace svc_InterviewBack.Migrations
                     b.Property<bool>("OfferGiven")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("ResultStatus")
+                    b.Property<int>("ResultStatus")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -208,6 +210,9 @@ namespace svc_InterviewBack.Migrations
                     b.Property<Guid?>("CompanyId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("CompanySeasonId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("EmploymentStatus")
                         .HasColumnType("integer");
 
@@ -217,9 +222,9 @@ namespace svc_InterviewBack.Migrations
 
                     b.HasKey("Id", "SeasonId");
 
-                    b.HasIndex("CompanyId");
-
                     b.HasIndex("SeasonId");
+
+                    b.HasIndex("CompanyId", "CompanySeasonId");
 
                     b.ToTable("Students");
                 });
@@ -273,7 +278,7 @@ namespace svc_InterviewBack.Migrations
                 {
                     b.HasOne("svc_InterviewBack.DAL.Company", null)
                         .WithMany("Positions")
-                        .HasForeignKey("CompanyId");
+                        .HasForeignKey("CompanyId", "CompanySeasonId");
                 });
 
             modelBuilder.Entity("svc_InterviewBack.DAL.RequestResult", b =>
@@ -306,15 +311,15 @@ namespace svc_InterviewBack.Migrations
 
             modelBuilder.Entity("svc_InterviewBack.DAL.Student", b =>
                 {
-                    b.HasOne("svc_InterviewBack.DAL.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId");
-
                     b.HasOne("svc_InterviewBack.DAL.Season", "Season")
                         .WithMany("Students")
                         .HasForeignKey("SeasonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("svc_InterviewBack.DAL.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId", "CompanySeasonId");
 
                     b.Navigation("Company");
 
