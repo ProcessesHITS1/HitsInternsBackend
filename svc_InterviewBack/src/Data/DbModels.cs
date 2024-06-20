@@ -74,9 +74,9 @@ public record InterviewRequest
 public record RequestResult
 {
     public Guid Id { get; init; }
-    public string? Description { get; set; }
+    public string? Description { get; set; }//TODO:null or ""
     public bool OfferGiven { get; set; }
-    public ResultStatus ResultStatus { get; set; } = ResultStatus.Pending;//TODO:nullable - pending
+    public ResultStatus? ResultStatus { get; set; }
 }
 
 public enum ResultStatus
@@ -90,7 +90,8 @@ public enum ResultStatus
 public record RequestStatusSnapshot
 {
     public Guid Id { get; init; }
-    public DateTime DateTime { get; init; }
+    public DateTime DateTime { get; init; } 
+    //TODO: add description 
 
     public RequestStatusTemplate RequestStatusTemplate { get; init; }
     public InterviewRequest InterviewRequest { get; init; }
