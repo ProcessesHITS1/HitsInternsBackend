@@ -1,23 +1,21 @@
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Converters;
 using svc_InterviewBack.Middlewares;
 using svc_InterviewBack.Utils;
 using Interns.Auth.Extensions;
+using Interns.Common;
+using Interns.Common.SwaggerEnum;
 
 var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
 // main configuration
-builder.Services.AddServices(builder.Configuration);
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.Converters.Add(new StringEnumConverter());
-    });
-
+services.AddServices(builder.Configuration);
+services.AddCustomJsonOptions();
 
 // swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen(c =>
     {
         // docs
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "Interview service api", Version = "v1" });
@@ -29,9 +27,11 @@ builder.Services.AddSwaggerGen(c =>
         
         c.UseAllOfToExtendReferenceSchemas();
         c.UseOneOfForPolymorphism();
+        
+        c.SchemaFilter<EnumSchemaFilter>();
     }
 );
-builder.Services.AddSwaggerGenNewtonsoftSupport();
+services.AddSwaggerGenNewtonsoftSupport();
 
 // auth
 builder.ConfigureAuth();
