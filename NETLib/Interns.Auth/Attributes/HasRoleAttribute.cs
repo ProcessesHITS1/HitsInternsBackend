@@ -14,17 +14,17 @@ namespace Interns.Auth.Attributes
             public const string ADMIN = "ROLE_ADMIN";
         }
 
-        private readonly string _requiredRole;
+        private readonly string[] _acceptedRoles;
 
-        public HasRoleAttribute(string role)
+        public HasRoleAttribute(params string[] roles)
         {
-            _requiredRole = role;
+            _acceptedRoles = roles;
         }
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            var isInRole = context.HttpContext.User.IsInRole(_requiredRole.ToString());
-            if (!isInRole)
+            var hasAnyAcceptedRole = _acceptedRoles.Any(context.HttpContext.User.IsInRole);
+            if (!hasAnyAcceptedRole)
             {
                 context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
                 return;
