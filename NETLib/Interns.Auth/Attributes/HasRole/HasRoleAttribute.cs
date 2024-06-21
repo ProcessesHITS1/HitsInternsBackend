@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Interns.Auth.Attributes
+namespace Interns.Auth.Attributes.HasRole
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class HasRoleAttribute : Attribute, IAuthorizationFilter
     {
-        public static class UserRoles 
+        public static class UserRoles
         {
             public const string STUDENT = "ROLE_STUDENT";
             public const string SCHOOL_REPRESENTATIVE = "ROLE_SCHOOL_REPRESENTATIVE";

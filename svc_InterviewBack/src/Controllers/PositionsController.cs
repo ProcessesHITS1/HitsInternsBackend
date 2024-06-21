@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using Interns.Auth.Attributes.HasRole;
 using Interns.Common;
 using Interns.Common.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
-using svc_InterviewBack.Utils;
 
 namespace svc_InterviewBack.Controllers;
 
@@ -20,6 +20,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     /// <param name="positionData">The data for the position.</param>
     /// <returns>The created position.</returns>
     [HttpPost]
+    [CalledByStaff]
     public async Task<ActionResult<PositionInfo>> Create(PositionCreation positionData)
     {
         return Ok(await positionService.Create(positionData));
@@ -31,6 +32,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     /// <param name="id">The ID of the position to delete.</param>
     /// <returns>An empty response if the position is deleted successfully.</returns>
     [HttpDelete("{id}")]
+    [CalledByStaff]
     public async Task<ActionResult> Delete(Guid id)
     {
         await positionService.Delete(id);
@@ -70,6 +72,7 @@ public class PositionsController(IPositionService positionService) : ControllerB
     /// <param name="positionId">The ID of the position to update.</param>
     /// /// <param name="positionData">Updated position data.</param>
     [HttpPut("{positionId}")]
+    [CalledByStaff]
     public async Task<ActionResult<PositionUpdate>> PositionUpdate(Guid positionId, PositionUpdate positionData)
     {
         //Update Position Info
