@@ -24,7 +24,7 @@ namespace Interns.Auth.Attributes
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var isInRole = context.HttpContext.User.IsInRole(_requiredRole.ToString());
-            if (isInRole)
+            if (!isInRole)
             {
                 context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
                 return;
