@@ -1,4 +1,4 @@
-using svc_InterviewBack.Utils;
+using Interns.Common;
 using System.Text.Json.Serialization;
 
 namespace svc_InterviewBack.Services.Clients;

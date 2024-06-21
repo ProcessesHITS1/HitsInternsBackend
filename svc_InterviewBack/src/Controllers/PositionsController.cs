@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Interns.Common;
 using Interns.Common.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

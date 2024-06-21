@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using Interns.Common;
 using Interns.Common.Pagination;
 using Microsoft.EntityFrameworkCore;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
-using svc_InterviewBack.Utils;
 using svc_InterviewBack.Utils.Extensions;
 
 namespace svc_InterviewBack.Services;

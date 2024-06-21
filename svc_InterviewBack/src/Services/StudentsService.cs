@@ -1,8 +1,8 @@
 using AutoMapper;
+using Interns.Common;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services.Clients;
-using svc_InterviewBack.Utils;
 
 namespace svc_InterviewBack.Services;
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
+using static Interns.Auth.Attributes.HasRoleAttribute;
 
 namespace svc_InterviewBack.Controllers;
 

@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using System.IdentityModel.Tokens.Jwt;
-using svc_InterviewBack.Utils;
+using Interns.Common;
 
 
 namespace svc_InterviewBack.Services.Clients;
