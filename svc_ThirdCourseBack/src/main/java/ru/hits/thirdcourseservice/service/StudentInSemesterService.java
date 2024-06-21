@@ -49,16 +49,16 @@ public class StudentInSemesterService {
 
     @Transactional
     public void transferToThirdCourse(TransferStudentsToThirdCourseDto transferStudentsToThirdCourseDto) {
-        for (StudentTransferToThirdCourseDto studentTransferToThirdCourseDto : transferStudentsToThirdCourseDto.getStudents()) {
-            SemesterEntity semester = SemesterEntity.builder()
-                    .year(transferStudentsToThirdCourseDto.getYear())
-                    .semester(1)
-                    .seasonId(null)
-                    .documentsDeadline(null)
-                    .isClosed(false)
-                    .build();
-            semesterRepository.save(semester);
+        SemesterEntity semester = SemesterEntity.builder()
+                .year(transferStudentsToThirdCourseDto.getYear())
+                .semester(1)
+                .seasonId(null)
+                .documentsDeadline(null)
+                .isClosed(false)
+                .build();
+        semesterRepository.save(semester);
 
+        for (StudentTransferToThirdCourseDto studentTransferToThirdCourseDto : transferStudentsToThirdCourseDto.getStudents()) {
             StudentInSemesterEntity studentInSemester = StudentInSemesterEntity.builder()
                     .studentId(studentTransferToThirdCourseDto.getId())
                     .companyId(studentTransferToThirdCourseDto.getCompanyId())
