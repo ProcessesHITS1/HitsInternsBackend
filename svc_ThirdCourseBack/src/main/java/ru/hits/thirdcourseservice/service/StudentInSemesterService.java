@@ -52,7 +52,7 @@ public class StudentInSemesterService {
         SemesterEntity semester = SemesterEntity.builder()
                 .year(transferStudentsToThirdCourseDto.getYear())
                 .semester(1)
-                .seasonId(null)
+                .seasonId(transferStudentsToThirdCourseDto.getSeasonId())
                 .documentsDeadline(null)
                 .isClosed(false)
                 .build();
