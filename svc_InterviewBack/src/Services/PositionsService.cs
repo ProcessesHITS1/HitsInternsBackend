@@ -68,6 +68,7 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
             {
                 var mapped = mapper.Map<PositionInfo>(new CompanyAndPosition(cp.Company, cp.Position));
                 mapped.SeasonYear = query.SeasonYear;
+                mapped.CompanyId = cp.Company.Id;
 
                 return mapped;
             }

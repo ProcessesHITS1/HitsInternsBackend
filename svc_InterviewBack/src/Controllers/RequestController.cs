@@ -18,18 +18,18 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Получает информацию о запросах стажировку. Endpoint для администратора.
     /// </summary>
-    /// <param name="companyIds">Пока что не работает.</param>
+    /// <param name="companyIds">пока не работает</param>
+    /// <param name="seasonYears">Фильтрация по сезонам</param>
     /// <param name="studentIds">фильтрация по студентам.</param>
-    /// <param name="requestIds">фильтрация по запросам.</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet]
     //TODO: фильтрация по позициям?
     [CalledByStaff]
     public async Task<ActionResult<PaginatedItems<RequestData>>> GetRequests(
-        [FromQuery(Name = "companyIds")] List<Guid>? companyIds,
-        [FromQuery(Name = "studentIds")] List<Guid>? studentIds,
-        [FromQuery(Name = "requestIds")] List<Guid>? requestIds,
+        [FromQuery(Name = "seasons")] List<int> seasonYears,
+        [FromQuery(Name = "companyIds")] List<Guid> companyIds,
+        [FromQuery(Name = "studentIds")] List<Guid> studentIds,
         int page = 1,
         int pageSize = 10,
         bool includeHistory = false
@@ -37,7 +37,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     {
         var requestsQuery = new RequestQuery
         {
-            RequestIds = requestIds,
+            SeasonYears = seasonYears,
             StudentIds = studentIds,
             CompanyIds = companyIds,
             IncludeHistory = includeHistory
@@ -48,13 +48,15 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Получает информацию о запросах стажировку. Endpoint для студента.
     /// </summary>
-    /// <param name="requestIds">фильтрация по запросам.</param>
+    /// <param name="seasonYears">фильтрация по сезонам</param>
+    /// <param name="companyIds">пока не работает</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet("my")]
     [CalledByStudent]
     public async Task<ActionResult<PaginatedItems<RequestData>>> GetStudentRequests(
-        [FromQuery(Name = "requests")] List<Guid>? requestIds,
+        [FromQuery(Name = "seasons")] List<int> seasonYears,
+        [FromQuery(Name = "companyIds")] List<Guid> companyIds,
         int page = 1,
         int pageSize = 10,
         bool includeHistory = false)
@@ -63,7 +65,8 @@ public class RequestController(IRequestService requestService) : ControllerBase
         var requestsQuery = new RequestQuery
         {
             StudentIds = [studentId],
-            RequestIds = requestIds,
+            CompanyIds = companyIds,
+            SeasonYears = seasonYears,
             IncludeHistory = includeHistory
         };
         return Ok(await requestService.GetRequests(requestsQuery, page, pageSize));
@@ -83,7 +86,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// Создать запрос с начальным статусом.
     /// </summary>
     [HttpPost("position/{positionId}/status/{requestStatusId}")]
-    [HasRole(UserRoles.STUDENT)]
+    [CalledByStudent]
     public async Task<ActionResult<RequestDetails>> Create(Guid positionId, Guid requestStatusId)
     {
         var studentId = User.GetId();

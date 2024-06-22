@@ -36,6 +36,7 @@ namespace Interns.Common.Middlewares
                     case AccessDeniedException:
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         break;
+                    case InvalidOperationException:
                     case BadRequestException:
                         context.Response.StatusCode = StatusCodes.Status400BadRequest;
                         break;

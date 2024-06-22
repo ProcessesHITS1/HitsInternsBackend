@@ -1,4 +1,5 @@
 using Interns.Auth.Attributes.HasRole;
+using Interns.Auth.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
@@ -7,7 +8,6 @@ namespace svc_InterviewBack.Controllers;
 
 [Route("/api/season")]
 [ApiController]
-[CalledByStaff]
 public class SeasonsController(ISeasonsService seasonsService, IStudentsService studentsService, ICompaniesService companiesService) : ControllerBase
 {
 
@@ -16,6 +16,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// </summary>
     /// <returns>A list of all seasons.</returns>
     [HttpGet("/api/seasons")]
+    [CalledByStaff]
     public async Task<ActionResult<List<Season>>> GetAll()
     {
         return Ok(await seasonsService.GetAll());
@@ -27,9 +28,18 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <param name="year">The year of the season to retrieve.</param>
     /// <returns>An ActionResult containing the retrieved Season object.</returns>
     [HttpGet("{year}/info")]
+    [CalledByStaff]
     public async Task<ActionResult<Season>> Get(int year)
     {
         return Ok(await seasonsService.Get(year));
+    }
+
+    [HttpGet("my/current")]
+    [CalledByStudent]
+    public async Task<ActionResult<Season>> GetMyCurrent()
+    {
+        Guid userId = User.GetId();
+        return Ok(await seasonsService.GetCurrent(userId));
     }
 
     /// <summary>
@@ -39,6 +49,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <returns>The season with the specified year.</returns>
     [Obsolete("Use separate endpoints for companies and students instead")]
     [HttpGet("{year}")]
+    [CalledByStaff]
     public async Task<ActionResult<SeasonDetails>> GetDetails(int year)
     {
         var season = await seasonsService.Find(year);
@@ -56,6 +67,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <param name="seasonData">The data for the new season.</param>
     /// <returns>The created season.</returns>
     [HttpPost]
+    [CalledByStaff]
     public async Task<ActionResult<Season>> Create(SeasonData seasonData)
     {
         return Ok(await seasonsService.Create(seasonData));
@@ -68,6 +80,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <param name="seasonData">The updated season data.</param>
     /// <returns>The updated season.</returns>
     [HttpPut("{year}")]
+    [CalledByStaff]
     public async Task<ActionResult<Season>> Update(int year, SeasonData seasonData)
     {
         return Ok(await seasonsService.Update(year, seasonData));
@@ -79,6 +92,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <param name="year">The year of the season to delete.</param>
     /// <returns>An empty response.</returns>
     [HttpDelete("{year}")]
+    [CalledByStaff]
     public async Task<ActionResult> Delete(int year)
     {
         await seasonsService.Delete(year);
@@ -91,6 +105,7 @@ public class SeasonsController(ISeasonsService seasonsService, IStudentsService 
     /// <param name="year">The year of the season to close.</param>
     /// <returns>An <see cref="ActionResult"/> representing the result of the operation.</returns>
     [HttpPost("{year}/close")]
+    [CalledByStaff]
     public async Task<ActionResult> Close(int year)
     {
         await seasonsService.Close(year);
