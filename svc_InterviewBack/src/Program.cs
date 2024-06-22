@@ -1,10 +1,9 @@
 using System.Reflection;
-using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
-using svc_InterviewBack.Middlewares;
 using svc_InterviewBack.Utils;
 using Interns.Auth.Extensions;
 using Interns.Common;
+using Interns.Common.Middlewares;
 using Interns.Common.SwaggerEnum;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +30,6 @@ services.AddSwaggerGen(c =>
         c.SchemaFilter<EnumSchemaFilter>();
     }
 );
-services.AddSwaggerGenNewtonsoftSupport();
 
 // auth
 builder.ConfigureAuth();

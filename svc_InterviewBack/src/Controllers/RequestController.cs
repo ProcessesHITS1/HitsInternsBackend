@@ -1,3 +1,4 @@
+using Interns.Auth.Attributes.HasRole;
 using Interns.Auth.Extensions;
 using Interns.Common.Pagination;
 using Microsoft.AspNetCore.Authorization;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
+using static Interns.Auth.Attributes.HasRole.HasRoleAttribute;
 
 namespace svc_InterviewBack.Controllers;
 
@@ -22,8 +24,8 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet]
-    //TODO:Set Role , фильтрация по позициям?
-    //Authorized - Staff
+    //TODO: фильтрация по позициям?
+    [CalledByStaff]
     public async Task<ActionResult<PaginatedItems<RequestData>>> GetRequests(
         [FromQuery(Name = "companyIds")] List<Guid>? companyIds,
         [FromQuery(Name = "studentIds")] List<Guid>? studentIds,
@@ -50,6 +52,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet("my")]
+    [CalledByStudent]
     public async Task<ActionResult<PaginatedItems<RequestData>>> GetStudentRequests(
         [FromQuery(Name = "requests")] List<Guid>? requestIds,
         int page = 1,
@@ -79,7 +82,8 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Создать запрос с начальным статусом.
     /// </summary>
-    [HttpPost("position/{positionId}/status/{requestStatusId}")] //student role
+    [HttpPost("position/{positionId}/status/{requestStatusId}")]
+    [HasRole(UserRoles.STUDENT)]
     public async Task<ActionResult<RequestDetails>> Create(Guid positionId, Guid requestStatusId)
     {
         var studentId = User.GetId();

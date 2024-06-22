@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Interns.Auth.Attributes.HasRole;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
@@ -7,6 +8,7 @@ namespace svc_InterviewBack.Controllers;
 
 [ApiController]
 [Authorize]
+[CalledByStaff]
 public class RequestStatusTemplatesController(IRequestStatusTemplateService requestStatusService):ControllerBase
 {
     //GET ALL STATUSES IN SEASON
@@ -16,7 +18,7 @@ public class RequestStatusTemplatesController(IRequestStatusTemplateService requ
     /// <summary>
     /// Получает все допустимые статусы запроса в сезоне
     /// </summary>
-    [HttpGet("season/{year}/request_statuses")] //TODO:permission admin
+    [HttpGet("season/{year}/request_statuses")]
     public async Task<ActionResult<List<RequestStatusTemplateData>>> GetRequestStatusesInSeason(int year)
     {
         return Ok(await requestStatusService.GetRequestStatusesInSeason(year));
@@ -25,7 +27,7 @@ public class RequestStatusTemplatesController(IRequestStatusTemplateService requ
     /// <summary>
     /// Создать статус в сезоне
     /// </summary>
-    [HttpPost("season/{year}/request_status/{statusName}")] //TODO:permission admin
+    [HttpPost("season/{year}/request_status/{statusName}")]
     public async Task<ActionResult> CreateRequestStatusInSeason(int year, string statusName)
     {
         await requestStatusService.CreateRequestStatusInSeason(year, statusName);

@@ -1,3 +1,4 @@
+using Interns.Auth.Attributes.HasRole;
 using Microsoft.AspNetCore.Mvc;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Services;
@@ -6,6 +7,7 @@ namespace svc_InterviewBack.Controllers;
 
 [Route("/api/season")]
 [ApiController]
+[CalledByStaff]
 public class SeasonsController(ISeasonsService seasonsService, IStudentsService studentsService, ICompaniesService companiesService) : ControllerBase
 {
 

@@ -1,4 +1,4 @@
-using svc_InterviewBack.Utils;
+using Interns.Common;
 
 namespace svc_InterviewBack.Services.Clients;
 
