@@ -17,7 +17,7 @@ public interface ISeasonsService
     // Here input and output models are both DTOs
     public Task<List<Season>> GetAll();
     public Task<Season> Get(int year);
-    public Task<Season> GetCurrent(Guid ofUser);
+    public Task<Season> GetCurrent(Guid userId);
     public Task<Season> Create(SeasonData seasonData);
     public Task<Season> Update(int year, SeasonData seasonData);
     public Task Delete(int year);
@@ -53,15 +53,15 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper, ThirdCou
         return mapper.Map<Season>(season);
     }
 
-    public async Task<Season> GetCurrent(Guid ofUser)
+    public async Task<Season> GetCurrent(Guid userId)
     {
         var season = await context.Students
-            .Where(x => x.Id == ofUser)
+            .Where(x => x.Id == userId)
             .Select(x => x.Season)
             .Where(x => !x.IsClosed)
             .OrderByDescending(x => x.Year)
             .FirstOrDefaultAsync()
-            ?? throw new NotFoundException($"Student has no seasons");
+            ?? throw new NotFoundException($"Student has no open seasons");
 
         return mapper.Map<Season>(season);
     }

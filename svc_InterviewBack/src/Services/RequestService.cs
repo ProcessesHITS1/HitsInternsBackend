@@ -2,6 +2,7 @@
 using Interns.Common;
 using Interns.Common.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
 using svc_InterviewBack.Utils.Extensions;
@@ -140,87 +141,59 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-    public async Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
+    public Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
     {
-        // Base query for all interview requests
-        var query = context.InterviewRequests
-            .Include(ir => ir.Student)
-            .Include(ir => ir.Position)
-            .Include(ir => ir.RequestStatusSnapshots)
-            .ThenInclude(s => s.RequestStatusTemplate)
-            .Include(ir => ir.RequestResult)
-            .AsQueryable();
-
-        if (requestQuery.RequestIds != null && requestQuery.RequestIds.Count != 0)
-        {
-            query = query.Where(r => requestQuery.RequestIds.Contains(r.Id));
-        }
-
-        if (requestQuery.StudentIds != null && requestQuery.StudentIds.Count != 0)
-        {
-            query = query.Where(r => requestQuery.StudentIds.Contains(r.Student.Id));
-        }
-
-        // TODO: position filtering
-
-        if (requestQuery.IncludeHistory)
-        {
-            query = query.Include(ir => ir.RequestStatusSnapshots)
-                .OrderByDescending(ir => ir.RequestStatusSnapshots.Max(s => s.DateTime));
-        }
-        else
-        {
-            query = query.OrderByDescending(ir =>
-                ir.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).FirstOrDefault().DateTime);
-        }
-
-        var pagedRequests = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-
-        var result = pagedRequests.Select(r =>
-        {
-            var latestSnapshot = r.RequestStatusSnapshots.MaxBy(s => s.DateTime);
-            return new RequestData
+        return context.Seasons
+            .Where(x => requestQuery.SeasonYears.IsNullOrEmpty() || requestQuery.SeasonYears.Contains(x.Year))
+            .SelectMany(x => x.Students)
+            .Where(x => requestQuery.StudentIds.IsNullOrEmpty() || requestQuery.StudentIds.Contains(x.Id))
+            .SelectMany(x => x.InterviewRequests)
+            .Where(x => requestQuery.RequestIds.IsNullOrEmpty() || requestQuery.RequestIds.Contains(x.Id))
+            .OrderByDescending(x => x.RequestStatusSnapshots.Max(s => s.DateTime))
+            .Select(x => new
             {
-                Id = r.Id,
-                StudentId = r.Student.Id,
-                StudentName = r.Student.Name,
-                PositionId = r.Position.Id,
-                PositionTitle = r.Position.Title,
-                RequestStatusSnapshots = requestQuery.IncludeHistory
-                    ? r.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).Select(s =>
-                        new RequestStatusSnapshotData
-                        {
-                            Id = s.Id,
-                            DateTime = s.DateTime,
-                            Status = s.RequestStatusTemplate.Name
-                        }).ToList()
-                    :
-                    [
-                        new RequestStatusSnapshotData
-                        {
-                            Id = latestSnapshot?.Id ?? Guid.Empty,
-                            DateTime = latestSnapshot?.DateTime ?? DateTime.MinValue,
-                            Status = latestSnapshot?.RequestStatusTemplate.Name ?? string.Empty
-                        }
-                    ],
-                RequestResult = mapper.Map<RequestResultData>(r.RequestResult)
-            };
-        }).ToList();
+                x.Id,
+                x.Student,
+                x.Position,
+                x.RequestStatusSnapshots,
+                RequestStatusTemplates = x.RequestStatusSnapshots.Select(x => x.RequestStatusTemplate),
+                x.RequestResult
+            })
+            .Paginated(
+                page, 
+                pageSize,
+                r =>
+                {
+                    var latestSnapshot = r.RequestStatusSnapshots.MaxBy(s => s.DateTime);
+                    return new RequestData
+                    {
+                        Id = r.Id,
+                        StudentId = r.Student.Id,
+                        StudentName = r.Student.Name,
+                        PositionId = r.Position.Id,
+                        PositionTitle = r.Position.Title,
+                        RequestStatusSnapshots = requestQuery.IncludeHistory
+                            ? r.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).Select(s =>
+                                new RequestStatusSnapshotData
+                                {
+                                    Id = s.Id,
+                                    DateTime = s.DateTime,
+                                    Status = s.RequestStatusTemplate.Name
+                                }).ToList()
+                            :
+                            [
+                                new RequestStatusSnapshotData
+                                {
+                                    Id = latestSnapshot?.Id ?? Guid.Empty,
+                                    DateTime = latestSnapshot?.DateTime ?? DateTime.MinValue,
+                                    Status = latestSnapshot?.RequestStatusTemplate.Name ?? string.Empty
+                                }
+                            ],
+                        RequestResult = mapper.Map<RequestResultData>(r.RequestResult)
+                    };
 
-        var totalItems = await query.CountAsync();
-        return new PaginatedItems<RequestData>
-        {
-            PaginationInfo = new PaginationInfo
-            {
-                CurrentPage = page,
-                TotalItems = totalItems,
-                PageSize = pageSize
-            },
-            Items = result
-        };
+                }
+            );
     }
 
     public async Task<RequestData> GetRequest(Guid requestId, Guid? userId, bool isStudent)
