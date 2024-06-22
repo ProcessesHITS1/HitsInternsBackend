@@ -148,12 +148,14 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .SelectMany(x => x.Students)
             .Where(x => requestQuery.StudentIds.IsNullOrEmpty() || requestQuery.StudentIds.Contains(x.Id))
             .SelectMany(x => x.InterviewRequests)
+            .Where(x => requestQuery.CompanyIds.IsNullOrEmpty() || requestQuery.CompanyIds.Contains(x.Position.Company.Id))
             .OrderByDescending(x => x.RequestStatusSnapshots.Max(s => s.DateTime))
             .Select(x => new
             {
                 x.Id,
                 x.Student,
                 x.Position,
+                CompanyId = x.Position.Company.Id,
                 x.RequestStatusSnapshots,
                 RequestStatusTemplates = x.RequestStatusSnapshots.Select(x => x.RequestStatusTemplate),
                 x.RequestResult
@@ -170,6 +172,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
                         StudentId = r.Student.Id,
                         StudentName = r.Student.Name,
                         PositionId = r.Position.Id,
+                        CompanyId = r.CompanyId,
                         PositionTitle = r.Position.Title,
                         RequestStatusSnapshots = requestQuery.IncludeHistory
                             ? r.RequestStatusSnapshots.OrderByDescending(s => s.DateTime).Select(s =>

@@ -52,6 +52,7 @@ public record Season
 public record Position
 {
     public Guid Id { get; init; }
+    public Company Company { get; init; }
     public required string Title { get; set; }
 
     public string? Description { get; set; }
