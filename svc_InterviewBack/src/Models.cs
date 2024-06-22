@@ -93,7 +93,6 @@ public record RequestQuery
 {
     public List<Guid> StudentIds { get; init; } = [];
     public List<Guid> CompanyIds { get; init; } = [];
-    public List<Guid> RequestIds { get; init; } = [];
     public List<int> SeasonYears { get; init; } = [];
     public bool IncludeHistory { get; init; }
 }

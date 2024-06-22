@@ -148,7 +148,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .SelectMany(x => x.Students)
             .Where(x => requestQuery.StudentIds.IsNullOrEmpty() || requestQuery.StudentIds.Contains(x.Id))
             .SelectMany(x => x.InterviewRequests)
-            .Where(x => requestQuery.RequestIds.IsNullOrEmpty() || requestQuery.RequestIds.Contains(x.Id))
             .OrderByDescending(x => x.RequestStatusSnapshots.Max(s => s.DateTime))
             .Select(x => new
             {

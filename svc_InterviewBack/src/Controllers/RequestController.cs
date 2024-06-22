@@ -21,7 +21,6 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <param name="companyIds">пока не работает</param>
     /// <param name="seasonYears">Фильтрация по сезонам</param>
     /// <param name="studentIds">фильтрация по студентам.</param>
-    /// <param name="requestIds">фильтрация по запросам.</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet]
@@ -31,7 +30,6 @@ public class RequestController(IRequestService requestService) : ControllerBase
         [FromQuery(Name = "seasons")] List<int> seasonYears,
         [FromQuery(Name = "companyIds")] List<Guid> companyIds,
         [FromQuery(Name = "studentIds")] List<Guid> studentIds,
-        [FromQuery(Name = "requestIds")] List<Guid> requestIds,
         int page = 1,
         int pageSize = 10,
         bool includeHistory = false
@@ -39,7 +37,6 @@ public class RequestController(IRequestService requestService) : ControllerBase
     {
         var requestsQuery = new RequestQuery
         {
-            RequestIds = requestIds,
             SeasonYears = seasonYears,
             StudentIds = studentIds,
             CompanyIds = companyIds,
