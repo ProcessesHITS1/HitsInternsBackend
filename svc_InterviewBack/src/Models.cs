@@ -58,7 +58,7 @@ public record PositionCreation
     public string? Description { get; init; }
     [NSeatsRange]
     public int NSeats { get; init; }
-    public Guid CompanyId { get; init; }
+    public Guid CompanyId { get; set; }
     [SeasonYearRange]
     public int SeasonYear { get; set; }
 

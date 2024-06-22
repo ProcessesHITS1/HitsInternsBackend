@@ -25,8 +25,9 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId)
     {
         var student = await context.Students
+            .Include(s => s.InterviewRequests)
             .Include(s => s.Season)
-            .ThenInclude(se => se.RequestStatusTemplates)
+                .ThenInclude(se => se.RequestStatusTemplates)
             .FirstOrDefaultAsync(s => s.Id == studentId);
 
         if (student == null)
@@ -38,6 +39,10 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .FirstOrDefaultAsync(p => p.Id == positionId);
         if (position == null) throw new NotFoundException($"Position was not found, id:{positionId}");
 
+        if (student.InterviewRequests.Any(x => x.Position.Id == position.Id))
+        {
+            throw new InvalidOperationException($"User already applied to this position");
+        }
 
         var interviewRequest = new InterviewRequest
         {

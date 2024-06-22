@@ -83,7 +83,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// Создать запрос с начальным статусом.
     /// </summary>
     [HttpPost("position/{positionId}/status/{requestStatusId}")]
-    [HasRole(UserRoles.STUDENT)]
+    [CalledByStudent]
     public async Task<ActionResult<RequestDetails>> Create(Guid positionId, Guid requestStatusId)
     {
         var studentId = User.GetId();
