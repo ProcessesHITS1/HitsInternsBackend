@@ -18,7 +18,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Получает информацию о запросах стажировку. Endpoint для администратора.
     /// </summary>
-    /// <param name="companyIds">пока не работает</param>
+    /// <param name="companyIds">фильтрация по компаниям</param>
     /// <param name="seasonYears">Фильтрация по сезонам</param>
     /// <param name="studentIds">фильтрация по студентам.</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
@@ -49,7 +49,7 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// Получает информацию о запросах стажировку. Endpoint для студента.
     /// </summary>
     /// <param name="seasonYears">фильтрация по сезонам</param>
-    /// <param name="companyIds">пока не работает</param>
+    /// <param name="companyIds">фильтрация по компаниям</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet("my")]
