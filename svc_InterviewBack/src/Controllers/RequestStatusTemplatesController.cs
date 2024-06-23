@@ -8,7 +8,6 @@ namespace svc_InterviewBack.Controllers;
 
 [ApiController]
 [Authorize]
-[CalledByStaff]
 public class RequestStatusTemplatesController(IRequestStatusTemplateService requestStatusService):ControllerBase
 {
     //GET ALL STATUSES IN SEASON
@@ -28,6 +27,7 @@ public class RequestStatusTemplatesController(IRequestStatusTemplateService requ
     /// Создать статус в сезоне
     /// </summary>
     [HttpPost("season/{year}/request_status/{statusName}")]
+    [CalledByStaff]
     public async Task<ActionResult> CreateRequestStatusInSeason(int year, string statusName)
     {
         await requestStatusService.CreateRequestStatusInSeason(year, statusName);
