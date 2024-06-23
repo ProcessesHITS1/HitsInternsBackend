@@ -1,13 +1,18 @@
 ﻿using System.Security.Claims;
+using Interns.Auth.Attributes.HasRole;
 
 namespace Interns.Auth.Extensions
 {
     public static class UserExtensions
     {
 
-        public static bool isStudent(this ClaimsPrincipal user)
+        public static bool IsStudent(this ClaimsPrincipal user)
         {
-            return false;
+            return user.IsInRole(HasRoleAttribute.UserRoles.STUDENT);
+        }
+        public static bool IsStaff(this ClaimsPrincipal user)
+        {
+            return user.IsInRole(HasRoleAttribute.UserRoles.ADMIN)||user.IsInRole(HasRoleAttribute.UserRoles.SCHOOL_REPRESENTATIVE);
         }
         public static Guid? GetIdOrDefault(this ClaimsPrincipal user)
         {

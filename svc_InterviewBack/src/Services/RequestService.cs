@@ -12,7 +12,10 @@ namespace svc_InterviewBack.Services;
 public interface IRequestService
 {
     Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId);
-    Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult);
+
+    Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
+        RequestResultUpdate reqResult);
+
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId);
 
     Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery,
@@ -26,9 +29,9 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId)
     {
         var student = await context.Students
-            .Include(s => s.InterviewRequests)
+            .Include(s => s.InterviewRequests).ThenInclude(interviewRequest => interviewRequest.Position)
             .Include(s => s.Season)
-                .ThenInclude(se => se.RequestStatusTemplates)
+            .ThenInclude(se => se.RequestStatusTemplates)
             .FirstOrDefaultAsync(s => s.Id == studentId);
 
         if (student == null)
@@ -111,21 +114,76 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         };
 
         request.RequestStatusSnapshots.Add(newSnapshot);
-        
+
         await context.SaveChangesAsync();
 
         return mapper.Map<RequestDetails>(request);
     }
 
 
-    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult)
+    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
+        RequestResultUpdate reqResult)
     {
+        // Nullify status based on user role
+        if (!isStaff) reqResult.SchoolResultStatus = null;
+        if (!isStudent) reqResult.StudentResultStatus = null;
+
         var request = await context.InterviewRequests
-            .Include(r => r.RequestResult)
+            .Include(r => r.RequestResult).Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
-        if (request == null) throw new KeyNotFoundException($"Request {requestId} not found");
+        // Check if the request exists
+        if (request == null) throw new NotFoundException($"Request {requestId} not found");
 
+        // Authorization check
+        ValidateAuthReqResultUpdate(isStaff, request, userId, requestId);
+
+        var studentId = request.Student.Id;
+
+        // Fetch requests for the student, except edited
+        var studentRequests = await context.InterviewRequests.Where(r => r.Student.Id == studentId && r.Id!=requestId)
+            .Include(interviewRequest => interviewRequest.RequestResult).ToListAsync();
+
+        // Check for existing accepted requests
+        CheckForExistingAcceptedRequests(studentRequests, reqResult, studentId);
+
+        UpdateRequestResult(request, reqResult);
+
+        await context.SaveChangesAsync();
+        return mapper.Map<RequestDetails>(request);
+    }
+
+    private void ValidateAuthReqResultUpdate(bool isStaff, InterviewRequest request, Guid userId, Guid requestId)
+    {
+        if (!isStaff && request.Student.Id != userId)
+            throw new AccessDeniedException(
+                $"Access denied: User {userId} is not authorized to access request with id: {requestId}. ");
+        if (isStaff && request.Student.Id == userId)
+            throw new AccessDeniedException(
+                $"Access denied: Staff {userId} is not authorized to change status of it's own request with id: {requestId}. ");
+    }
+
+    private void CheckForExistingAcceptedRequests(List<InterviewRequest> studentRequests, RequestResultUpdate reqResult,
+        Guid studentId)
+    {
+        if (reqResult.StudentResultStatus != null)
+        {
+            var hasAccepted =
+                studentRequests.Any(r => r.RequestResult?.StudentResultStatus == ResultStatus.Accepted);
+            if (hasAccepted) throw new BadRequestException($"Student already confirmed other request");
+        }
+
+        if (reqResult.SchoolResultStatus != null)
+        {
+            var hasAccepted =
+                studentRequests.Any(r => r.RequestResult?.SchoolResultStatus == ResultStatus.Accepted );
+            if (hasAccepted)
+                throw new BadRequestException($"Staff already confirmed other request of the student {studentId}");
+        }
+    }
+
+    private void UpdateRequestResult(InterviewRequest request, RequestResultUpdate reqResult)
+    {
         if (request.RequestResult == null)
         {
             request.RequestResult = mapper.Map<RequestResult>(reqResult);
@@ -135,9 +193,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         {
             request.RequestResult.UpdateProperties(mapper.Map<RequestResult>(reqResult));
         }
-
-        await context.SaveChangesAsync();
-        return mapper.Map<RequestDetails>(request);
     }
 
 
@@ -148,7 +203,8 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .SelectMany(x => x.Students)
             .Where(x => requestQuery.StudentIds.IsNullOrEmpty() || requestQuery.StudentIds.Contains(x.Id))
             .SelectMany(x => x.InterviewRequests)
-            .Where(x => requestQuery.CompanyIds.IsNullOrEmpty() || requestQuery.CompanyIds.Contains(x.Position.Company.Id))
+            .Where(x => requestQuery.CompanyIds.IsNullOrEmpty() ||
+                        requestQuery.CompanyIds.Contains(x.Position.Company.Id))
             .OrderByDescending(x => x.RequestStatusSnapshots.Max(s => s.DateTime))
             .Select(x => new
             {
@@ -161,7 +217,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
                 x.RequestResult
             })
             .Paginated(
-                page, 
+                page,
                 pageSize,
                 r =>
                 {
@@ -193,7 +249,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
                             ],
                         RequestResult = mapper.Map<RequestResultData>(r.RequestResult)
                     };
-
                 }
             );
     }

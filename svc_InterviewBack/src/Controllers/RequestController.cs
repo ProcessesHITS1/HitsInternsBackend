@@ -96,10 +96,13 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Обновить результат запроса. Статусы:(Pending,Accepted,Rejected)
     /// </summary>
-    [HttpPut("{requestId}/result_status")] //TODO: add checks for user's identity 
+    [HttpPut("{requestId}/result_status")] 
     public async Task<ActionResult> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult)
     {
-        return Ok(await requestService.UpdateResultStatus(requestId, reqResult));
+        var userId = User.GetId();
+        var isStudent = User.IsStudent();
+        var isStaff = User.IsStaff();
+        return Ok(await requestService.UpdateResultStatus(requestId, userId, isStudent, isStaff, reqResult));
     }
 
     /// <summary>

@@ -113,19 +113,21 @@ public record RequestDetails
     public Guid Id { get; init; }
     public required Guid StudentId { get; init; }
     public required Guid PositionId { get; init; }
-    public ResultStatus Status { get; init; }
+    public ResultStatus Status { get; init; }//TODO:Fix
 }
 
 public record RequestResultData
 {
-    public ResultStatus ResultStatus { get; init; }
+    public ResultStatus StudentResultStatus { get; set; }
+    public ResultStatus SchoolResultStatus { get; set; }
     public string? Description { get; init; }
     public bool OfferGiven { get; init; }
 }
 
 public record RequestResultUpdate
 {
-    public ResultStatus? ResultStatus { get; init; }
+    public ResultStatus? StudentResultStatus { get; set; }
+    public ResultStatus? SchoolResultStatus { get; set; }
     public string? Description { get; init; }
     public bool? OfferGiven { get; init; }
 }
