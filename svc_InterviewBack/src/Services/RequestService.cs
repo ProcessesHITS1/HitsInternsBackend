@@ -13,7 +13,7 @@ public interface IRequestService
 {
     Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId);
 
-    Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid studentId, bool isStaff,
+    Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
         RequestResultUpdate reqResult);
 
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId);
@@ -121,20 +121,45 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid studentId, bool isStaff,
+    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
         RequestResultUpdate reqResult)
     {
+        if (!isStaff) reqResult.SchoolResultStatus = null;
+        if (!isStudent) reqResult.StudentResultStatus = null;
+
         var request = await context.InterviewRequests
             .Include(r => r.RequestResult).Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
         if (request == null) throw new NotFoundException($"Request {requestId} not found");
 
-        // 
-        if (!isStaff && request.Student.Id != studentId)
-            throw new AccessDeniedException(
-                $"Access denied: User {studentId} is not authorized to access request with id: {requestId}. ");
+        switch (isStaff)
+        {
+            case false when request.Student.Id != userId:
+                throw new AccessDeniedException(
+                    $"Access denied: User {userId} is not authorized to access request with id: {requestId}. ");
+            case true when request.Student.Id == userId:
+                throw new AccessDeniedException(
+                    $"Access denied: Staff {userId} is not authorized to change status of it's onw request with id: {requestId}. ");
+        }
 
+        var studentId = request.Student.Id;
+
+        var studentRequests = await context.InterviewRequests.Where(r => r.Student.Id == studentId)
+            .Include(interviewRequest => interviewRequest.RequestResult).ToListAsync();
+
+        if (reqResult.StudentResultStatus != null)
+        {
+            var hasAccepted =
+                studentRequests.Any(r => r.RequestResult is { StudentResultStatus: ResultStatus.Accepted });
+            if (hasAccepted) throw new BadRequestException($"Student already confirmed other request");
+        }
+
+        if (reqResult.SchoolResultStatus != null)
+        {
+            var hasAccepted = studentRequests.Any(r => r.RequestResult is { SchoolResultStatus: ResultStatus.Accepted });
+            if (hasAccepted) throw new BadRequestException($"Staff already confirmed other request of the student {studentId}");
+        }
 
         if (request.RequestResult == null)
         {
