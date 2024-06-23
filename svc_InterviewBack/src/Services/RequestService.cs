@@ -169,14 +169,14 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         if (reqResult.StudentResultStatus != null)
         {
             var hasAccepted =
-                studentRequests.Any(r => r.RequestResult is { StudentResultStatus: ResultStatus.Accepted });
+                studentRequests.Any(r => r.RequestResult?.StudentResultStatus == ResultStatus.Accepted);
             if (hasAccepted) throw new BadRequestException($"Student already confirmed other request");
         }
 
         if (reqResult.SchoolResultStatus != null)
         {
             var hasAccepted =
-                studentRequests.Any(r => r.RequestResult is { StudentResultStatus: ResultStatus.Accepted });
+                studentRequests.Any(r => r.RequestResult?.SchoolResultStatus == ResultStatus.Accepted );
             if (hasAccepted)
                 throw new BadRequestException($"Staff already confirmed other request of the student {studentId}");
         }
