@@ -39,6 +39,10 @@ public class PositionsController(IPositionService positionService) : ControllerB
         return Ok();
     }
 
+    [HttpGet("{year}/positions/{positionId}")]
+    public async Task<ActionResult<PositionInfo>> Get([FromRoute] int year, [FromRoute] Guid positionId)
+        => Ok(await positionService.Get(year, positionId));
+
     /// <summary>
     /// Ищет позиции по компаниям, сезону и строке. Возвращает результаты по страницам.
     /// </summary>

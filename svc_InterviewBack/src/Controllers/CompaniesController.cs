@@ -7,7 +7,6 @@ namespace svc_InterviewBack.Controllers;
 
 [Route("/api/season")]
 [ApiController]
-[CalledByStaff]
 public class CompaniesController(ICompaniesService companiesService, ISeasonsService seasonsService) : ControllerBase
 {
     private readonly ICompaniesService _companiesService = companiesService;
@@ -20,6 +19,7 @@ public class CompaniesController(ICompaniesService companiesService, ISeasonsSer
     /// <param name="year">The year of the season.</param>
     /// <param name="id">The ID of the company.</param>
     [HttpPost("{year}/company/{id}")]
+    [CalledByStaff]
     public async Task<ActionResult<CompanyInSeasonInfo>> Create(int year, Guid id)
     {
         var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false, checkOpen: true);
@@ -33,6 +33,7 @@ public class CompaniesController(ICompaniesService companiesService, ISeasonsSer
     /// <param name="year">The year of the season.</param>
     /// <param name="id">The ID of the company to delete.</param>
     [HttpDelete("{year}/company/{id}")]
+    [CalledByStaff]
     public async Task<ActionResult> Delete(int year, Guid id)
     {
         var season = await _seasonsService.Find(year, withCompanies: true, withStudents: false, checkOpen: true);

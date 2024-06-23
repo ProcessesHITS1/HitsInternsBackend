@@ -27,7 +27,7 @@ services.AddSwaggerGen(c =>
         c.UseAllOfToExtendReferenceSchemas();
         c.UseOneOfForPolymorphism();
         
-        c.SchemaFilter<EnumSchemaFilter>();
+        c.UseInlineDefinitionsForEnums();
     }
 );
 
