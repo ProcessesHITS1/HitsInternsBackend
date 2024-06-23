@@ -14,6 +14,7 @@ public interface IPositionService
     Task<PositionInfo> Create(PositionCreation position);
     Task Delete(Guid id);
     Task<PaginatedItems<PositionInfo>> Search(PositionQuery query, int page);
+    Task<PositionInfo> Get(int year, Guid positionId);
     Task<PositionInfo> Update(Guid positionId, PositionUpdate positionData);
 }
 
@@ -46,6 +47,17 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
 
         context.Remove(position);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<PositionInfo> Get(int year, Guid positionId)
+    {
+        var position = await context.Positions
+            .Include(x => x.Company)
+            .FirstOrDefaultAsync(p => p.Id == positionId && p.Company.Season.Year == year)
+
+            ?? throw new NotFoundException("No such position");
+
+        return mapper.Map<PositionInfo>(new CompanyAndPosition(position.Company, position));
     }
 
     public async Task<PaginatedItems<PositionInfo>> Search(PositionQuery query, int page)
