@@ -125,7 +125,8 @@ public record RequestResultData
 
 public record RequestResultUpdate
 {
-    public ResultStatus? ResultStatus { get; init; }
+    public ResultStatus? StudentResultStatus { get; set; }
+    public ResultStatus? SchoolResultStatus { get; set; }
     public string? Description { get; init; }
     public bool? OfferGiven { get; init; }
 }

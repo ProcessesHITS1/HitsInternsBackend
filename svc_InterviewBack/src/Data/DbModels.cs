@@ -79,7 +79,8 @@ public record RequestResult
     public Guid Id { get; init; }
     public string? Description { get; set; }//TODO:null or ""
     public bool OfferGiven { get; set; }
-    public ResultStatus ResultStatus { get; set; }
+    public ResultStatus StudentResultStatus { get; set; }
+    public ResultStatus SchoolResultStatus { get; set; }
 }
 
 public enum ResultStatus

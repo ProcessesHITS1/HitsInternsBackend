@@ -99,7 +99,14 @@ public class RequestController(IRequestService requestService) : ControllerBase
     [HttpPut("{requestId}/result_status")] //TODO: add checks for user's identity 
     public async Task<ActionResult> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult)
     {
-        return Ok(await requestService.UpdateResultStatus(requestId, reqResult));
+        var userId = User.GetId();
+        var isStudent = User.IsStudent();
+        var isStaff = User.IsStaff();
+
+        if (!isStaff) reqResult.SchoolResultStatus = null;
+        if (!isStudent) reqResult.StudentResultStatus = null;
+        
+        return Ok(await requestService.UpdateResultStatus(requestId, userId, isStaff, reqResult));
     }
 
     /// <summary>

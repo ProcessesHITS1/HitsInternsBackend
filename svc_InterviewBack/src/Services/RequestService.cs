@@ -12,7 +12,10 @@ namespace svc_InterviewBack.Services;
 public interface IRequestService
 {
     Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId);
-    Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult);
+
+    Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid studentId, bool isStaff,
+        RequestResultUpdate reqResult);
+
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId);
 
     Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery,
@@ -26,9 +29,9 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId)
     {
         var student = await context.Students
-            .Include(s => s.InterviewRequests)
+            .Include(s => s.InterviewRequests).ThenInclude(interviewRequest => interviewRequest.Position)
             .Include(s => s.Season)
-                .ThenInclude(se => se.RequestStatusTemplates)
+            .ThenInclude(se => se.RequestStatusTemplates)
             .FirstOrDefaultAsync(s => s.Id == studentId);
 
         if (student == null)
@@ -111,20 +114,27 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         };
 
         request.RequestStatusSnapshots.Add(newSnapshot);
-        
+
         await context.SaveChangesAsync();
 
         return mapper.Map<RequestDetails>(request);
     }
 
 
-    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult)
+    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid studentId, bool isStaff,
+        RequestResultUpdate reqResult)
     {
         var request = await context.InterviewRequests
-            .Include(r => r.RequestResult)
+            .Include(r => r.RequestResult).Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
-        if (request == null) throw new KeyNotFoundException($"Request {requestId} not found");
+        if (request == null) throw new NotFoundException($"Request {requestId} not found");
+
+        // 
+        if (!isStaff && request.Student.Id != studentId)
+            throw new AccessDeniedException(
+                $"Access denied: User {studentId} is not authorized to access request with id: {requestId}. ");
+
 
         if (request.RequestResult == null)
         {
@@ -148,7 +158,8 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .SelectMany(x => x.Students)
             .Where(x => requestQuery.StudentIds.IsNullOrEmpty() || requestQuery.StudentIds.Contains(x.Id))
             .SelectMany(x => x.InterviewRequests)
-            .Where(x => requestQuery.CompanyIds.IsNullOrEmpty() || requestQuery.CompanyIds.Contains(x.Position.Company.Id))
+            .Where(x => requestQuery.CompanyIds.IsNullOrEmpty() ||
+                        requestQuery.CompanyIds.Contains(x.Position.Company.Id))
             .OrderByDescending(x => x.RequestStatusSnapshots.Max(s => s.DateTime))
             .Select(x => new
             {
@@ -161,7 +172,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
                 x.RequestResult
             })
             .Paginated(
-                page, 
+                page,
                 pageSize,
                 r =>
                 {
@@ -193,7 +204,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
                             ],
                         RequestResult = mapper.Map<RequestResultData>(r.RequestResult)
                     };
-
                 }
             );
     }
