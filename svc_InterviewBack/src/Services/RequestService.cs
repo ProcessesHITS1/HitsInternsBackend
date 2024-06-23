@@ -124,6 +124,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
         RequestResultUpdate reqResult)
     {
+        // Nullify status based on user role
         if (!isStaff) reqResult.SchoolResultStatus = null;
         if (!isStudent) reqResult.StudentResultStatus = null;
 
@@ -131,23 +132,40 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .Include(r => r.RequestResult).Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
+        // Check if the request exists
         if (request == null) throw new NotFoundException($"Request {requestId} not found");
 
-        switch (isStaff)
-        {
-            case false when request.Student.Id != userId:
-                throw new AccessDeniedException(
-                    $"Access denied: User {userId} is not authorized to access request with id: {requestId}. ");
-            case true when request.Student.Id == userId:
-                throw new AccessDeniedException(
-                    $"Access denied: Staff {userId} is not authorized to change status of it's onw request with id: {requestId}. ");
-        }
+        // Authorization check
+        ValidateUserAuthorization(isStaff, request, userId, requestId);
 
         var studentId = request.Student.Id;
 
-        var studentRequests = await context.InterviewRequests.Where(r => r.Student.Id == studentId)
+        // Fetch requests for the student, except edited
+        var studentRequests = await context.InterviewRequests.Where(r => r.Student.Id == studentId && r.Id!=requestId)
             .Include(interviewRequest => interviewRequest.RequestResult).ToListAsync();
 
+        // Check for existing accepted requests
+        CheckForExistingAcceptedRequests(studentRequests, reqResult, studentId);
+
+        UpdateRequestResult(request, reqResult);
+
+        await context.SaveChangesAsync();
+        return mapper.Map<RequestDetails>(request);
+    }
+
+    private void ValidateUserAuthorization(bool isStaff, InterviewRequest request, Guid userId, Guid requestId)
+    {
+        if (!isStaff && request.Student.Id != userId)
+            throw new AccessDeniedException(
+                $"Access denied: User {userId} is not authorized to access request with id: {requestId}. ");
+        if (isStaff && request.Student.Id == userId)
+            throw new AccessDeniedException(
+                $"Access denied: Staff {userId} is not authorized to change status of it's own request with id: {requestId}. ");
+    }
+
+    private void CheckForExistingAcceptedRequests(List<InterviewRequest> studentRequests, RequestResultUpdate reqResult,
+        Guid studentId)
+    {
         if (reqResult.StudentResultStatus != null)
         {
             var hasAccepted =
@@ -157,10 +175,15 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         if (reqResult.SchoolResultStatus != null)
         {
-            var hasAccepted = studentRequests.Any(r => r.RequestResult is { SchoolResultStatus: ResultStatus.Accepted });
-            if (hasAccepted) throw new BadRequestException($"Staff already confirmed other request of the student {studentId}");
+            var hasAccepted =
+                studentRequests.Any(r => r.RequestResult is { StudentResultStatus: ResultStatus.Accepted });
+            if (hasAccepted)
+                throw new BadRequestException($"Staff already confirmed other request of the student {studentId}");
         }
+    }
 
+    private void UpdateRequestResult(InterviewRequest request, RequestResultUpdate reqResult)
+    {
         if (request.RequestResult == null)
         {
             request.RequestResult = mapper.Map<RequestResult>(reqResult);
@@ -170,9 +193,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         {
             request.RequestResult.UpdateProperties(mapper.Map<RequestResult>(reqResult));
         }
-
-        await context.SaveChangesAsync();
-        return mapper.Map<RequestDetails>(request);
     }
 
 
