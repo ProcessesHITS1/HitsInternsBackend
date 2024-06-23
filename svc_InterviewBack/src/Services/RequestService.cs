@@ -136,7 +136,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         if (request == null) throw new NotFoundException($"Request {requestId} not found");
 
         // Authorization check
-        ValidateUserAuthorizationRequestResultUpdate(isStaff, request, userId, requestId);
+        ValidateAuthReqResultUpdate(isStaff, request, userId, requestId);
 
         var studentId = request.Student.Id;
 
@@ -153,7 +153,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         return mapper.Map<RequestDetails>(request);
     }
 
-    private void ValidateUserAuthorizationRequestResultUpdate(bool isStaff, InterviewRequest request, Guid userId, Guid requestId)
+    private void ValidateAuthReqResultUpdate(bool isStaff, InterviewRequest request, Guid userId, Guid requestId)
     {
         if (!isStaff && request.Student.Id != userId)
             throw new AccessDeniedException(
