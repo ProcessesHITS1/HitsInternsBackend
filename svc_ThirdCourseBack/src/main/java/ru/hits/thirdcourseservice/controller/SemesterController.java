@@ -73,9 +73,10 @@ public class SemesterController {
     @GetMapping
     public ResponseEntity<SemestersWithPaginationDto> getAllSemesters(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) UUID seasonId
     ) {
-        SemestersWithPaginationDto semestersWithPaginationDto = semesterService.getAllSemesters(page, size);
+        SemestersWithPaginationDto semestersWithPaginationDto = semesterService.getAllSemesters(page, size, seasonId);
         return new ResponseEntity<>(semestersWithPaginationDto, HttpStatus.OK);
     }
 

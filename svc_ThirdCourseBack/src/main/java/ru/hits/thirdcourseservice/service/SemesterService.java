@@ -95,10 +95,15 @@ public class SemesterService {
         semesterRepository.save(semester);
     }
 
-    public SemestersWithPaginationDto getAllSemesters(int page, int size) {
+    public SemestersWithPaginationDto getAllSemesters(int page, int size, UUID seasonId) {
         checkPaginationInfoService.checkPagination(page, size);
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<SemesterEntity> semestersPage = semesterRepository.findAll(pageable);
+        Page<SemesterEntity> semestersPage;
+        if (seasonId != null) {
+            semestersPage = semesterRepository.findAllBySeasonId(seasonId, pageable);
+        } else {
+            semestersPage = semesterRepository.findAll(pageable);
+        }
         PageInfoDto pageInfoDto = new PageInfoDto(
                 (int) semestersPage.getTotalElements(),
                 page,
