@@ -23,17 +23,15 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
     private const int PageSize = 10;
     public async Task<PositionInfo> Create(PositionCreation position)
     {
-        var season = await context.Seasons.FirstOrDefaultAsync(s => s.Year == position.SeasonYear)
-            ?? throw new NotFoundException($"Season with year {position.SeasonYear} not found");
-        if (!await context.Companies.AnyAsync(c => c.Id == position.CompanyId && c.Season.Id == season.Id))
+        var company = await context.Companies
+            .Include(x => x.Positions)
+            .FirstOrDefaultAsync(x => x.Id == position.CompanyId && x.Season.Year == position.SeasonYear);
+
+        if (company == null)
         {
-            throw new NotFoundException($"Company {position.CompanyId} not found in season {season.Year}");
+            throw new NotFoundException($"Company {position.CompanyId} not found in season {position.SeasonYear}");
         }
         var positionEntity = mapper.Map<Position>(position);
-
-        var company = await context.Companies
-            .Include(c => c.Positions)
-            .FirstAsync(c => c.Id == position.CompanyId);
 
         company.Positions.Add(positionEntity);
         await context.SaveChangesAsync();

@@ -124,77 +124,95 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
         RequestResultUpdate reqResult)
     {
-        // Nullify status based on user role
-        if (!isStaff) reqResult.SchoolResultStatus = null;
-        if (!isStudent) reqResult.StudentResultStatus = null;
-
         var request = await context.InterviewRequests
-            .Include(r => r.RequestResult).Include(interviewRequest => interviewRequest.Student)
+            .Include(r => r.RequestResult)
+            .Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
-        // Check if the request exists
         if (request == null) throw new NotFoundException($"Request {requestId} not found");
 
-        // Authorization check
-        ValidateAuthReqResultUpdate(isStaff, request, userId, requestId);
+        if (isStaff)
+        {
+            reqResult.StudentResultStatus = null;
+            return await UpdateSchoolResultStatus(request, reqResult, userId);
+        }
+        
+        reqResult.SchoolResultStatus = null;
+        return await UpdateStudentResultStatus(request, reqResult, userId);
+        
+    }
 
+    private async Task<RequestDetails> UpdateSchoolResultStatus(
+        InterviewRequest request,
+        RequestResultUpdate resultUpdateDto,
+        Guid userId
+    )
+    {
         var studentId = request.Student.Id;
+        if (studentId == userId)
+        {
+            throw new AccessDeniedException(
+                $"Access denied: Staff {userId} is not authorized to change status of it's own request with id: {request.Id}. ");
+        }
 
-        // Fetch requests for the student, except edited
-        var studentRequests = await context.InterviewRequests.Where(r => r.Student.Id == studentId && r.Id!=requestId)
-            .Include(interviewRequest => interviewRequest.RequestResult).ToListAsync();
+        var hasAlreadyConfirmed = await context.InterviewRequests.AnyAsync(
+            x =>
+                x.Id != request.Id
+                && x.Student.Id == studentId
+                && x.RequestResult != null 
+                && x.RequestResult.SchoolResultStatus == ResultStatus.Accepted
+        );
 
-        // Check for existing accepted requests
-        CheckForExistingAcceptedRequests(studentRequests, reqResult, studentId);
+        if (hasAlreadyConfirmed)
+        {
+            throw new BadRequestException($"Staff already confirmed another request of the student {studentId}");
+        }
 
-        UpdateRequestResult(request, reqResult);
-
-        await context.SaveChangesAsync();
+        await CreateOrUpdateRequestResult(request, resultUpdateDto);
         return mapper.Map<RequestDetails>(request);
     }
 
-    private void ValidateAuthReqResultUpdate(bool isStaff, InterviewRequest request, Guid userId, Guid requestId)
+    private async Task<RequestDetails> UpdateStudentResultStatus(
+        InterviewRequest request,
+        RequestResultUpdate resultUpdateDto,
+        Guid userId
+    )
     {
-        if (!isStaff && request.Student.Id != userId)
+        var studentId = request.Student.Id;
+        if (studentId != userId)
+        {
             throw new AccessDeniedException(
-                $"Access denied: User {userId} is not authorized to access request with id: {requestId}. ");
-        if (isStaff && request.Student.Id == userId)
-            throw new AccessDeniedException(
-                $"Access denied: Staff {userId} is not authorized to change status of it's own request with id: {requestId}. ");
+                $"Access denied: User {userId} is not authorized to access request with id: {request.Id}. ");
+        }
+
+        var hasAlreadyConfirmed = await context.InterviewRequests.AnyAsync(
+            x => 
+                x.Id != request.Id
+                && x.Student.Id == studentId
+                && x.RequestResult != null
+                && x.RequestResult.StudentResultStatus == ResultStatus.Accepted
+        );
+
+        if (hasAlreadyConfirmed)
+        {
+            throw new BadRequestException($"Student already confirmed another request");
+        }
+
+        await CreateOrUpdateRequestResult(request, resultUpdateDto);
+        return mapper.Map<RequestDetails>(request);
     }
 
-    private void CheckForExistingAcceptedRequests(List<InterviewRequest> studentRequests, RequestResultUpdate reqResult,
-        Guid studentId)
+    private async Task CreateOrUpdateRequestResult(InterviewRequest request, RequestResultUpdate dto)
     {
-        if (reqResult.StudentResultStatus != null)
-        {
-            var hasAccepted =
-                studentRequests.Any(r => r.RequestResult?.StudentResultStatus == ResultStatus.Accepted);
-            if (hasAccepted) throw new BadRequestException($"Student already confirmed other request");
-        }
+        request.RequestResult ??= new();
 
-        if (reqResult.SchoolResultStatus != null)
-        {
-            var hasAccepted =
-                studentRequests.Any(r => r.RequestResult?.SchoolResultStatus == ResultStatus.Accepted );
-            if (hasAccepted)
-                throw new BadRequestException($"Staff already confirmed other request of the student {studentId}");
-        }
+        request.RequestResult.OfferGiven = dto.OfferGiven ?? request.RequestResult.OfferGiven;
+        request.RequestResult.SchoolResultStatus = dto.SchoolResultStatus ?? request.RequestResult.SchoolResultStatus;
+        request.RequestResult.StudentResultStatus = dto.StudentResultStatus ?? request.RequestResult.StudentResultStatus;
+        request.RequestResult.Description = dto.Description;
+
+        await context.SaveChangesAsync();
     }
-
-    private void UpdateRequestResult(InterviewRequest request, RequestResultUpdate reqResult)
-    {
-        if (request.RequestResult == null)
-        {
-            request.RequestResult = mapper.Map<RequestResult>(reqResult);
-            context.Add(request.RequestResult);
-        }
-        else
-        {
-            request.RequestResult.UpdateProperties(mapper.Map<RequestResult>(reqResult));
-        }
-    }
-
 
     public Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
     {
