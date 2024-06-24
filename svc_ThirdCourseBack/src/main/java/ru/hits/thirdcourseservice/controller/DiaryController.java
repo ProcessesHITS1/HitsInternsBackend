@@ -44,4 +44,14 @@ public class DiaryController {
         return new ResponseEntity<>(diaryDto, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Получить информацию о дневнике студента в семестре.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/semester/{semesterId}/student/{studentInSemesterId}")
+    public ResponseEntity<DiaryDto> getStudentDiary(@PathVariable UUID semesterId, @PathVariable UUID studentInSemesterId) {
+        DiaryDto studentDiary = diaryService.getStudentDiary(semesterId, studentInSemesterId);
+        return new ResponseEntity<>(studentDiary, HttpStatus.OK);
+    }
+
 }
