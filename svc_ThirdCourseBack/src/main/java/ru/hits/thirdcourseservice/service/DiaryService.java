@@ -58,19 +58,17 @@ public class DiaryService {
         SemesterEntity semester = semesterRepository.findById(semesterId)
                 .orElseThrow(() -> new NotFoundException("Семестр с ID " + semesterId + " не найден"));
 
-        StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findByIdAndSemester(studentId, semester)
-                .orElseThrow(() -> new NotFoundException("Студент в семестре с ID " + studentId + " не найден"));
+        StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findByStudentIdAndSemester(studentId, semester)
+                .orElseThrow(() -> new NotFoundException("Студент с ID " + studentId + " в семестре c ID " + semesterId + " не найден"));
 
-        Optional<DiaryEntity> diary = diaryRepository.findByStudentInSemesterEntity(studentInSemester);
-
-        if (diary.isEmpty()) {
+        if (studentInSemester.getDiary() == null) {
             return null;
         } else {
             return DiaryDto.builder()
-                    .id(diary.get().getId())
-                    .documentId(diary.get().getDocumentId())
-                    .attachedAt(diary.get().getAttachedAt())
-                    .diaryFeedback(new DiaryFeedbackDto(diary.get().getDiaryFeedback()))
+                    .id(studentInSemester.getDiary().getId())
+                    .documentId(studentInSemester.getDiary().getDocumentId())
+                    .attachedAt(studentInSemester.getDiary().getAttachedAt())
+                    .diaryFeedback(studentInSemester.getDiary().getDiaryFeedback() != null ? new DiaryFeedbackDto(studentInSemester.getDiary().getDiaryFeedback()) : null)
                     .build();
         }
     }

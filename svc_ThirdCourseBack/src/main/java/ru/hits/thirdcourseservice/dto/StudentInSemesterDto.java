@@ -34,8 +34,8 @@ public class StudentInSemesterDto {
         this.id = entity.getId();
         this.studentId = entity.getStudentId();
         this.companyId = entity.getCompanyId();
-        this.semesterId = entity.getSemester().getId();
-        this.diaryId = entity.getDiary().getId();
+        this.semesterId = entity.getSemester() != null ? entity.getSemester().getId() : null;
+        this.diaryId = entity.getDiary() != null ? entity.getDiary().getId() : null;
         this.internshipPassed = entity.getInternshipPassed();
     }
 

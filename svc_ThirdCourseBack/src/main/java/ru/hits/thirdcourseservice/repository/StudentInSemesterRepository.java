@@ -16,4 +16,9 @@ public interface StudentInSemesterRepository extends JpaRepository<StudentInSeme
     List<StudentInSemesterEntity> findAllByStudentId(UUID studentId);
 
     Optional<StudentInSemesterEntity> findByIdAndSemester(UUID id, SemesterEntity semester);
+
+    Optional<StudentInSemesterEntity> findByStudentIdAndSemester(UUID studentId, SemesterEntity semester);
+
+    Optional<StudentInSemesterEntity> findByStudentId(UUID studentId);
+
 }

@@ -91,7 +91,10 @@ public class MarkService {
     public List<MarkDto> getMyMarksForSemester(UUID semesterId) {
         UUID studentId = getAuthenticatedUserId();
 
-        List<MarkEntity> marks = markRepository.findAllByStudentId(studentId);
+        StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new NotFoundException("Студент с ID " + studentId + " не найден"));
+
+        List<MarkEntity> marks = markRepository.findAllByStudent(studentInSemester);
         return marks.stream()
                 .filter(entity -> entity.getStudent().getSemester().getId().equals(semesterId))
                 .map(mark -> MarkDto.builder()

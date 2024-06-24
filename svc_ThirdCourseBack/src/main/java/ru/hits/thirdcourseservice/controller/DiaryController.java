@@ -48,9 +48,9 @@ public class DiaryController {
             summary = "Получить информацию о дневнике студента в семестре.",
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    @GetMapping("/semester/{semesterId}/student/{studentInSemesterId}")
-    public ResponseEntity<DiaryDto> getStudentDiary(@PathVariable UUID semesterId, @PathVariable UUID studentInSemesterId) {
-        DiaryDto studentDiary = diaryService.getStudentDiary(semesterId, studentInSemesterId);
+    @GetMapping("/semester/{semesterId}/student/{studentId}")
+    public ResponseEntity<DiaryDto> getStudentDiary(@PathVariable UUID semesterId, @PathVariable UUID studentId) {
+        DiaryDto studentDiary = diaryService.getStudentDiary(semesterId, studentId);
         return new ResponseEntity<>(studentDiary, HttpStatus.OK);
     }
 
