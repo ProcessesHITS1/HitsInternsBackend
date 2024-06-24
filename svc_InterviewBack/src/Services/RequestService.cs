@@ -129,21 +129,16 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId);
 
-        // Check if the request exists
         if (request == null) throw new NotFoundException($"Request {requestId} not found");
-
-        var studentId = request.Student.Id;
 
         if (isStaff)
         {
             reqResult.StudentResultStatus = null;
             return await UpdateSchoolResultStatus(request, reqResult, userId);
-        } 
-        else
-        {
-            reqResult.SchoolResultStatus = null;
-            return await UpdateStudentResultStatus(request, reqResult, userId);
         }
+        
+        reqResult.SchoolResultStatus = null;
+        return await UpdateStudentResultStatus(request, reqResult, userId);
         
     }
 
