@@ -102,7 +102,9 @@ public class RequestController(IRequestService requestService) : ControllerBase
         var userId = User.GetId();
         var isStudent = User.IsStudent();
         var isStaff = User.IsStaff();
-        return Ok(await requestService.UpdateResultStatus(requestId, userId, isStudent, isStaff, reqResult));
+
+        await requestService.UpdateResultStatus(requestId, userId, isStudent, isStaff, reqResult);
+        return Ok();
     }
 
     /// <summary>
