@@ -12,4 +12,6 @@ public interface MarkRepository extends JpaRepository<MarkEntity, UUID> {
 
     List<MarkEntity> findAllByStudent(StudentInSemesterEntity student);
 
+    List<MarkEntity> findAllByStudentId(UUID studentId);
+
 }

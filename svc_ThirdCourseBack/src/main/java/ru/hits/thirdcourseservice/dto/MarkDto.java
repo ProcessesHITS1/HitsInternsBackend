@@ -16,6 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class MarkDto {
     private UUID id;
     private Integer value;

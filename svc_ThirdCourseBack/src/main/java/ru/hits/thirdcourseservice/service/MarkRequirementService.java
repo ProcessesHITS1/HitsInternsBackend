@@ -14,6 +14,8 @@ import ru.hits.thirdcourseservice.repository.SemesterRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -47,6 +49,21 @@ public class MarkRequirementService {
         }
 
         return result;
+    }
+
+    @Transactional
+    public List<MarkRequirementDto> getMarkRequirementsForSemester(UUID semesterId) {
+        SemesterEntity semester = semesterRepository.findById(semesterId)
+                .orElseThrow(() -> new NotFoundException("Семестр с ID " + semesterId + " не найден"));
+
+        List<MarkRequirementEntity> requirements = markRequirementRepository.findAllBySemester(semester);
+        return requirements.stream()
+                .map(requirement -> MarkRequirementDto.builder()
+                        .id(requirement.getId())
+                        .description(requirement.getDescription())
+                        .semesterId(requirement.getSemester().getId())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 }

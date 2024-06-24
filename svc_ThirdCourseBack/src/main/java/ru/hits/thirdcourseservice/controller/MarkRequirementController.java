@@ -14,6 +14,7 @@ import ru.hits.thirdcourseservice.service.MarkRequirementService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/mark-requirements")
@@ -41,6 +42,16 @@ public class MarkRequirementController {
     @GetMapping
     public ResponseEntity<List<MarkRequirementDto>> getMarkRequirements() {
         return new ResponseEntity<>(markRequirementService.getMarkRequirements(), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Получить требования к оценкам в конкретном семестре.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/semester/{semesterId}")
+    public ResponseEntity<List<MarkRequirementDto>> getMarkRequirements(@PathVariable UUID semesterId) {
+        List<MarkRequirementDto> markRequirements =  markRequirementService.getMarkRequirementsForSemester(semesterId);
+        return new ResponseEntity<>(markRequirements, HttpStatus.OK);
     }
 
 }

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.thirdcourseservice.dto.*;
@@ -14,6 +16,7 @@ import ru.hits.thirdcourseservice.exception.NotFoundException;
 import ru.hits.thirdcourseservice.helpingservices.CheckPaginationInfoService;
 import ru.hits.thirdcourseservice.repository.SemesterRepository;
 import ru.hits.thirdcourseservice.repository.StudentInSemesterRepository;
+import ru.hits.thirdcourseservice.security.JwtUserData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,10 +98,15 @@ public class SemesterService {
         semesterRepository.save(semester);
     }
 
-    public SemestersWithPaginationDto getAllSemesters(int page, int size) {
+    public SemestersWithPaginationDto getAllSemesters(int page, int size, UUID seasonId) {
         checkPaginationInfoService.checkPagination(page, size);
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<SemesterEntity> semestersPage = semesterRepository.findAll(pageable);
+        Page<SemesterEntity> semestersPage;
+        if (seasonId != null) {
+            semestersPage = semesterRepository.findAllBySeasonId(seasonId, pageable);
+        } else {
+            semestersPage = semesterRepository.findAll(pageable);
+        }
         PageInfoDto pageInfoDto = new PageInfoDto(
                 (int) semestersPage.getTotalElements(),
                 page,
@@ -133,6 +141,29 @@ public class SemesterService {
                 .documentsDeadline(semester.getDocumentsDeadline())
                 .isClosed(semester.getIsClosed())
                 .build();
+    }
+
+    @Transactional
+    public List<SemesterDto> getMySemestersInSeason(UUID seasonId) {
+        UUID studentId = getAuthenticatedUserId();
+
+        List<StudentInSemesterEntity> studentInSemesterEntities = studentInSemesterRepository.findAllByStudentId(studentId);
+        return studentInSemesterEntities.stream()
+                .filter(entity -> entity.getSemester().getSeasonId().equals(seasonId))
+                .map(entity -> SemesterDto.builder()
+                        .id(entity.getSemester().getId())
+                        .year(entity.getSemester().getYear())
+                        .semester(entity.getSemester().getSemester())
+                        .seasonId(entity.getSemester().getSeasonId())
+                        .isClosed(entity.getSemester().getIsClosed())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private UUID getAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtUserData userData = (JwtUserData) authentication.getPrincipal();
+        return userData.getId();
     }
 
 }
