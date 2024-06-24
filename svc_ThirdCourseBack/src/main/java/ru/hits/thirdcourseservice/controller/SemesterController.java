@@ -15,6 +15,7 @@ import ru.hits.thirdcourseservice.dto.SemestersWithPaginationDto;
 import ru.hits.thirdcourseservice.service.SemesterService;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -88,6 +89,16 @@ public class SemesterController {
     public ResponseEntity<SemesterDto> getSemester(@PathVariable UUID id) {
         SemesterDto semesterDto = semesterService.getSemester(id);
         return new ResponseEntity<>(semesterDto, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Получение собственных семестров в конкретном сезоне.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/season/{seasonId}/my")
+    public ResponseEntity<List<SemesterDto>> getMySemestersInSeason(@PathVariable UUID seasonId) {
+        List<SemesterDto> mySemesters = semesterService.getMySemestersInSeason(seasonId);
+        return new ResponseEntity<>(mySemesters, HttpStatus.OK);
     }
 
 }

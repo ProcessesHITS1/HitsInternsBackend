@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface StudentInSemesterRepository extends JpaRepository<StudentInSemesterEntity, UUID>  {
     List<StudentInSemesterEntity> findAllBySemester(SemesterEntity semester);
+
+    List<StudentInSemesterEntity> findAllByStudentId(UUID studentId);
 }
