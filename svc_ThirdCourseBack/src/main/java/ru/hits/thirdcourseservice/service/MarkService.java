@@ -2,6 +2,8 @@ package ru.hits.thirdcourseservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.thirdcourseservice.dto.*;
@@ -12,10 +14,12 @@ import ru.hits.thirdcourseservice.exception.NotFoundException;
 import ru.hits.thirdcourseservice.repository.MarkRepository;
 import ru.hits.thirdcourseservice.repository.MarkRequirementRepository;
 import ru.hits.thirdcourseservice.repository.StudentInSemesterRepository;
+import ru.hits.thirdcourseservice.security.JwtUserData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -81,6 +85,28 @@ public class MarkService {
         }
 
         return result;
+    }
+
+    @Transactional
+    public List<MarkDto> getMyMarksForSemester(UUID semesterId) {
+        UUID studentId = getAuthenticatedUserId();
+
+        List<MarkEntity> marks = markRepository.findAllByStudentId(studentId);
+        return marks.stream()
+                .filter(entity -> entity.getStudent().getSemester().getId().equals(semesterId))
+                .map(mark -> MarkDto.builder()
+                        .id(mark.getId())
+                        .value(mark.getValue())
+                        .student(new StudentInSemesterDto(mark.getStudent()))
+                        .markRequirement(new MarkRequirementDto(mark.getMarkRequirement()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private UUID getAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        JwtUserData userData = (JwtUserData) authentication.getPrincipal();
+        return userData.getId();
     }
 
 }

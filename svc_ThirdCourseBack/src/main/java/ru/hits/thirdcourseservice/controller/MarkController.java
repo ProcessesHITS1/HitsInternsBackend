@@ -55,4 +55,14 @@ public class MarkController {
         return ResponseEntity.ok(marks);
     }
 
+    @Operation(
+            summary = "Получить собственные оценки за семестр.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @GetMapping("/semester/{semesterId}/my")
+    public ResponseEntity<List<MarkDto>> getMyMarksForSemester(@PathVariable UUID semesterId) {
+        List<MarkDto> myMarks = markService.getMyMarksForSemester(semesterId);
+        return new ResponseEntity<>(myMarks, HttpStatus.OK);
+    }
+
 }
