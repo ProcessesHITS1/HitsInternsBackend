@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace svc_InterviewBack.DAL;
 
-
 // Basically these entities represent the tables in the database
 [PrimaryKey(nameof(Id), nameof(SeasonId))]
 public record Company
@@ -62,7 +61,6 @@ public record Position
 
 public record CompanyAndPosition(Company Company, Position Position);
 
-
 // Interview request from a student to a position in a company
 public record InterviewRequest
 {
@@ -70,16 +68,26 @@ public record InterviewRequest
     public required Student Student { get; init; }
     public required Position Position { get; init; }
     public RequestResult? RequestResult { get; set; }
-    public ICollection<RequestStatusSnapshot> RequestStatusSnapshots { get; set; } = new List<RequestStatusSnapshot>(); // History of status snapshots
+
+    public ICollection<RequestStatusSnapshot> RequestStatusSnapshots { get; set; } =
+        new List<RequestStatusSnapshot>(); // History of status snapshots
 };
 
 public record RequestResult
 {
     public Guid Id { get; init; }
-    public string? Description { get; set; }//TODO:null or ""
+    public string? Description { get; set; } //TODO:null or ""
     public bool OfferGiven { get; set; }
     public ResultStatus StudentResultStatus { get; set; }
     public ResultStatus SchoolResultStatus { get; set; }
+
+    public bool IsEmployed()
+    {
+        return
+            OfferGiven &&
+            StudentResultStatus == ResultStatus.Accepted &&
+            SchoolResultStatus == ResultStatus.Accepted;
+    }
 }
 
 public enum ResultStatus
@@ -89,7 +97,6 @@ public enum ResultStatus
     Rejected
 }
 
-
 public record RequestStatusSnapshot
 {
     public Guid Id { get; init; }
@@ -98,7 +105,6 @@ public record RequestStatusSnapshot
 
     public RequestStatusTemplate RequestStatusTemplate { get; init; }
     public InterviewRequest InterviewRequest { get; init; }
-
 }
 
 public record RequestStatusTemplate

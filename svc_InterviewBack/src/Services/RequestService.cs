@@ -175,13 +175,11 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         request.RequestResult ??= new();
 
         var student = request.Student;
-        
+
         var isRequestEmploymentFlagsUpdated = request.RequestResult.StudentResultStatus != dto.StudentResultStatus ||
                                               request.RequestResult.SchoolResultStatus != dto.SchoolResultStatus ||
                                               request.RequestResult.OfferGiven != dto.OfferGiven;
-        if (IsEmployed(request) &&
-            student.EmploymentStatus == EmploymentStatus.Employed && // mb unnecessary
-            isRequestEmploymentFlagsUpdated)
+        if (request.RequestResult.IsEmployed() && isRequestEmploymentFlagsUpdated)
         {
             student.EmploymentStatus = EmploymentStatus.Unemployed;
             student.Company = null;
@@ -189,12 +187,11 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         request.RequestResult.OfferGiven = dto.OfferGiven ?? request.RequestResult.OfferGiven;
         request.RequestResult.SchoolResultStatus = dto.SchoolResultStatus ?? request.RequestResult.SchoolResultStatus;
-        request.RequestResult.StudentResultStatus =
-            dto.StudentResultStatus ?? request.RequestResult.StudentResultStatus;
+        request.RequestResult.StudentResultStatus = dto.StudentResultStatus ?? request.RequestResult.StudentResultStatus;
         request.RequestResult.Description = dto.Description;
 
         // update student employment status
-        if (IsEmployed(request))
+        if (request.RequestResult.IsEmployed())
         {
             student.Company = request.Position.Company;
             student.EmploymentStatus = EmploymentStatus.Employed;
@@ -203,12 +200,6 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         await context.SaveChangesAsync();
     }
 
-    private bool IsEmployed(InterviewRequest request)
-    {
-        return request.RequestResult.OfferGiven
-               && request.RequestResult.StudentResultStatus == ResultStatus.Accepted
-               && request.RequestResult.SchoolResultStatus == ResultStatus.Accepted;
-    }
 
     public Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
     {
