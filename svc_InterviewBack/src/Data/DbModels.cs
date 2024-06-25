@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -23,7 +22,7 @@ public record Student
     public required string Name { get; init; }
     public required Guid SeasonId { get; init; }
     public required Season Season { get; init; }
-    public required EmploymentStatus EmploymentStatus { get; init; }
+    public required EmploymentStatus EmploymentStatus { get; set; }
     public Company? Company { get; set; }
     public required List<InterviewRequest> InterviewRequests { get; init; }
 }
@@ -70,7 +69,7 @@ public record InterviewRequest
     public Guid Id { get; init; }
     public required Student Student { get; init; }
     public required Position Position { get; init; }
-    public RequestResult? RequestResult { get; set; } 
+    public RequestResult? RequestResult { get; set; }
     public ICollection<RequestStatusSnapshot> RequestStatusSnapshots { get; set; } = new List<RequestStatusSnapshot>(); // History of status snapshots
 };
 
@@ -94,12 +93,12 @@ public enum ResultStatus
 public record RequestStatusSnapshot
 {
     public Guid Id { get; init; }
-    public DateTime DateTime { get; init; } 
+    public DateTime DateTime { get; init; }
     //TODO: add description 
 
     public RequestStatusTemplate RequestStatusTemplate { get; init; }
     public InterviewRequest InterviewRequest { get; init; }
-    
+
 }
 
 public record RequestStatusTemplate

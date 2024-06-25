@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using svc_InterviewBack.DAL;
 using svc_InterviewBack.Models;
-using svc_InterviewBack.Utils.Extensions;
 
 namespace svc_InterviewBack.Services;
 
@@ -127,19 +126,16 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var request = await context.InterviewRequests
             .Include(r => r.RequestResult)
             .Include(interviewRequest => interviewRequest.Student)
-            .FirstOrDefaultAsync(r => r.Id == requestId);
-
-        if (request == null) throw new NotFoundException($"Request {requestId} not found");
-
+            .FirstOrDefaultAsync(r => r.Id == requestId) ?? throw new NotFoundException($"Request {requestId} not found");
         if (isStaff)
         {
             reqResult.StudentResultStatus = null;
             return await UpdateSchoolResultStatus(request, reqResult, userId);
         }
-        
+
         reqResult.SchoolResultStatus = null;
         return await UpdateStudentResultStatus(request, reqResult, userId);
-        
+
     }
 
     private async Task<RequestDetails> UpdateSchoolResultStatus(
@@ -154,12 +150,14 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             throw new AccessDeniedException(
                 $"Access denied: Staff {userId} is not authorized to change status of it's own request with id: {request.Id}. ");
         }
+        var seasonId = request.Student.SeasonId;
 
         var hasAlreadyConfirmed = await context.InterviewRequests.AnyAsync(
             x =>
                 x.Id != request.Id
                 && x.Student.Id == studentId
-                && x.RequestResult != null 
+                && x.Student.SeasonId == seasonId
+                && x.RequestResult != null
                 && x.RequestResult.SchoolResultStatus == ResultStatus.Accepted
         );
 
@@ -184,11 +182,13 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             throw new AccessDeniedException(
                 $"Access denied: User {userId} is not authorized to access request with id: {request.Id}. ");
         }
+        var seasonId = request.Student.SeasonId;
 
         var hasAlreadyConfirmed = await context.InterviewRequests.AnyAsync(
-            x => 
+            x =>
                 x.Id != request.Id
                 && x.Student.Id == studentId
+                && x.Student.SeasonId == seasonId
                 && x.RequestResult != null
                 && x.RequestResult.StudentResultStatus == ResultStatus.Accepted
         );
@@ -210,6 +210,14 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         request.RequestResult.SchoolResultStatus = dto.SchoolResultStatus ?? request.RequestResult.SchoolResultStatus;
         request.RequestResult.StudentResultStatus = dto.StudentResultStatus ?? request.RequestResult.StudentResultStatus;
         request.RequestResult.Description = dto.Description;
+
+        if (request.RequestResult.OfferGiven
+        && request.RequestResult.StudentResultStatus == ResultStatus.Accepted
+        && request.RequestResult.SchoolResultStatus == ResultStatus.Accepted)
+        {
+            var student = request.Student;
+            student.EmploymentStatus = EmploymentStatus.Employed;
+        }
 
         await context.SaveChangesAsync();
     }
