@@ -177,11 +177,12 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         var student = request.Student;
         student.Company = request.Position.Company;
 
+        var isRequestEmploymentFlagsUpdated = request.RequestResult.StudentResultStatus != dto.StudentResultStatus ||
+                                              request.RequestResult.SchoolResultStatus != dto.SchoolResultStatus ||
+                                              request.RequestResult.OfferGiven != dto.OfferGiven;
         if (IsEmployed(request) &&
             student.EmploymentStatus == EmploymentStatus.Employed && // mb unnecessary
-            (request.RequestResult.StudentResultStatus != dto.StudentResultStatus ||
-             request.RequestResult.SchoolResultStatus != dto.SchoolResultStatus ||
-             request.RequestResult.OfferGiven != dto.OfferGiven))
+            isRequestEmploymentFlagsUpdated)
 
             student.EmploymentStatus = EmploymentStatus.Unemployed;
 
