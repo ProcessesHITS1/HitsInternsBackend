@@ -19,14 +19,6 @@ public static class ClientHelper
         return JsonSerializer.Deserialize<T>(responseContent, _jsonOptions)!;
     }
 
-    public static HttpRequestMessage SerializeRequest<T>(HttpMethod method, string uri, T content)
-    {
-        return new HttpRequestMessage(method, uri)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(content, _jsonOptions), Encoding.UTF8, "application/json")
-        };
-    }
-
     public record ErrorResponse
     {
         public required List<string> Messages { get; init; }

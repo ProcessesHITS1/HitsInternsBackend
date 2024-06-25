@@ -119,6 +119,8 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, RequestResultUpdate reqResult)
     {
         var request = await context.InterviewRequests
+            .Include(r => r.Position)
+                .ThenInclude(p => p.Company)
             .Include(r => r.RequestResult)
             .Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId) ?? throw new NotFoundException($"Request {requestId} not found");
@@ -177,6 +179,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         && request.RequestResult.SchoolResultStatus == ResultStatus.Accepted)
         {
             var student = request.Student;
+            student.Company = request.Position.Company;
             student.EmploymentStatus = EmploymentStatus.Employed;
         }
 
