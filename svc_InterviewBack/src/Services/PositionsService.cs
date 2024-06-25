@@ -25,12 +25,9 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
     {
         var company = await context.Companies
             .Include(x => x.Positions)
-            .FirstOrDefaultAsync(x => x.Id == position.CompanyId && x.Season.Year == position.SeasonYear);
-
-        if (company == null)
-        {
-            throw new NotFoundException($"Company {position.CompanyId} not found in season {position.SeasonYear}");
-        }
+            .Include(x => x.Season)
+            .FirstOrDefaultAsync(x => x.Id == position.CompanyId && x.Season.Year == position.SeasonYear)
+            ?? throw new NotFoundException($"Company {position.CompanyId} not found in season {position.SeasonYear}");
         var positionEntity = mapper.Map<Position>(position);
 
         company.Positions.Add(positionEntity);
@@ -89,11 +86,11 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
     {
         var positionEntity = await context.Positions.FindAsync(positionId);
         if (positionEntity == null) throw new NotFoundException($"Position {positionId} not found");
-        
+
         positionEntity.UpdateProperties(mapper.Map<Position>(positionData));
 
         await context.SaveChangesAsync();
         return mapper.Map<PositionInfo>(positionEntity);
     }
-    
+
 }

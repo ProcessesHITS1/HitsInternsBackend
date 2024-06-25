@@ -35,8 +35,6 @@ public class MapperProfile : Profile
             .ForMember(dest => dest.EmploymentStatus, opt => opt.MapFrom(src => src.EmploymentStatus.ToString()))
             .ForMember(dest => dest.CompanyId, opt => opt.MapFrom(src => src.Company != null ? src.Company.Id : (Guid?)null));
 
-        CreateMap<Position, PositionInfo>();
-
         CreateMap<CompanyAndPosition, PositionInfo>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Position.Id))
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Position.Title))
@@ -56,9 +54,9 @@ public class MapperProfile : Profile
 
         CreateMap<PositionCreation, Position>();
         CreateMap<PositionUpdate, Position>();
-        CreateMap<RequestResult,RequestResultData>();
-        CreateMap<RequestResultUpdate,RequestResult>();
-        CreateMap<RequestStatusTemplate,RequestStatusTemplateData>();
+        CreateMap<RequestResult, RequestResultData>();
+        CreateMap<RequestResultUpdate, RequestResult>();
+        CreateMap<RequestStatusTemplate, RequestStatusTemplateData>();
     }
 
 }
