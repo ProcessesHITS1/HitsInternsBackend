@@ -12,8 +12,7 @@ public interface IRequestService
 {
     Task<RequestDetails> Create(Guid studentId, Guid positionId, Guid reqStatusId);
 
-    Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
-        RequestResultUpdate reqResult);
+    Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, RequestResultUpdate reqResult);
 
     Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId);
 
@@ -90,10 +89,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
             .Include(r => r.Student)
             .ThenInclude(s => s.Season)
             .ThenInclude(se => se.RequestStatusTemplates)
-            .FirstOrDefaultAsync(r => r.Id == requestId);
-
-        if (request == null) throw new NotFoundException($"Request {requestId} not found");
-
+            .FirstOrDefaultAsync(r => r.Id == requestId) ?? throw new NotFoundException($"Request {requestId} not found");
         var season = request.Student.Season;
 
         // Check if the new request status exists in the season
@@ -120,82 +116,46 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, bool isStaff,
-        RequestResultUpdate reqResult)
+    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, RequestResultUpdate reqResult)
     {
         var request = await context.InterviewRequests
             .Include(r => r.RequestResult)
             .Include(interviewRequest => interviewRequest.Student)
             .FirstOrDefaultAsync(r => r.Id == requestId) ?? throw new NotFoundException($"Request {requestId} not found");
-        if (isStaff)
-        {
-            reqResult.StudentResultStatus = null;
-            return await UpdateSchoolResultStatus(request, reqResult, userId);
-        }
 
-        reqResult.SchoolResultStatus = null;
-        return await UpdateStudentResultStatus(request, reqResult, userId);
-
+        return await UpdateResultStatus(request, reqResult, userId, isStudent);
     }
 
-    private async Task<RequestDetails> UpdateSchoolResultStatus(
-        InterviewRequest request,
-        RequestResultUpdate resultUpdateDto,
-        Guid userId
-    )
+    private async Task<RequestDetails> UpdateResultStatus(InterviewRequest request, RequestResultUpdate resultUpdateDto, Guid userId, bool isStudent)
     {
+        if (isStudent) resultUpdateDto.SchoolResultStatus = null;
+        else resultUpdateDto.StudentResultStatus = null;
+
         var studentId = request.Student.Id;
-        if (studentId == userId)
+
+        if (isStudent && studentId != userId)
         {
-            throw new AccessDeniedException(
-                $"Access denied: Staff {userId} is not authorized to change status of it's own request with id: {request.Id}. ");
+            throw new AccessDeniedException($"Access denied: User {userId} is not authorized to access request with id: {request.Id}.");
         }
+
+        if (!isStudent && studentId == userId)
+        {
+            throw new AccessDeniedException($"Access denied: Staff {userId} is not authorized to change status of its own request with id: {request.Id}.");
+        }
+
         var seasonId = request.Student.SeasonId;
 
-        var hasAlreadyConfirmed = await context.InterviewRequests.AnyAsync(
-            x =>
-                x.Id != request.Id
-                && x.Student.Id == studentId
-                && x.Student.SeasonId == seasonId
-                && x.RequestResult != null
-                && x.RequestResult.SchoolResultStatus == ResultStatus.Accepted
-        );
+        var hasAlreadyConfirmed = await context.InterviewRequests.AnyAsync(x =>
+            x.Id != request.Id &&
+            x.Student.Id == studentId &&
+            x.Student.SeasonId == seasonId &&
+            x.RequestResult != null &&
+            ((isStudent && x.RequestResult.StudentResultStatus == ResultStatus.Accepted) ||
+             (!isStudent && x.RequestResult.SchoolResultStatus == ResultStatus.Accepted)));
 
         if (hasAlreadyConfirmed)
         {
-            throw new BadRequestException($"Staff already confirmed another request of the student {studentId}");
-        }
-
-        await CreateOrUpdateRequestResult(request, resultUpdateDto);
-        return mapper.Map<RequestDetails>(request);
-    }
-
-    private async Task<RequestDetails> UpdateStudentResultStatus(
-        InterviewRequest request,
-        RequestResultUpdate resultUpdateDto,
-        Guid userId
-    )
-    {
-        var studentId = request.Student.Id;
-        if (studentId != userId)
-        {
-            throw new AccessDeniedException(
-                $"Access denied: User {userId} is not authorized to access request with id: {request.Id}. ");
-        }
-        var seasonId = request.Student.SeasonId;
-
-        var hasAlreadyConfirmed = await context.InterviewRequests.AnyAsync(
-            x =>
-                x.Id != request.Id
-                && x.Student.Id == studentId
-                && x.Student.SeasonId == seasonId
-                && x.RequestResult != null
-                && x.RequestResult.StudentResultStatus == ResultStatus.Accepted
-        );
-
-        if (hasAlreadyConfirmed)
-        {
-            throw new BadRequestException($"Student already confirmed another request");
+            throw new BadRequestException($"{(isStudent ? "Student" : "Staff")} already confirmed another request");
         }
 
         await CreateOrUpdateRequestResult(request, resultUpdateDto);
@@ -211,6 +171,7 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
         request.RequestResult.StudentResultStatus = dto.StudentResultStatus ?? request.RequestResult.StudentResultStatus;
         request.RequestResult.Description = dto.Description;
 
+        // update student employment status
         if (request.RequestResult.OfferGiven
         && request.RequestResult.StudentResultStatus == ResultStatus.Accepted
         && request.RequestResult.SchoolResultStatus == ResultStatus.Accepted)
