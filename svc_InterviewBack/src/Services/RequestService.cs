@@ -86,10 +86,11 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     public async Task<RequestDetails> UpdateRequestStatus(Guid requestId, Guid newRequestStatusId)
     {
         var request = await context.InterviewRequests
-            .Include(r => r.Student)
-            .ThenInclude(s => s.Season)
-            .ThenInclude(se => se.RequestStatusTemplates)
-            .FirstOrDefaultAsync(r => r.Id == requestId) ?? throw new NotFoundException($"Request {requestId} not found");
+                          .Include(r => r.Student)
+                          .ThenInclude(s => s.Season)
+                          .ThenInclude(se => se.RequestStatusTemplates)
+                          .FirstOrDefaultAsync(r => r.Id == requestId) ??
+                      throw new NotFoundException($"Request {requestId} not found");
         var season = request.Student.Season;
 
         // Check if the new request status exists in the season
@@ -116,19 +117,22 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     }
 
 
-    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent, RequestResultUpdate reqResult)
+    public async Task<RequestDetails> UpdateResultStatus(Guid requestId, Guid userId, bool isStudent,
+        RequestResultUpdate reqResult)
     {
         var request = await context.InterviewRequests
-            .Include(r => r.Position)
-                .ThenInclude(p => p.Company)
-            .Include(r => r.RequestResult)
-            .Include(interviewRequest => interviewRequest.Student)
-            .FirstOrDefaultAsync(r => r.Id == requestId) ?? throw new NotFoundException($"Request {requestId} not found");
+                          .Include(r => r.Position)
+                          .ThenInclude(p => p.Company)
+                          .Include(r => r.RequestResult)
+                          .Include(interviewRequest => interviewRequest.Student)
+                          .FirstOrDefaultAsync(r => r.Id == requestId) ??
+                      throw new NotFoundException($"Request {requestId} not found");
 
         return await UpdateResultStatus(request, reqResult, userId, isStudent);
     }
 
-    private async Task<RequestDetails> UpdateResultStatus(InterviewRequest request, RequestResultUpdate resultUpdateDto, Guid userId, bool isStudent)
+    private async Task<RequestDetails> UpdateResultStatus(InterviewRequest request, RequestResultUpdate resultUpdateDto,
+        Guid userId, bool isStudent)
     {
         if (isStudent) resultUpdateDto.SchoolResultStatus = null;
         else resultUpdateDto.StudentResultStatus = null;
@@ -137,12 +141,14 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
 
         if (isStudent && studentId != userId)
         {
-            throw new AccessDeniedException($"Access denied: User {userId} is not authorized to access request with id: {request.Id}.");
+            throw new AccessDeniedException(
+                $"Access denied: User {userId} is not authorized to access request with id: {request.Id}.");
         }
 
         if (!isStudent && studentId == userId)
         {
-            throw new AccessDeniedException($"Access denied: Staff {userId} is not authorized to change status of its own request with id: {request.Id}.");
+            throw new AccessDeniedException(
+                $"Access denied: Staff {userId} is not authorized to change status of its own request with id: {request.Id}.");
         }
 
         var seasonId = request.Student.SeasonId;
@@ -168,23 +174,32 @@ public class RequestService(InterviewDbContext context, IMapper mapper) : IReque
     {
         request.RequestResult ??= new();
 
+        var student = request.Student;
+
+        var isRequestEmploymentFlagsUpdated = request.RequestResult.StudentResultStatus != dto.StudentResultStatus ||
+                                              request.RequestResult.SchoolResultStatus != dto.SchoolResultStatus ||
+                                              request.RequestResult.OfferGiven != dto.OfferGiven;
+        if (request.RequestResult.IsEmployed() && isRequestEmploymentFlagsUpdated)
+        {
+            student.EmploymentStatus = EmploymentStatus.Unemployed;
+            student.Company = null;
+        }
+
         request.RequestResult.OfferGiven = dto.OfferGiven ?? request.RequestResult.OfferGiven;
         request.RequestResult.SchoolResultStatus = dto.SchoolResultStatus ?? request.RequestResult.SchoolResultStatus;
         request.RequestResult.StudentResultStatus = dto.StudentResultStatus ?? request.RequestResult.StudentResultStatus;
         request.RequestResult.Description = dto.Description;
 
         // update student employment status
-        if (request.RequestResult.OfferGiven
-        && request.RequestResult.StudentResultStatus == ResultStatus.Accepted
-        && request.RequestResult.SchoolResultStatus == ResultStatus.Accepted)
+        if (request.RequestResult.IsEmployed())
         {
-            var student = request.Student;
             student.Company = request.Position.Company;
             student.EmploymentStatus = EmploymentStatus.Employed;
         }
 
         await context.SaveChangesAsync();
     }
+
 
     public Task<PaginatedItems<RequestData>> GetRequests(RequestQuery requestQuery, int page, int pageSize)
     {
