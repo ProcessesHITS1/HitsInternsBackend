@@ -22,6 +22,8 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <param name="seasonYears">Фильтрация по сезонам</param>
     /// <param name="studentIds">фильтрация по студентам.</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
+    /// <param name="page">номер страницы</param>
+    /// <param name="pageSize">размер страницы</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet]
     //TODO: фильтрация по позициям?
@@ -51,6 +53,8 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <param name="seasonYears">фильтрация по сезонам</param>
     /// <param name="companyIds">фильтрация по компаниям</param>
     /// <param name="includeHistory">включать всю историю статусов, или включать только текущий статус запроса.</param>
+    /// <param name="page">номер страницы</param>
+    /// <param name="pageSize">размер страницы</param>
     /// <returns>Пагинированные запросы.</returns>
     [HttpGet("my")]
     [CalledByStudent]
@@ -96,14 +100,11 @@ public class RequestController(IRequestService requestService) : ControllerBase
     /// <summary>
     /// Обновить результат запроса. Статусы:(Pending,Accepted,Rejected)
     /// </summary>
-    [HttpPut("{requestId}/result_status")] 
+    [HttpPut("{requestId}/result_status")]
+    [CalledWithRole]
     public async Task<ActionResult> UpdateResultStatus(Guid requestId, RequestResultUpdate reqResult)
     {
-        var userId = User.GetId();
-        var isStudent = User.IsStudent();
-        var isStaff = User.IsStaff();
-
-        await requestService.UpdateResultStatus(requestId, userId, isStudent, isStaff, reqResult);
+        await requestService.UpdateResultStatus(requestId, User.GetId(), !User.IsStaff(), reqResult);
         return Ok();
     }
 

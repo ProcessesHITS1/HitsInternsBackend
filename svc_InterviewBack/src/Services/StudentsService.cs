@@ -57,6 +57,6 @@ public class StudentsService(InterviewDbContext context, UsersClient usersClient
     // TODO change to actual db query
     public List<StudentInfo> ConvertToStudentsInfo(List<Student> students)
     {
-        return students.Select(mapper.Map<StudentInfo>).ToList();
+        return [.. students.Select(mapper.Map<StudentInfo>).OrderBy(s => s.EmploymentStatus).ThenBy(s => s.Name)];
     }
 }
