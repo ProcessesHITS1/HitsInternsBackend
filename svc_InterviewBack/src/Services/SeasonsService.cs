@@ -42,7 +42,7 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper, ThirdCou
             CompanyId = s.Company?.Id ?? throw new BadRequestException($"Student with id {s.Id} is employed but has no company"),
         }).ToList();
         await Task.WhenAll(
-            client.AddStudentsToSemester(new StudentsInternship { Students = request, Year = year }),
+            client.AddStudentsToSemester(new StudentsInternship { Students = request, Year = year, SeasonId = season.Id }),
             context.SaveChangesAsync());
     }
 
