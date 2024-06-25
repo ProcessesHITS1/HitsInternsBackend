@@ -143,7 +143,6 @@ public class SemesterService {
                 .build();
     }
 
-    @Transactional
     public List<SemesterDto> getMySemestersInSeason(UUID seasonId) {
         UUID studentId = getAuthenticatedUserId();
 
