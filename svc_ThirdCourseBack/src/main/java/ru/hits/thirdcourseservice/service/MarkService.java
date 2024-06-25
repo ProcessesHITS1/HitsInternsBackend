@@ -87,7 +87,6 @@ public class MarkService {
         return result;
     }
 
-    @Transactional
     public List<MarkDto> getMyMarksForSemester(UUID semesterId) {
         UUID studentId = getAuthenticatedUserId();
 

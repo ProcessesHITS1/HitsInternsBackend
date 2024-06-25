@@ -3,7 +3,9 @@ package ru.hits.thirdcourseservice.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hits.thirdcourseservice.dto.AddDiaryDto;
+import ru.hits.thirdcourseservice.dto.AddDiaryWithStudentIdDto;
 import ru.hits.thirdcourseservice.dto.DiaryDto;
 import ru.hits.thirdcourseservice.dto.DiaryFeedbackDto;
 import ru.hits.thirdcourseservice.entity.DiaryEntity;
@@ -27,12 +29,29 @@ public class DiaryService {
     private final StudentInSemesterRepository studentInSemesterRepository;
     private final SemesterRepository semesterRepository;
 
+    @Transactional
     public void addDiary(AddDiaryDto addDiaryDto) {
         StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findById(addDiaryDto.getStudentInSemesterId())
                 .orElseThrow(() -> new NotFoundException("Студент в семестре с ID " + addDiaryDto.getStudentInSemesterId() + " не найден"));
 
         DiaryEntity diary = DiaryEntity.builder()
                 .documentId(addDiaryDto.getDocumentId())
+                .attachedAt(LocalDateTime.now())
+                .studentInSemesterEntity(studentInSemester)
+                .build();
+
+        diaryRepository.save(diary);
+        studentInSemester.setDiary(diary);
+        studentInSemesterRepository.save(studentInSemester);
+    }
+
+    @Transactional
+    public void addDiaryToStudent(AddDiaryWithStudentIdDto addDiaryWithStudentIdDto) {
+        StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findByStudentId(addDiaryWithStudentIdDto.getStudentId())
+                .orElseThrow(() -> new NotFoundException("Студент с ID " + addDiaryWithStudentIdDto.getStudentId() + " не найден"));
+
+        DiaryEntity diary = DiaryEntity.builder()
+                .documentId(addDiaryWithStudentIdDto.getDocumentId())
                 .attachedAt(LocalDateTime.now())
                 .studentInSemesterEntity(studentInSemester)
                 .build();

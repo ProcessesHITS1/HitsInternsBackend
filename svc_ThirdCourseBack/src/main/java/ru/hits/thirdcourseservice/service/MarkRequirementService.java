@@ -51,7 +51,6 @@ public class MarkRequirementService {
         return result;
     }
 
-    @Transactional
     public List<MarkRequirementDto> getMarkRequirementsForSemester(UUID semesterId) {
         SemesterEntity semester = semesterRepository.findById(semesterId)
                 .orElseThrow(() -> new NotFoundException("Семестр с ID " + semesterId + " не найден"));

@@ -3,6 +3,7 @@ package ru.hits.thirdcourseservice.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hits.thirdcourseservice.dto.AddDiaryDto;
 import ru.hits.thirdcourseservice.dto.AddDiaryFeedbackDto;
 import ru.hits.thirdcourseservice.entity.DiaryEntity;
@@ -22,6 +23,7 @@ public class DiaryFeedbackService {
     private final DiaryFeedbackRepository diaryFeedbackRepository;
     private final DiaryRepository diaryRepository;
 
+    @Transactional
     public void addDiaryFeedback(AddDiaryFeedbackDto addDiaryFeedbackDto) {
         DiaryEntity diary = diaryRepository.findById(addDiaryFeedbackDto.getDiaryId())
                 .orElseThrow(() -> new NotFoundException("Дневник с ID " + addDiaryFeedbackDto.getDiaryId() + " не найден"));

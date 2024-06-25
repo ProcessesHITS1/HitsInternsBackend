@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hits.thirdcourseservice.dto.AddDiaryDto;
+import ru.hits.thirdcourseservice.dto.AddDiaryWithStudentIdDto;
 import ru.hits.thirdcourseservice.dto.DiaryDto;
 import ru.hits.thirdcourseservice.service.DiaryService;
 
@@ -31,6 +32,16 @@ public class DiaryController {
     @PostMapping
     public ResponseEntity<Void> addDiary(@RequestBody @Valid AddDiaryDto addDiaryDto) {
         diaryService.addDiary(addDiaryDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Добавить дневник (ID студента).",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping("/using-student-id")
+    public ResponseEntity<Void> addDiaryToStudent(@RequestBody @Valid AddDiaryWithStudentIdDto addDiaryWithStudentIdDto) {
+        diaryService.addDiaryToStudent(addDiaryWithStudentIdDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
