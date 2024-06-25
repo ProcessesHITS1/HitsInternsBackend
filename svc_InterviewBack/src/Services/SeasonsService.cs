@@ -58,10 +58,9 @@ public class SeasonsService(InterviewDbContext context, IMapper mapper, ThirdCou
         var season = await context.Students
             .Where(x => x.Id == userId)
             .Select(x => x.Season)
-            .Where(x => !x.IsClosed)
             .OrderByDescending(x => x.Year)
             .FirstOrDefaultAsync()
-            ?? throw new NotFoundException($"Student has no open seasons");
+            ?? throw new NotFoundException($"Student has no seasons");
 
         return mapper.Map<Season>(season);
     }
