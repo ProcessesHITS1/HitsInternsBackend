@@ -21,6 +21,7 @@ public class ThirdCourseClient(HttpClient httpClient)
     public record StudentsInternship
     {
         public int Year { get; init; }
+        public Guid SeasonId { get; init; }
         public required List<StudentInfo> Students { get; init; }
     }
 
