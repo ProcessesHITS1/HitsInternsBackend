@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.authservice.dto.*;
 import ru.hits.authservice.entity.UserEntity;
+import ru.hits.authservice.exception.ConflictException;
 import ru.hits.authservice.exception.NotFoundException;
 import ru.hits.authservice.exception.UnauthorizedException;
 import ru.hits.authservice.helpingservices.CheckPaginationInfoService;
@@ -81,6 +82,10 @@ public class UserService {
 
     @Transactional
     public void createUser(CreateUserDto createUserDto) {
+        if (userRepository.findByEmail(createUserDto.getEmail()).isPresent()) {
+            throw new ConflictException("Пользователь с таким email уже существует.");
+        }
+
         UserEntity userEntity = UserEntity.builder()
                 .firstName(createUserDto.getFirstName())
                 .lastName(createUserDto.getLastName())
