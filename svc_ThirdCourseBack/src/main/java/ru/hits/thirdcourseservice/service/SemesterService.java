@@ -154,6 +154,7 @@ public class SemesterService {
                         .year(entity.getSemester().getYear())
                         .semester(entity.getSemester().getSemester())
                         .seasonId(entity.getSemester().getSeasonId())
+                        .documentsDeadline(entity.getSemester().getDocumentsDeadline())
                         .isClosed(entity.getSemester().getIsClosed())
                         .build())
                 .collect(Collectors.toList());
