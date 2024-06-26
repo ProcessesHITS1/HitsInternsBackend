@@ -51,8 +51,9 @@ public class PositionsService(InterviewDbContext context, IMapper mapper) : IPos
             .FirstOrDefaultAsync(p => p.Id == positionId && p.Company.Season.Year == year)
 
             ?? throw new NotFoundException("No such position");
-
-        return mapper.Map<PositionInfo>(new CompanyAndPosition(position.Company, position));
+        var res = mapper.Map<PositionInfo>(new CompanyAndPosition(position.Company, position));
+        res.NRequests = await context.InterviewRequests.CountAsync(r => r.Position.Id == positionId);
+        return res;
     }
 
     public async Task<PaginatedItems<PositionInfo>> Search(PositionQuery query, int page)

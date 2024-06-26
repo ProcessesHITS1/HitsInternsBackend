@@ -69,7 +69,7 @@ public record PositionUpdate
     public string? Title { get; init; }
     public string? Description { get; init; }
     [NSeatsRange]
-    public int?  NSeats { get; init; }
+    public int? NSeats { get; init; }
 }
 // On search
 public record PositionQuery
@@ -85,7 +85,7 @@ public record PositionQuery
 public record PositionInfo : PositionCreation
 {
     public Guid Id { get; init; }
-    public int NRequests { get; init; }
+    public int NRequests { get; set; }
     public required string CompanyName { get; init; }
 }
 
