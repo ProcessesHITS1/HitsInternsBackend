@@ -9,10 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.hits.thirdcourseservice.dto.*;
 import ru.hits.thirdcourseservice.entity.MarkEntity;
 import ru.hits.thirdcourseservice.entity.MarkRequirementEntity;
+import ru.hits.thirdcourseservice.entity.SemesterEntity;
 import ru.hits.thirdcourseservice.entity.StudentInSemesterEntity;
 import ru.hits.thirdcourseservice.exception.NotFoundException;
 import ru.hits.thirdcourseservice.repository.MarkRepository;
 import ru.hits.thirdcourseservice.repository.MarkRequirementRepository;
+import ru.hits.thirdcourseservice.repository.SemesterRepository;
 import ru.hits.thirdcourseservice.repository.StudentInSemesterRepository;
 import ru.hits.thirdcourseservice.security.JwtUserData;
 
@@ -29,6 +31,7 @@ public class MarkService {
     private final MarkRepository markRepository;
     private final StudentInSemesterRepository studentInSemesterRepository;
     private final MarkRequirementRepository markRequirementRepository;
+    private final SemesterRepository semesterRepository;
 
     @Transactional
     public void assignMark(AssignMarkDto assignMarkDto, UUID studentInSemesterId) {
@@ -90,8 +93,11 @@ public class MarkService {
     public List<MarkDto> getMyMarksForSemester(UUID semesterId) {
         UUID studentId = getAuthenticatedUserId();
 
-        StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new NotFoundException("Студент с ID " + studentId + " не найден"));
+        SemesterEntity semester = semesterRepository.findById(semesterId)
+                .orElseThrow(() -> new NotFoundException("Семестр с ID " + semesterId + " не найден"));
+
+        StudentInSemesterEntity studentInSemester = studentInSemesterRepository.findByStudentIdAndSemester(studentId, semester)
+                .orElseThrow(() -> new NotFoundException("Студент с ID " + studentId + " в семестре c ID " + semesterId + " не найден"));
 
         List<MarkEntity> marks = markRepository.findAllByStudent(studentInSemester);
         return marks.stream()
