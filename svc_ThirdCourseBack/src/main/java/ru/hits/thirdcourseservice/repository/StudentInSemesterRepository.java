@@ -21,4 +21,5 @@ public interface StudentInSemesterRepository extends JpaRepository<StudentInSeme
 
     Optional<StudentInSemesterEntity> findByStudentId(UUID studentId);
 
+
 }
